@@ -169,9 +169,9 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    impact-time messages are traced (J20, H51, I52, F60, B6X) and reproduced: the arena test
    covers 1 355 snapshots of seven traces and 255 actions, all exact. Event battles run the map's
    trigger-block +8 entry once before the battle is shown, as the original does: its scripts hide
-   records (F7X holds an enemy back, the last battle on J07 leaves Meihong and Lee out); all 26
-   recorded battles, event groups 0-4 and 9 included, replay exactly. Groups 5-8 are not traced
-   yet (the injected battle does not start on those maps).
+   records (F7X holds an enemy back, the last battle on J07 leaves Meihong and Lee out); all 30
+   recorded battles replay exactly, every event group included (groups 5-8 recorded as the story
+   starts them, from the story route's states).
 7. **Whole game** — completable unattended. Stability: `-- --sweep-map=ID` runs every map's enter /
    always scripts, all triggers and talk entries unattended; all 150 maps complete without errors.
    Story routes: the recorded A00 -> A10 and A10 -> A02 legs end in the same game state as the

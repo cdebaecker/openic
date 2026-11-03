@@ -11,6 +11,7 @@
 //   --only RE    render only items whose name matches RE (index.json is merged)
 //   --wav        write 16-bit WAV instead of QOA (tools/export/qoa.mjs, about 5 times smaller)
 //   --ogg        write Ogg Vorbis (needs ffmpeg with libvorbis; QOA without it)
+//   --live-music the music as chip logs only (file: null in the index), for the chipsynth extension
 // Output: ../work/export/audio/{music,sfx}/<name>.qoa, music/<name>.icl (chip logs) and
 // audio/index.json.
 // See docs/formats/audio.md for where the data lives and how the game selects it.
@@ -140,8 +141,10 @@ async function renderJob(job, opts) {
     ensureDir(path.dirname(chipLog));
     fs.writeFileSync(chipLog, buildChipLog(sess, r.cut));
   }
-  let file;
-  if (opts.format === 'qoa') {
+  let file = null;
+  if (job.kind === 'music' && opts.liveMusic) {
+    // live synthesis only: the chip log is the music
+  } else if (opts.format === 'qoa') {
     file = `${OUT}/${dir}/${job.name}.qoa`;
     writeQoa(file, r.audio, RATE, 2);
   } else {
@@ -158,7 +161,7 @@ async function renderJob(job, opts) {
   }
   const n = r.audio.length / 2;
   return {
-    name: job.name, kind: job.kind, file: path.relative(OUT, file).replaceAll('\\', '/'),
+    name: job.name, kind: job.kind, file: file && path.relative(OUT, file).replaceAll('\\', '/'),
     source: job.src + (job.entry ? `#${job.entry}` : ''), source_disks: f.disks,
     ...(f.consistent ? {} : { warning: 'file differs between disks; first copy used' }),
     duration: +(n / RATE).toFixed(4), sample_rate: RATE, channels: 2,
@@ -186,7 +189,7 @@ async function renderJob(job, opts) {
 const argv = process.argv.slice(2);
 const arg = (k) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
 const opts = { format: arg('--format') ?? (argv.includes('--wav') ? 'wav' : argv.includes('--ogg') ? 'ogg' : 'qoa'),
-  keepWav: argv.includes('--keep-wav'), tmp: `${OUT}/.tmp` };
+  keepWav: argv.includes('--keep-wav'), liveMusic: argv.includes('--live-music'), tmp: `${OUT}/.tmp` };
 
 if (argv[0] === '--worker') {
   process.on('message', async (job) => {

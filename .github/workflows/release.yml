@@ -59,7 +59,8 @@ jobs:
           pip install scons==4.9.1
           git clone --depth 1 --branch "${GODOT_VERSION}-stable" https://github.com/godotengine/godot.git "$RUNNER_TEMP/godot-src"
           cd "$RUNNER_TEMP/godot-src"
-          scons platform=windows target=template_release arch=x86_64 "profile=$GITHUB_WORKSPACE/tools/openic/godot_template.py" -j"$NUMBER_OF_PROCESSORS"
+          cp "$GITHUB_WORKSPACE/tools/openic/godot_template.py" custom.py   # SCons reads custom.py
+          scons platform=windows target=template_release arch=x86_64 vulkan=no d3d12=no -j"$NUMBER_OF_PROCESSORS"
           mkdir -p "$GITHUB_WORKSPACE/template"
           cp bin/godot.windows.template_release.x86_64.exe "$GITHUB_WORKSPACE/template/"
 

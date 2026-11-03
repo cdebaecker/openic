@@ -2,7 +2,7 @@
 # (3D, Vulkan / Direct3D 12, physics, navigation, networking, XR, image formats other than PNG...),
 # about a third the size of the official template. The game is 2D, drawn with GL Compatibility.
 # Used by .github/workflows/release.yml (cached per Godot version and this file):
-#   scons platform=windows target=template_release arch=x86_64 profile=<this file>
+#   copied as custom.py into Godot's source, then scons platform=windows target=template_release arch=x86_64
 
 production = "yes"
 optimize = "size"

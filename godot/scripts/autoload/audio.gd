@@ -56,7 +56,10 @@ func _read_index(dir: String, into: Dictionary) -> void:
 	var idx: Variant = GameData.json(dir.path_join("index.json"))
 	var entries: Array = idx.get("items", []) if idx is Dictionary else []
 	for e: Dictionary in entries:
-		e["file"] = dir.path_join(e["file"])
+		if e.get("file") != null:
+			e["file"] = dir.path_join(e["file"])
+		if e.has("chip_log"):
+			e["chip_log"] = dir.path_join(e["chip_log"])
 		into[e["name"]] = e
 
 
@@ -76,6 +79,15 @@ func set_device(d: String) -> void:
 	if track != "" and _music.playing and _music_info_for(track, old) != _music_info(track):
 		current = ""
 		play_music(track)
+
+
+## True when the game data has the FM music as rendered files (not only as chip logs).
+func has_recorded_music() -> bool:
+	_load_index()
+	for e: Dictionary in _index.values():
+		if e.get("kind") == "music" and e.get("file") != null:
+			return true
+	return false
 
 
 ## True when the chipsynth extension is loaded (FM music can play live).
@@ -119,6 +131,9 @@ func play_music(track: String, fade_in := 0.0) -> void:
 		return
 	var loop_start: float = info.get("loop_start_sec", 0.0) if info.get("loop", false) else -1.0
 	var live := _chip_stream(info)
+	if live == null and info.get("file") == null:
+		push_warning("Audio: %s has only a chip log and the chipsynth extension is not loaded" % track)
+		return
 	_music.stream = live if live != null else GameData.audio(info["file"], loop_start)
 	current = track
 	_music.volume_db = -40.0 if fade_in > 0.0 else music_volume_db
@@ -129,9 +144,10 @@ func play_music(track: String, fade_in := 0.0) -> void:
 
 ## The track's chip log as an AudioStreamChipLog, or null (no extension, no log, live_synth off).
 func _chip_stream(info: Dictionary) -> AudioStream:
-	if not live_synth or not info.has("chip_log") or not can_synthesize():
+	# live_synth off: the rendered file, when the game data has one (a live-music import has none)
+	if (not live_synth and info.get("file") != null) or not info.has("chip_log") or not can_synthesize():
 		return null
-	var rel: String = String(info["file"]).get_base_dir().path_join(String(info["chip_log"]).get_file())
+	var rel: String = info["chip_log"]
 	var bytes := FileAccess.get_file_as_bytes(GameData.path(rel))
 	if bytes.is_empty():
 		return null

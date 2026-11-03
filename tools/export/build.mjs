@@ -1,11 +1,14 @@
 // Build the Godot port's game data from the original disk images: run every exporter, then
 // assemble their output with the translation tables into one folder (and optionally a zip).
 //
-// Usage: node tools/export/build.mjs [--reuse] [--only name,...] [--out DIR] [--zip]
+// Usage: node tools/export/build.mjs [--reuse] [--only name,...] [--out DIR] [--zip] [--previews] [--live-music]
 //   --reuse   skip exporters whose output already exists in ../work/export
 //   --only    run just these exporters (pic, cg9, data, audio, mt32, cutscenes, frame, text, events, ui, gep, systems, uistrings, battle, battledata)
 //   --out     destination (default godot/gamedata, which the project finds in development)
-//   --zip     also write <out>.zip, which the game mounts as a resource pack
+//   --zip     also write <out>.zip (compressed), which the game mounts as a resource pack
+//   --previews  also write the maps' preview pictures (data/previews; not used by the game)
+//   --live-music  no rendered FM music files, only the chip logs (the game synthesizes the music:
+//             the chipsynth extension); sound effects are rendered as usual
 // The result is game data: never commit it (godot/.gitignore excludes it).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,8 +30,8 @@ const only = opt('--only', '')?.split(',').filter(Boolean);
 const EXPORTERS = [
   ['pic', [], 'pic/index.json'],
   ['cg9', [], 'cg9/index.json'],
-  ['data', ['--previews'], 'data/index.json'],
-  ['audio', [], 'audio/index.json'],
+  ['data', flag('--previews') ? ['--previews'] : [], 'data/index.json'],
+  ['audio', flag('--live-music') ? ['--live-music'] : [], 'audio/index.json'],
   ['mt32', [], 'mt32/index.json'],
   ['cutscenes', [], 'cutscenes/ending.json'],
   ['frame', [], 'frame/battle.json'],
@@ -81,7 +84,8 @@ for (const [name, , done] of EXPORTERS) {
   if (!fs.existsSync(`${exportDir}/${done}`)) { console.warn(`${name}: missing (${exportDir}/${done}), not included`); continue; }
   // (an exporter may write into another one's folder, e.g. systems -> data/)
   if (!fs.existsSync(`${exportDir}/${name}`)) continue;
-  fs.cpSync(`${exportDir}/${name}`, `${out}/${name}`, { recursive: true, filter: (p) => !p.endsWith('.wav') || !['.ogg', '.qoa'].some((x) => fs.existsSync(p.slice(0, -4) + x)) });
+  fs.cpSync(`${exportDir}/${name}`, `${out}/${name}`, { recursive: true, filter: (p) => (flag('--previews') || !/[\\/]data[\\/]previews$/.test(p))
+    && (!p.endsWith('.wav') || !['.ogg', '.qoa'].some((x) => fs.existsSync(p.slice(0, -4) + x))) });
   sections[name] = `${name}/`;
 }
 // Translation: dialogue/narration table and interface glossary (README, "English translation"),

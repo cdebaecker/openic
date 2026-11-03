@@ -1,11 +1,13 @@
 // OpenIC: build the game data from the player's own disk images (the game's in-app importer
 // runs this; it also works from a terminal).
 //
-//   node tools/openic/import.mjs --root <dir> --out <dir> [--text <dir>]
+//   node tools/openic/import.mjs --root <dir> --out <dir> [--text <dir>] [--live-music] [--folder]
 //     --root  work folder holding the seven images under the names tools/export/common.mjs
 //             expects ("Genei Toshi (1991)(Microcabin)(Disk N of 7).dim"; raw XDF/HDM or DIM);
 //             the exporters' scratch files go to <root>/work
-//     --out   the game data folder to write (the game reads user://gamedata)
+//     --out   where the game data goes: <out>.zip, compressed (the game reads user://gamedata.zip),
+//             or the folder <out> itself with --folder
+//     --live-music  FM music as chip logs only, for a game with the chipsynth extension
 //     --text  translation tables (messages.json, glossary.json, *_fr.json, *_subtitles.json);
 //             default: the text folder next to tools/
 //   Or: --disks <dir> instead of --root: finds and names the seven images in <dir> itself (raw
@@ -92,7 +94,8 @@ run('tools/gen.mjs', ['--image-only'], 'booting the game to read its memory imag
 // build.mjs runs each exporter and prints "<name>: exporting…"; relay those as steps
 let step = 1;
 const child = (await import('node:child_process')).spawn(process.execPath,
-  ['--max-old-space-size=8192', path.join(repo, 'tools/export/build.mjs'), '--out', path.resolve(out)],
+  ['--max-old-space-size=8192', path.join(repo, 'tools/export/build.mjs'), '--out', path.resolve(out),
+    ...(args.includes('--folder') ? [] : ['--zip']), ...(args.includes('--live-music') ? ['--live-music'] : [])],
   { env, stdio: ['ignore', 'pipe', 'pipe'] });
 let errTail = '';
 child.stderr.on('data', (d) => { errTail = (errTail + d).slice(-2000); });
@@ -110,4 +113,6 @@ const code = await new Promise((r) => child.on('close', r));
 if (code !== 0) fail(`building the game data: ${errTail.trim().split('\n').slice(-3).join(' | ')}`);
 console.log(`step ${total}/${total} cleanup`);
 fs.rmSync(path.join(root, 'work'), { recursive: true, force: true });
+// the game reads the compressed <out>.zip (a resource pack) when there is no <out> folder
+if (!args.includes('--folder')) fs.rmSync(path.resolve(out), { recursive: true, force: true });
 console.log('done');

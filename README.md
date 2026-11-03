@@ -135,7 +135,7 @@ synthesizer is only built for Windows so far.
 Build the game data from your disks, then open `godot/project.godot` in Godot and run it:
 
 ```bash
-node tools/openic/import.mjs --disks <folder with the 7 images> --out godot/gamedata
+node tools/openic/import.mjs --disks <folder with the 7 images> --out godot/gamedata --folder
 ```
 
 To have live music, build the synthesizer once (needs CMake and a C++ compiler):

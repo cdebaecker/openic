@@ -2,9 +2,10 @@
 // first launch (Node.js, the exporters, the emulator, the translations). No game data: players
 // build it from their own disks.
 //
-//   node tools/openic/package.mjs [--godot <Godot executable>] [--out dist/windows] [--zip]
+//   node tools/openic/package.mjs [--godot <Godot executable>] [--out dist/windows] [--zip] [--template <exe>]
 //     --godot  the Godot 4 editor executable (default: $GODOT); its export templates must be installed
 //     --zip    also write <out>.zip
+//     --template  a custom Windows export template (.exe) instead of the official one
 // Run it in the OpenIC repository (tools/openic/sync.mjs makes one): tools/, src/ and text/ are
 // copied whole into <out>/importer/, with this Node.js executable as importer/node.exe.
 import fs from 'node:fs';
@@ -29,7 +30,23 @@ if (!fs.existsSync(dll)) {
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 console.log('exporting the game…');
-execFileSync(godot, ['--headless', '--path', path.join(repo, 'godot'), '--export-release', 'Windows', path.join(out, 'OpenIC.exe')], { stdio: 'inherit' });
+// --template: a custom Windows export template (tools/openic/godot_template.py), set in the preset
+// for this export only
+const template = opt('--template');
+const presets = path.join(repo, 'godot/export_presets.cfg');
+const presetsBefore = fs.readFileSync(presets, 'utf8');
+if (template) {
+  const win = presetsBefore.indexOf('\nname="Windows"');
+  const key = presetsBefore.indexOf('custom_template/release=""', win);
+  if (win < 0 || key < 0) throw new Error('export_presets.cfg: no Windows custom_template/release');
+  fs.writeFileSync(presets, presetsBefore.slice(0, key) + `custom_template/release="${path.resolve(template).replaceAll('\\', '/')}"`
+    + presetsBefore.slice(key + 'custom_template/release=""'.length));
+}
+try {
+  execFileSync(godot, ['--headless', '--path', path.join(repo, 'godot'), '--export-release', 'Windows', path.join(out, 'OpenIC.exe')], { stdio: 'inherit' });
+} finally {
+  if (template) fs.writeFileSync(presets, presetsBefore);
+}
 
 const importer = path.join(out, 'importer');
 for (const d of ['tools', 'src', 'text']) {

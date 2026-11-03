@@ -39,6 +39,30 @@ jobs:
           echo "GODOT=$(cygpath -m "$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_win64_console.exe")" >> "$GITHUB_ENV"
           rm godot.zip templates.tpz
 
+      # Godot without what the game does not use (tools/openic/godot_template.py), built once per
+      # Godot version and option set from Godot's own repository, then taken from the cache
+      - name: Trimmed export template (cache)
+        id: template
+        uses: actions/cache@v4
+        with:
+          path: template
+          key: godot-template-${{ env.GODOT_VERSION }}-${{ hashFiles('tools/openic/godot_template.py') }}
+
+      - uses: actions/setup-python@v5
+        if: steps.template.outputs.cache-hit != 'true'
+        with:
+          python-version: '3.12'
+
+      - name: Build the trimmed export template
+        if: steps.template.outputs.cache-hit != 'true'
+        run: |
+          pip install scons==4.9.1
+          git clone --depth 1 --branch "${GODOT_VERSION}-stable" https://github.com/godotengine/godot.git "$RUNNER_TEMP/godot-src"
+          cd "$RUNNER_TEMP/godot-src"
+          scons platform=windows target=template_release arch=x86_64 "profile=$GITHUB_WORKSPACE/tools/openic/godot_template.py" -j"$NUMBER_OF_PROCESSORS"
+          mkdir -p "$GITHUB_WORKSPACE/template"
+          cp bin/godot.windows.template_release.x86_64.exe "$GITHUB_WORKSPACE/template/"
+
       - name: chipsynth (live synthesis of the music)
         run: node tools/native/build.mjs
 
@@ -46,7 +70,7 @@ jobs:
         run: '"$GODOT" --headless --path godot --import || true'
 
       - name: Package
-        run: node tools/openic/package.mjs --godot "$GODOT" --zip
+        run: node tools/openic/package.mjs --godot "$GODOT" --zip --template template/godot.windows.template_release.x86_64.exe
 
       - name: Check the package
         run: |

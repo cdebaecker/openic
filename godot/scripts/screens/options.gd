@@ -151,7 +151,7 @@ func _opt_value(id: String) -> String:
 		"synth":
 			if not Audio.can_synthesize():
 				return _t("Recorded (no synthesizer)", "録音（シンセなし）", "Enregistrée (pas de synthétiseur)")
-			if Settings.live_synth:
+			if Settings.live_synth or not Audio.has_recorded_music():
 				return _t("Live (ymfm)", "リアルタイム（ymfm）", "En direct (ymfm)")
 			return _t("Recorded", "録音", "Enregistrée")
 		"sfx":
@@ -334,7 +334,7 @@ func _change_opt(id: String, d: int) -> void:
 			if Audio.has_mt32():
 				Settings.music_device = "fm" if Settings.music_device == "mt32" else "mt32"
 		"synth":
-			if Audio.can_synthesize():
+			if Audio.can_synthesize() and Audio.has_recorded_music():
 				Settings.live_synth = not Settings.live_synth
 		"sfx":
 			Settings.sfx_volume = clampi(Settings.sfx_volume + 10 * d, 0, 100)

@@ -1,9 +1,11 @@
-// A store-only (uncompressed, like zip -0) zip writer, so the game data pack can be built without a
-// zip program (Windows has none). Godot mounts the result as a resource pack.
+// A zip writer (deflate, or stored where deflate does not help: PNG, QOA, Ogg), so the game data pack
+// and the releases can be built without a zip program (Windows has none). Godot mounts the game
+// data pack as a resource pack.
 //
 //   writeZip(zipFile, dir)   puts every file under dir in the zip as <basename of dir>/<relative path>
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 
 const CRC = new Int32Array(256);
 for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; CRC[n] = c; }
@@ -31,20 +33,23 @@ export function writeZip(zipFile, dir) {
   // DOS time of 1980-01-01 00:00 for every entry: the pack's content does not depend on the build time
   const dosTime = 0, dosDate = (0 << 9) | (1 << 5) | 1;
   for (const rel of files) {
-    const data = fs.readFileSync(path.join(dir, rel));
+    const raw = fs.readFileSync(path.join(dir, rel));
+    const packed = zlib.deflateRawSync(raw, { level: 9 });
+    const deflate = packed.length < raw.length * 0.95;   // method 8, else 0 (stored)
+    const data = deflate ? packed : raw;
     const name = Buffer.from(`${path.basename(dir)}/${rel}`, 'utf8');
     if (offset + data.length > 0xffffffff) throw new Error('zip larger than 4 GB');
-    const crc = crc32(data);
+    const crc = crc32(raw), method = deflate ? 8 : 0, version = deflate ? 20 : 10;
     const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(10, 4); local.writeUInt16LE(0x800, 6);   // version 1.0, UTF-8 names
-    local.writeUInt16LE(0, 8); local.writeUInt16LE(dosTime, 10); local.writeUInt16LE(dosDate, 12);
-    local.writeUInt32LE(crc, 14); local.writeUInt32LE(data.length, 18); local.writeUInt32LE(data.length, 22);
+    local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(version, 4); local.writeUInt16LE(0x800, 6);   // UTF-8 names
+    local.writeUInt16LE(method, 8); local.writeUInt16LE(dosTime, 10); local.writeUInt16LE(dosDate, 12);
+    local.writeUInt32LE(crc, 14); local.writeUInt32LE(data.length, 18); local.writeUInt32LE(raw.length, 22);
     local.writeUInt16LE(name.length, 26); local.writeUInt16LE(0, 28);
     fs.writeSync(fd, local); fs.writeSync(fd, name); fs.writeSync(fd, data);
     const c = Buffer.alloc(46);
-    c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(10, 4); c.writeUInt16LE(10, 6); c.writeUInt16LE(0x800, 8);
-    c.writeUInt16LE(0, 10); c.writeUInt16LE(dosTime, 12); c.writeUInt16LE(dosDate, 14);
-    c.writeUInt32LE(crc, 16); c.writeUInt32LE(data.length, 20); c.writeUInt32LE(data.length, 24);
+    c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(20, 4); c.writeUInt16LE(version, 6); c.writeUInt16LE(0x800, 8);
+    c.writeUInt16LE(method, 10); c.writeUInt16LE(dosTime, 12); c.writeUInt16LE(dosDate, 14);
+    c.writeUInt32LE(crc, 16); c.writeUInt32LE(data.length, 20); c.writeUInt32LE(raw.length, 24);
     c.writeUInt16LE(name.length, 28); c.writeUInt32LE(offset, 42);
     central.push(c, name);
     offset += 30 + name.length + data.length;

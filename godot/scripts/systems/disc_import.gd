@@ -97,6 +97,9 @@ static func start() -> Dictionary:
 		"--root", ProjectSettings.globalize_path(WORK),
 		"--out", ProjectSettings.globalize_path(out_dir),
 		"--text", text_dir()])
+	# FM music as chip logs only when it can be synthesized (about 100 MB less game data)
+	if ClassDB.class_exists("AudioStreamChipLog"):
+		args.append("--live-music")
 	return OS.execute_with_pipe(node_path(), args, false)
 
 

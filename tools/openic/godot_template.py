@@ -7,7 +7,7 @@
 production = "yes"
 optimize = "size"
 lto = "full"
-deprecated = "no"
+# deprecated APIs stay: godot-cpp 4.5 calls mem_alloc, the scripts use Color8()
 debug_symbols = "no"
 
 # rendering: OpenGL only (project setting renderer/rendering_method = gl_compatibility)

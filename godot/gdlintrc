@@ -1,0 +1,5 @@
+max-line-length: 120
+# Field logic mirrors the original routines, which return from many places.
+max-returns: 10
+# The event host is an interface the VM, message engine and cutscenes call into.
+max-public-methods: 60

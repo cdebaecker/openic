@@ -1,0 +1,114 @@
+{
+ "note": "English (en) and French (fr) subtitles for text the opening (IL_OPEN.X) draws in its pictures (MSG04, MSG05, MSG02, OP_06_1, OP_STAFF; transcriptions in the exported cutscenes/opening.json, 'narration'). Frames are the timeline frames of the cutscene steps; each line shows from 'from' to 'to'. Staff name readings are unverified.",
+ "cutscene": "opening",
+ "lines": [
+  {
+   "from": 5876,
+   "to": 6174,
+   "en": "Report of the SIVA Board of Inquiry.",
+   "fr": "Rapport de la Commission d'enquête SIVA."
+  },
+  {
+   "from": 6214,
+   "to": 6585,
+   "en": "Over Hong Kong: weather unsettled, visibility very poor, many unknown substances in the air.\nExploration outside the craft: extremely dangerous.",
+   "fr": "Au-dessus de Hong Kong : temps instable, visibilité très mauvaise, nombreuses substances inconnues dans l'air.\nExploration hors de l'appareil : extrêmement dangereuse."
+  },
+  {
+   "from": 6626,
+   "to": 7183,
+   "en": "Even at the heart of Hong Kong there is nothing to see but rubble.\nNot one lit window. Not even a human shadow.",
+   "fr": "Même au coeur de Hong Kong, on ne voit que des décombres.\nPas une fenêtre éclairée. Pas même l'ombre d'un humain."
+  },
+  {
+   "from": 7440,
+   "to": 7918,
+   "en": "No survivors confirmed inside the Hong Kong \"Barrier\".",
+   "fr": "Aucun survivant confirmé à l'intérieur de la « Barrière » de Hong Kong."
+  },
+  {
+   "from": 7918,
+   "to": 8396,
+   "en": "Repeat: no survivors confirmed inside the \"Barrier\".",
+   "fr": "Je répète : aucun survivant confirmé à l'intérieur de la « Barrière »."
+  },
+  {
+   "from": 8484,
+   "to": 9135,
+   "en": "At the dawn of the twenty-first century, a wind of ruin blew.\nThis great catastrophe, later called the \"Demonfall\",",
+   "fr": "À l'aube du vingt et unième siècle, un vent de ruine souffla.\nCette grande catastrophe, appelée plus tard la « Chute démoniaque »,"
+  },
+  {
+   "from": 9135,
+   "to": 9787,
+   "en": "dealt a crushing blow to all of vast Asia,\nand this city, once so prosperous, was reduced to ashes.",
+   "fr": "porta un coup terrible à toute l'immense Asie,\net cette ville, jadis si prospère, fut réduite en cendres."
+  },
+  {
+   "from": 9903,
+   "to": 10633,
+   "en": "Then order was lost. Famine, plague, war...\nAmid endless chaos, the silence of death and strife, what we saw was",
+   "fr": "Puis l'ordre fut perdu. Famine, épidémies, guerre...\nAu milieu d'un chaos sans fin, du silence de la mort et des luttes, ce que nous vîmes fut"
+  },
+  {
+   "from": 10634,
+   "to": 10909,
+   "en": "a new \"order\", and a new \"Hong Kong\"...",
+   "fr": "un nouvel « ordre », et un nouveau « Hong Kong »..."
+  },
+  {
+   "from": 10911,
+   "to": 11900,
+   "en": "Report of the Two Thousand Committee.\nThis treaty takes effect in the year 200X. Upon its effect, Britain and China",
+   "fr": "Rapport du Comité de l'An 2000.\nCe traité prend effet en l'an 200X. Dès son entrée en vigueur, la Grande-Bretagne et la Chine"
+  },
+  {
+   "from": 11900,
+   "to": 12913,
+   "en": "immediately renounce all authority over \"Hong Kong\". All rights of Hong Kong's\nself-government and customs shall then pass to the \"urban corporation SIVA\".",
+   "fr": "renoncent immédiatement à toute autorité sur « Hong Kong ». Tous les droits d'autonomie et de douane\nde Hong Kong passent alors à la « corporation urbaine SIVA »."
+  },
+  {
+   "from": 14437,
+   "to": 14834,
+   "en": "Planning & original story: Yasuhiko Nakatsu",
+   "fr": "Conception et histoire originale : Yasuhiko Nakatsu"
+  },
+  {
+   "from": 15750,
+   "to": 16151,
+   "en": "Scenario & event storyboards: Masashi Kato\nCharacter concept design: Hyakkimaru",
+   "fr": "Scénario et storyboards des événements : Masashi Kato\nConception des personnages : Hyakkimaru"
+  },
+  {
+   "from": 17138,
+   "to": 17528,
+   "en": "Music: Tadahiro Nitta, Yasufumi Fukuda, Koji Urita",
+   "fr": "Musique : Tadahiro Nitta, Yasufumi Fukuda, Koji Urita"
+  },
+  {
+   "from": 18967,
+   "to": 19386,
+   "en": "Programmers: Yasuhiko Nakatsu, Shojiro Aoki, Akira Misoda, Koji Yamada, Katsumi Ito",
+   "fr": "Programmeurs : Yasuhiko Nakatsu, Shojiro Aoki, Akira Misoda, Koji Yamada, Katsumi Ito"
+  },
+  {
+   "from": 20229,
+   "to": 20745,
+   "en": "Graphics: Yasuhiro Jinnouchi, Kenzo Furuya, Hitoshi Suenaga, Fumihide Aoki, Yoichiro Kawaguchi",
+   "fr": "Graphismes : Yasuhiro Jinnouchi, Kenzo Furuya, Hitoshi Suenaga, Fumihide Aoki, Yoichiro Kawaguchi"
+  },
+  {
+   "from": 21053,
+   "to": 21446,
+   "en": "Game design & direction: Yasuhiko Nakatsu",
+   "fr": "Conception du jeu et réalisation : Yasuhiko Nakatsu"
+  },
+  {
+   "from": 21870,
+   "to": 22532,
+   "en": "Produced by Micro Cabin Corp.",
+   "fr": "Produit par Micro Cabin Corp."
+  }
+ ]
+}

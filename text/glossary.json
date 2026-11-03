@@ -1,0 +1,2857 @@
+{
+ "note": "Interface glossary. Keys \"k\" are hashes of the original Shift-JIS strings (tools/openic/glossary.mjs); the importer restores them from your disks.",
+ "names": [
+  {
+   "k": "9200e6b25db737d6:2",
+   "en": "Claws"
+  },
+  {
+   "k": "fc4c307da1e7cc69:8",
+   "en": "Light Burst"
+  },
+  {
+   "k": "36e2d57b0047bacf:4",
+   "en": "M.Gun"
+  },
+  {
+   "k": "943ebc053b84b005:16",
+   "en": "Shot Cannon"
+  },
+  {
+   "k": "1b7b63b3f6476e7b:8",
+   "en": "MBH Cannon"
+  },
+  {
+   "k": "6e7c7f8cdd8c8446:4",
+   "en": "Cure Pill"
+  },
+  {
+   "k": "47745090a72d0c8a:4",
+   "en": "Silver Pill"
+  },
+  {
+   "k": "fb6f5bbe5657eb18:4",
+   "en": "Gold Pill"
+  },
+  {
+   "k": "0eb12d4c1d8b0d40:4",
+   "en": "Divine Pill"
+  },
+  {
+   "k": "a4900d079dac1ac7:6",
+   "en": "Qi Pill"
+  },
+  {
+   "k": "199705320b9327ac:6",
+   "en": "Sage Qi Pill"
+  },
+  {
+   "k": "226e024ca7246d06:6",
+   "en": "Divine Qi Pill"
+  },
+  {
+   "k": "f570a01a11866cc2:4",
+   "en": "Wake Pill"
+  },
+  {
+   "k": "bc5f5d722beaeffa:6",
+   "en": "Revive Pill"
+  },
+  {
+   "k": "a0d81341b42a0679:6",
+   "en": "Antidote"
+  },
+  {
+   "k": "ba4e716747bc5cc9:6",
+   "en": "Calm Pill"
+  },
+  {
+   "k": "f4ad604faf271721:6",
+   "en": "Longevity Pill"
+  },
+  {
+   "k": "a226a2564345cbb4:6",
+   "en": "Spirit Stone"
+  },
+  {
+   "k": "e590f6048bc9ef94:6",
+   "en": "Nectar"
+  },
+  {
+   "k": "06b2cc7874f45b9e:6",
+   "en": "Grenade"
+  },
+  {
+   "k": "57955becb5175dfe:14",
+   "en": "Dart Mine"
+  },
+  {
+   "k": "87cf06e2f27d813e:6",
+   "en": "AT Round"
+  },
+  {
+   "k": "8277449e520b6148:6",
+   "en": "Pistol Ammo"
+  },
+  {
+   "k": "b49288ba6246aa36:10",
+   "en": "Rifle Ammo"
+  },
+  {
+   "k": "fb38e53ff86b58b5:8",
+   "en": "Heavy Ammo"
+  },
+  {
+   "k": "14cafeb2add22cc2:4",
+   "en": "Shotshell"
+  },
+  {
+   "k": "35c245eb3c929d0f:16",
+   "en": "Napalm Cart"
+  },
+  {
+   "k": "a5260a50e5af264e:10",
+   "en": "Energy Pack"
+  },
+  {
+   "k": "64a027de9277688a:12",
+   "en": "Seal Shot (Bolt)"
+  },
+  {
+   "k": "e6a8633f2570b77f:12",
+   "en": "Seal Shot (Fire)"
+  },
+  {
+   "k": "9ef74a4c25e6003a:12",
+   "en": "Seal Shot (Stone)"
+  },
+  {
+   "k": "d309cf4195ce9bf9:16",
+   "en": "Iron Skin Charm I"
+  },
+  {
+   "k": "ca35aae2b02d036a:16",
+   "en": "Iron Skin Charm II"
+  },
+  {
+   "k": "e4e997ec88654294:16",
+   "en": "Iron Skin Charm III"
+  },
+  {
+   "k": "2f6e6e1237e13c84:16",
+   "en": "Barrier Charm I"
+  },
+  {
+   "k": "269a49b3523fa3f5:16",
+   "en": "Barrier Charm II"
+  },
+  {
+   "k": "414e36bd2a77e31f:16",
+   "en": "Barrier Charm III"
+  },
+  {
+   "k": "a23dc4292fc3c6d9:6",
+   "en": "Cleave Charm"
+  },
+  {
+   "k": "a1fbf7fd58ef674b:6",
+   "en": "Mind's Eye Charm"
+  },
+  {
+   "k": "90d69a60697d15be:6",
+   "en": "Binding Charm"
+  },
+  {
+   "k": "d86131c277b853b6:6",
+   "en": "Phantom Incense"
+  },
+  {
+   "k": "acbaaddb9f546835:6",
+   "en": "Chaos Charm"
+  },
+  {
+   "k": "5a56715e82f04830:6",
+   "en": "Sleep Incense"
+  },
+  {
+   "k": "db36847f70d40e87:6",
+   "en": "Petrify Needle"
+  },
+  {
+   "k": "58e3f2bf53b112fd:6",
+   "en": "Vajra Ring"
+  },
+  {
+   "k": "bb28fb15f8f3bf8b:8",
+   "en": "Fool's Stone"
+  },
+  {
+   "k": "bd6170662815e574:6",
+   "en": "Hungry Ghost Orb"
+  },
+  {
+   "k": "666d2c8aa14fa578:6",
+   "en": "Ward Incense"
+  },
+  {
+   "k": "f57efd4421386c6c:8",
+   "en": "Glack"
+  },
+  {
+   "k": "6177264a4962e2d0:14",
+   "en": "High Glack"
+  },
+  {
+   "k": "e313891acbe48e72:16",
+   "en": "Super Glack"
+  },
+  {
+   "k": "cd8cbd1ea5e2a744:14",
+   "en": "Neo Glack"
+  },
+  {
+   "k": "7d4f037940a0cc49:6",
+   "en": "W-Tab"
+  },
+  {
+   "k": "abc0cbe06d76f910:6",
+   "en": "N-Tab"
+  },
+  {
+   "k": "4c194a0263804472:6",
+   "en": "P-Tab"
+  },
+  {
+   "k": "c792cd6708b41a71:14",
+   "en": "Tranquilizer"
+  },
+  {
+   "k": "da8fe831360af75b:14",
+   "en": "Combat Knife"
+  },
+  {
+   "k": "157658131b08a483:12",
+   "en": "Heat Knife"
+  },
+  {
+   "k": "ddfd3c9d7b22860d:12",
+   "en": "HF Knife"
+  },
+  {
+   "k": "eb0e2f8dd43b3937:4",
+   "en": "Old Coin"
+  },
+  {
+   "k": "3ba167ed1d4f64fd:4",
+   "en": "Jewel"
+  },
+  {
+   "k": "0374a6bec88d20f4:10",
+   "en": "Ancient Urn"
+  },
+  {
+   "k": "4c78e519d9dde36d:8",
+   "en": "ID Pass"
+  },
+  {
+   "k": "7b8bc920898d03ea:12",
+   "en": "VIP Card"
+  },
+  {
+   "k": "c57121b82b1d976a:12",
+   "en": "Haitao Uniform"
+  },
+  {
+   "k": "199faf5191870ab9:16",
+   "en": "Expressway Pass"
+  },
+  {
+   "k": "26b348748988d31a:12",
+   "en": "Special Goggles"
+  },
+  {
+   "k": "64795794d72dbab2:10",
+   "en": "Handgun"
+  },
+  {
+   "k": "50576424e876aaee:14",
+   "en": "Submachine Gun"
+  },
+  {
+   "k": "20c5077b9829f3dd:14",
+   "en": "Hand Laser"
+  },
+  {
+   "k": "650ecaa2e452d21e:16",
+   "en": "Hand Blaster"
+  },
+  {
+   "k": "6d4839e0aeb2707a:14",
+   "en": "Recoilless Gun"
+  },
+  {
+   "k": "75157377ab2e54d1:10",
+   "en": "Keiblow"
+  },
+  {
+   "k": "10b508aba538c4c7:16",
+   "en": "Formula Gun"
+  },
+  {
+   "k": "e447dc028d3d38a8:16",
+   "en": "Swastika Gun"
+  },
+  {
+   "k": "b080989aec74096e:12",
+   "en": "Shotgun"
+  },
+  {
+   "k": "e10c88a762acb80f:8",
+   "en": "Rifle"
+  },
+  {
+   "k": "34206c095cc2dd97:10",
+   "en": "Machine Gun"
+  },
+  {
+   "k": "fb08d91255cea4f2:16",
+   "en": "Assault Rifle"
+  },
+  {
+   "k": "cd252fe857b8f60a:18",
+   "en": "Blaster Shot"
+  },
+  {
+   "k": "63c746d722fcd0f7:10",
+   "en": "Napalm Cannon"
+  },
+  {
+   "k": "bc7b34546bbe5db0:10",
+   "en": "Laser Cannon"
+  },
+  {
+   "k": "b39637ebb6655c9b:16",
+   "en": "Blaster Cannon"
+  },
+  {
+   "k": "6d843403c5ab6d1d:14",
+   "en": "Linear Cannon"
+  },
+  {
+   "k": "37a2bf45cb1d92c3:10",
+   "en": "Particle Cannon"
+  },
+  {
+   "k": "980ead008f98cbb2:16",
+   "en": "Monopole Cannon"
+  },
+  {
+   "k": "b7f94d7626b53b3a:16",
+   "en": "Mini Flamer"
+  },
+  {
+   "k": "9159a88cc8f9af36:14",
+   "en": "Buckshot"
+  },
+  {
+   "k": "689d6f31741038f1:12",
+   "en": "Flame Gun"
+  },
+  {
+   "k": "bfaa1bd2543eee2e:16",
+   "en": "Heavy MG"
+  },
+  {
+   "k": "9ba8316b31a7da65:14",
+   "en": "Gatling Gun"
+  },
+  {
+   "k": "d2ecf40ba66c3d21:14",
+   "en": "Anti-Tank Rifle"
+  },
+  {
+   "k": "8dd5ef1661fd0908:18",
+   "en": "Cylinder Knuckle"
+  },
+  {
+   "k": "3029f5a62ab40394:18",
+   "en": "Pile Driver"
+  },
+  {
+   "k": "bec83077229c6d2d:14",
+   "en": "Iron Claw"
+  },
+  {
+   "k": "a6748e043e1ccb20:12",
+   "en": "Arm Claw"
+  },
+  {
+   "k": "72903c5a655da16c:14",
+   "en": "Thunder Claw"
+  },
+  {
+   "k": "bf2411b600c4556c:14",
+   "en": "Dragon Claw"
+  },
+  {
+   "k": "f7c35c234248864d:10",
+   "en": "Death Claw"
+  },
+  {
+   "k": "358a7ee54059e24d:6",
+   "en": "Octagon Staff"
+  },
+  {
+   "k": "a463417d62b6fc97:8",
+   "en": "Sapling Staff"
+  },
+  {
+   "k": "386051e016140534:6",
+   "en": "Nyoi Staff"
+  },
+  {
+   "k": "2a492d4e2bb3a8d4:8",
+   "en": "White Snake Staff"
+  },
+  {
+   "k": "537f79a2ed1847f4:8",
+   "en": "Ley Line Staff"
+  },
+  {
+   "k": "28ffa8df33a2ced5:14",
+   "en": "Bamboo Lance"
+  },
+  {
+   "k": "83ccdc1c2d9f39e4:6",
+   "en": "Thunder Sword"
+  },
+  {
+   "k": "accd4fca3cb7a1bc:6",
+   "en": "Buddha Sword"
+  },
+  {
+   "k": "a2e0dd2c3345d458:16",
+   "en": "Sonic Blade"
+  },
+  {
+   "k": "25958717047162bb:12",
+   "en": "Red Hot"
+  },
+  {
+   "k": "619a5a890aaa69fd:16",
+   "en": "Laser Blade"
+  },
+  {
+   "k": "740d60553afe61cb:6",
+   "en": "Earthslayer"
+  },
+  {
+   "k": "0bc218ec72e2d11c:6",
+   "en": "Storm Sword"
+  },
+  {
+   "k": "ce80db40aa7a466e:6",
+   "en": "Flame Sword"
+  },
+  {
+   "k": "3c5b83dd4733c3b5:6",
+   "en": "Demon Blade"
+  },
+  {
+   "k": "00a7f586cc046cbe:16",
+   "en": "Psysonic"
+  },
+  {
+   "k": "d8e8b57223894f3a:4",
+   "en": "Razor Wire"
+  },
+  {
+   "k": "08718c7570a19dff:12",
+   "en": "Polymer Wire"
+  },
+  {
+   "k": "1fe9d2f454c27f7a:10",
+   "en": "HF Wire"
+  },
+  {
+   "k": "35429c6655ecd76a:10",
+   "en": "Supermetal Wire"
+  },
+  {
+   "k": "3d0afe4a57ea7462:16",
+   "en": "Fiber Wire"
+  },
+  {
+   "k": "1565d9bbc255fcd9:10",
+   "en": "Ingram"
+  },
+  {
+   "k": "4289215c17f357ea:10",
+   "en": "Remington"
+  },
+  {
+   "k": "8869e9c97b7d3ac9:16",
+   "en": "Colt Government"
+  },
+  {
+   "k": "4fc871686b13aee0:8",
+   "en": "Beretta"
+  },
+  {
+   "k": "e858eb9ccc122a56:6",
+   "en": "S&W"
+  },
+  {
+   "k": "2cfc9b391820a971:8",
+   "en": "Magnum"
+  },
+  {
+   "k": "4f0ab672028db2b6:20",
+   "en": "Deckard Blaster"
+  },
+  {
+   "k": "3b0b3f9e89a593fa:16",
+   "en": "Magna Blaster"
+  },
+  {
+   "k": "68d83fe97602df6b:6",
+   "en": "Steyr "
+  },
+  {
+   "k": "72b6e7a820c61fdc:8",
+   "en": " Carbine"
+  },
+  {
+   "k": "fa9cf78d690fc757:14",
+   "en": "Winchester"
+  },
+  {
+   "k": "f91e2a755d4cf749:6",
+   "en": "Type 38"
+  },
+  {
+   "k": "0b16ec31eacbd4eb:10",
+   "en": "Garand"
+  },
+  {
+   "k": "bf655194791ae802:10",
+   "en": "Thompson"
+  },
+  {
+   "k": "3e7bbc66f25bfa2a:12",
+   "en": "Degtyarev"
+  },
+  {
+   "k": "4cbe4e45f09d370d:8",
+   "en": "Simonov"
+  },
+  {
+   "k": "6ef2115b0649fef9:6",
+   "en": "Suit"
+  },
+  {
+   "k": "c95740ba24bc71d8:18",
+   "en": "Martial Wear"
+  },
+  {
+   "k": "a977f74c40f99278:16",
+   "en": "Bulletproof"
+  },
+  {
+   "k": "75c99772b3d80894:14",
+   "en": "Body Armor"
+  },
+  {
+   "k": "ef50ebaf40ffca8b:16",
+   "en": "Ceramic Coat"
+  },
+  {
+   "k": "ed8ae7702faa94b2:14",
+   "en": "Titanium Armor"
+  },
+  {
+   "k": "839193d5d7cd317d:16",
+   "en": "Byld Armor"
+  },
+  {
+   "k": "431d9487b6bdb7b7:12",
+   "en": "Battle Suit"
+  },
+  {
+   "k": "118443ec98b07868:16",
+   "en": "Lunatite Suit"
+  },
+  {
+   "k": "e92eddd7d7213f57:12",
+   "en": "Stun Suit"
+  },
+  {
+   "k": "ad937d9ff4e4e1b1:14",
+   "en": "Carbonizer"
+  },
+  {
+   "k": "ade4c2e4148ac0a4:16",
+   "en": "Iron Slave"
+  },
+  {
+   "k": "6e6f192ae6fac5b6:16",
+   "en": "Fireproof"
+  },
+  {
+   "k": "fbe0a79e4d3d9e16:16",
+   "en": "Rapid Armor"
+  },
+  {
+   "k": "ee3005831bdbee25:14",
+   "en": "Powered Suit"
+  },
+  {
+   "k": "1e4440e90625a50f:4",
+   "en": "Dao Robe"
+  },
+  {
+   "k": "93f108ce634aef34:6",
+   "en": "Sage Robe"
+  },
+  {
+   "k": "9cc805e8fedc348e:6",
+   "en": "Divine Robe"
+  },
+  {
+   "k": "666aa880528e9c20:12",
+   "en": "Vortexer"
+  },
+  {
+   "k": "4210ee0728dab391:10",
+   "en": "Bagua Vest"
+  },
+  {
+   "k": "50a28d68c8d29470:8",
+   "en": "Sky Dragon Robe"
+  },
+  {
+   "k": "0ef3762ca246590c:16",
+   "en": "Laser Beamer"
+  },
+  {
+   "k": "ac762d94bd5deaa2:10",
+   "en": "Headgear"
+  },
+  {
+   "k": "1fd0d59963e27d99:12",
+   "en": "Reflector"
+  },
+  {
+   "k": "e2f3dcc92899b91b:14",
+   "en": "Power Glove"
+  },
+  {
+   "k": "9be5c610c17df6f4:16",
+   "en": "Super Glove"
+  },
+  {
+   "k": "cece91e480a9096c:16",
+   "en": "Hyper Glove"
+  },
+  {
+   "k": "5c2528dd59175e1d:16",
+   "en": "Magnet Ring"
+  },
+  {
+   "k": "447dd15272f2b85e:16",
+   "en": "Field Ring"
+  },
+  {
+   "k": "8880c2b85277b6b8:16",
+   "en": "Lunatite Ring"
+  },
+  {
+   "k": "15df66016c690ddd:12",
+   "en": "Leather Boots"
+  },
+  {
+   "k": "93b5c3da0bed68b6:16",
+   "en": "Protect Boots"
+  },
+  {
+   "k": "e55d8afe92a271ba:16",
+   "en": "Ceramic Boots"
+  },
+  {
+   "k": "268768d908373d75:16",
+   "en": "Lunatite Boots"
+  },
+  {
+   "k": "f92e1c9d383ace19:10",
+   "en": "Onuno Mirror"
+  },
+  {
+   "k": "d73d5e42defa9e7c:8",
+   "en": "Idaten Feet"
+  },
+  {
+   "k": "c15a4c74f3fdee32:6",
+   "en": "Peacock Crown"
+  },
+  {
+   "k": "c5fc15b13ba78369:6",
+   "en": "White Snake Crown"
+  },
+  {
+   "k": "5ca29fe116a98701:8",
+   "en": "Sky Dragon Cup"
+  },
+  {
+   "k": "7f71de5eab1c74fc:10",
+   "en": "Tao Band"
+  },
+  {
+   "k": "b85d8e9f92303335:14",
+   "en": "Ajna Band"
+  },
+  {
+   "k": "ed8a47ca1d594396:16",
+   "en": "Sahasrara Band"
+  },
+  {
+   "k": "d35f9b9eb1b6ce9c:10",
+   "en": "Death Mask"
+  },
+  {
+   "k": "a83105afc182933d:10",
+   "en": "Death Ring"
+  },
+  {
+   "k": "b528f17ad20845e4:8",
+   "en": "Fool's Crown"
+  },
+  {
+   "k": "2a48d25074aef2b0:10",
+   "en": "Black Cloak"
+  },
+  {
+   "k": "eacf5126f474a2c6:14",
+   "en": "Queen's Boots"
+  },
+  {
+   "k": "1db7215afc87f256:10",
+   "en": "Kamikaze Band"
+  },
+  {
+   "k": "0d00f3f4a62e7d58:4",
+   "en": "Return"
+  },
+  {
+   "k": "e982a1443c332398:4",
+   "en": "Focus"
+  },
+  {
+   "k": "fcf786e250d54b84:6",
+   "en": "Qi Blast"
+  },
+  {
+   "k": "7876c671cac3815b:8",
+   "en": "Iron Skin"
+  },
+  {
+   "k": "5b6a802273a1edc6:8",
+   "en": "Barrier"
+  },
+  {
+   "k": "49b87a4259a3fdf8:4",
+   "en": "Seal"
+  },
+  {
+   "k": "bb34c36d37db530f:4",
+   "en": "Guard Up"
+  },
+  {
+   "k": "cee44040bd4d2ce0:4",
+   "en": "Power Up"
+  },
+  {
+   "k": "a57888df061777e7:4",
+   "en": "Heal"
+  },
+  {
+   "k": "1b2550c4633cc20c:6",
+   "en": "Heal II"
+  },
+  {
+   "k": "23fc4ddefece0766:6",
+   "en": "Heal III"
+  },
+  {
+   "k": "39b8158b5727f2e7:6",
+   "en": "Full Heal"
+  },
+  {
+   "k": "2f731463b4fc2881:4",
+   "en": "Paralyze"
+  },
+  {
+   "k": "259ee212bae6ce4a:8",
+   "en": "Omnipresence"
+  },
+  {
+   "k": "43bc8a154754529f:4",
+   "en": "Slow"
+  },
+  {
+   "k": "dec99dc15d43a759:4",
+   "en": "Cure Poison"
+  },
+  {
+   "k": "2cca18495738d27d:4",
+   "en": "Cure Paralysis"
+  },
+  {
+   "k": "4815d98555c15c17:6",
+   "en": "Ice Field"
+  },
+  {
+   "k": "d8e70df71321d223:4",
+   "en": "Dream"
+  },
+  {
+   "k": "f4edebbae8429344:4",
+   "en": "Phantom"
+  },
+  {
+   "k": "68fd8388cf7d67b8:4",
+   "en": "Chaos"
+  },
+  {
+   "k": "c36ede0e8f11bdf6:4",
+   "en": "Gale"
+  },
+  {
+   "k": "1c194c94ea51c96a:6",
+   "en": "Wind Field"
+  },
+  {
+   "k": "056c9ffbba0937e3:4",
+   "en": "Thunder"
+  },
+  {
+   "k": "ab3f67ad016e6f61:6",
+   "en": "Thunder Field"
+  },
+  {
+   "k": "decd2970f5c1963a:8",
+   "en": "Inner Thunder"
+  },
+  {
+   "k": "c3de22bbead7a495:4",
+   "en": "Blast Fire"
+  },
+  {
+   "k": "3fa4e519f69a94e1:6",
+   "en": "Fire Field"
+  },
+  {
+   "k": "820e54705216b3b2:8",
+   "en": "Scorch Rush"
+  },
+  {
+   "k": "f70632a35e493d25:8",
+   "en": "Inferno"
+  },
+  {
+   "k": "07ecf6b1a4561571:6",
+   "en": "Flame Slash"
+  },
+  {
+   "k": "80c43314695e97a6:4",
+   "en": "Petrify"
+  },
+  {
+   "k": "a0db53c0ecc2424e:6",
+   "en": "Earth Slash"
+  },
+  {
+   "k": "35bb9d4ceb3141a4:6",
+   "en": "Dragon Wave"
+  },
+  {
+   "k": "70354026c59de21a:8",
+   "en": "Wolf Form"
+  },
+  {
+   "k": "015161e4ad219faa:6",
+   "en": "Claw"
+  },
+  {
+   "k": "8533ef181b61d228:6",
+   "en": "Cannon"
+  },
+  {
+   "k": "20d4e5fe6c53fbb8:6",
+   "en": "Medicine"
+  },
+  {
+   "k": "29c38faeb0906e04:6",
+   "en": "M.Gun"
+  },
+  {
+   "k": "f0d511d54b7c4403:6",
+   "en": "Pass"
+  },
+  {
+   "k": "734ef673437ef9b9:4",
+   "en": "Tianren"
+  },
+  {
+   "k": "54d10516d2eab198:4",
+   "en": "Meihong"
+  },
+  {
+   "k": "a67bb63f3f63dae7:8",
+   "en": "Houmei"
+  },
+  {
+   "k": "b6a04667f31a9115:10",
+   "en": "Master Shu"
+  },
+  {
+   "k": "966e71defac2810c:10",
+   "en": "Isaac"
+  },
+  {
+   "k": "08f5cd1b9c45e573:8",
+   "en": "Kash"
+  },
+  {
+   "k": "67e5368980a1e6bd:8",
+   "en": "Doc Kai"
+  },
+  {
+   "k": "2e6487693b5de4b1:4",
+   "en": "Lee"
+  },
+  {
+   "k": "fcfa922fc7c30613:8",
+   "en": "Houmei"
+  },
+  {
+   "k": "3e6a78900cbf75ee:10",
+   "en": "Flamenco"
+  },
+  {
+   "k": "791a447f3f8ca7e7:8",
+   "en": "Airen"
+  },
+  {
+   "k": "2410489094da7f3c:4",
+   "en": "Doc"
+  },
+  {
+   "k": "3af866f578df1c33:6",
+   "en": "Aya"
+  },
+  {
+   "k": "e7303e343d0b5b48:12",
+   "en": "Neotikas"
+  },
+  {
+   "k": "67ebcbd307ead4c1:10",
+   "en": "Elfas"
+  },
+  {
+   "k": "1e3aef6c91341b16:10",
+   "en": "McGregor"
+  },
+  {
+   "k": "bc63c6cfa966b1c1:8",
+   "en": "Strange Men"
+  },
+  {
+   "k": "16d5fc2d62bc0849:12",
+   "en": "Guard Robot"
+  },
+  {
+   "k": "2ddc8ac509048427:10",
+   "en": "Haitao Soldier"
+  },
+  {
+   "k": "ac4988a3de851955:6",
+   "en": "Leva"
+  },
+  {
+   "k": "304ebccdcea20e07:10",
+   "en": "Zu Va"
+  },
+  {
+   "k": "077b58ff7fb5e14f:12",
+   "en": "Ki Tua"
+  },
+  {
+   "k": "1df1220fb4579b09:10",
+   "en": "Hamelin"
+  },
+  {
+   "k": "5fb87a744a45f5d4:12",
+   "en": "Ninyutoa"
+  },
+  {
+   "k": "90572fcc61f3dd64:8",
+   "en": "Vamu"
+  },
+  {
+   "k": "b4db56cc73b2ca3e:6",
+   "en": "Vaza"
+  },
+  {
+   "k": "93625310059d7862:6",
+   "en": "Fei"
+  },
+  {
+   "k": "966bf3fc8d5bacaa:10",
+   "en": "Ryukei"
+  },
+  {
+   "k": "1608d414b545fa0c:8",
+   "en": "Solid"
+  },
+  {
+   "k": "5945b1a26d879c96:8",
+   "en": "Colony"
+  },
+  {
+   "k": "79b91abcc93ea5a2:14",
+   "en": "Headhunter"
+  },
+  {
+   "k": "a5e5610f0f50a5f3:8",
+   "en": "Hammer"
+  },
+  {
+   "k": "ddddcffbbe717763:8",
+   "en": "Whip"
+  },
+  {
+   "k": "942e184eaefdb992:8",
+   "en": "Vala"
+  },
+  {
+   "k": "fa8c34b416972460:8",
+   "en": "Black Panther"
+  },
+  {
+   "k": "2ae7eea3bae7cb0b:8",
+   "en": "Duran"
+  },
+  {
+   "k": "197e7d6af3669b66:18",
+   "en": "Murderer"
+  },
+  {
+   "k": "cdf9fad4291b68b0:4",
+   "en": "Dai"
+  },
+  {
+   "k": "1571b46202fca82c:18",
+   "en": "Destroyer"
+  },
+  {
+   "k": "0e3f10c18148f6af:12",
+   "en": "Kiria Envoy"
+  },
+  {
+   "k": "2e8b4c87557f1f8b:12",
+   "en": "Kiria Servant"
+  },
+  {
+   "k": "195ba7749c4b2b00:12",
+   "en": "Kiria Soldier"
+  },
+  {
+   "k": "61058f77994b0cbb:12",
+   "en": "Kiria Dweller"
+  },
+  {
+   "k": "3d92cdf18c54ce39:16",
+   "en": "Kiria Spawn"
+  },
+  {
+   "k": "4bc047bde412e66b:10",
+   "en": "Meshumel"
+  },
+  {
+   "k": "f0e65583519c8669:10",
+   "en": "Yi Lima"
+  },
+  {
+   "k": "2af40896f3de638a:14",
+   "en": "Liao Berz"
+  },
+  {
+   "k": "f6a9de92d803573a:8",
+   "en": "Sherba"
+  },
+  {
+   "k": "d6349bc89485feaa:6",
+   "en": "Braba"
+  },
+  {
+   "k": "51e132c994f1c185:4",
+   "en": "Grunt"
+  },
+  {
+   "k": "02f12d68768b27c0:8",
+   "en": "Tsuchigumo"
+  },
+  {
+   "k": "3af866bf78df1bfd:6",
+   "en": "Ark"
+  },
+  {
+   "k": "cce9d6f12cd8cdf9:8",
+   "en": "Raiden"
+  },
+  {
+   "k": "a038ebaca2d0fafc:6",
+   "en": "Steel Empress"
+  },
+  {
+   "k": "1d83627beef2ff43:8",
+   "en": "Sumeragi"
+  },
+  {
+   "k": "cfa1023e24deb5c6:8",
+   "en": "Kurogane"
+  },
+  {
+   "k": "865838bbe272d691:4",
+   "en": "Prototype "
+  },
+  {
+   "k": "95f759004dda7400:12",
+   "en": "Fili Yag"
+  },
+  {
+   "k": "da5fed60d588440c:16",
+   "en": "Kikiri Yag"
+  },
+  {
+   "k": "166884b7d4f72df7:12",
+   "en": "Slap Yag"
+  },
+  {
+   "k": "472c785a1de043ea:12",
+   "en": "Kerape Yag"
+  },
+  {
+   "k": "c17bb5e2f971e0cc:10",
+   "en": "Kuro Yag"
+  },
+  {
+   "k": "edbd2451210f2053:14",
+   "en": "Yag Master"
+  },
+  {
+   "k": "a1777c457a188945:16",
+   "en": "Funny Face"
+  },
+  {
+   "k": "39b7d667c53b9971:10",
+   "en": "Va Gi"
+  },
+  {
+   "k": "11b1ff25e39712fd:16",
+   "en": "Poker Face"
+  },
+  {
+   "k": "ee70eed4bd168bb0:4",
+   "en": "Wan"
+  },
+  {
+   "k": "76c19474fbd7acdc:8",
+   "en": "Sleuba"
+  },
+  {
+   "k": "1321ad8fc4d9089f:12",
+   "en": "Yag Kiria"
+  },
+  {
+   "k": "88cafe8a293003ae:6",
+   "en": "Demon King"
+  },
+  {
+   "k": "8acb0191e0d3d6b9:6",
+   "en": "Demon Sphere"
+  },
+  {
+   "k": "74bcbb7aa52a8812:6",
+   "en": "King Tianren"
+  },
+  {
+   "k": "942e182aaefdb96e:8",
+   "en": "Varte"
+  },
+  {
+   "k": "1aa9a5b63a0f9900:10",
+   "en": "Yu Lima"
+  },
+  {
+   "k": "62bee042ce1189fa:14",
+   "en": "Kiria Executioner"
+  },
+  {
+   "k": "6d995f48c1b12cec:10",
+   "en": "Police Officer"
+  },
+  {
+   "k": "26ae115fd42d3f9f:6",
+   "en": "Civilian"
+  },
+  {
+   "k": "69dd3e8646e1e278:6",
+   "en": "Taoist"
+  },
+  {
+   "k": "afe598bd8f97fd45:8",
+   "en": "Robot"
+  },
+  {
+   "k": "dea9794a5c4217fe:12",
+   "en": "Resistance"
+  },
+  {
+   "k": "463a0ad772dee2cd:8",
+   "en": "Mystery Fiend"
+  },
+  {
+   "k": "49989b2c8fe9a164:8",
+   "en": "Ex-Hachibushu"
+  },
+  {
+   "k": "0a5417413158762f:6",
+   "en": "Heavy "
+  },
+  {
+   "k": "3580e69b40d73059:6",
+   "en": "Claw"
+  },
+  {
+   "k": "3b8047191b203b91:8",
+   "en": "Shop"
+  },
+  {
+   "k": "99d1bebade0b600c:18",
+   "en": "Crisis Area"
+  },
+  {
+   "k": "5d12cd854b49e70d:20",
+   "en": "Indoor Combat"
+  },
+  {
+   "k": "e6cf7ea9f19371b1:16",
+   "en": "Hazard Area"
+  },
+  {
+   "k": "9443c0f5a21ac967:6",
+   "en": " Area"
+  },
+  {
+   "k": "e0a9e7c4a04b2fa6:6",
+   "en": " Pipe"
+  },
+  {
+   "k": "50eede4788288bad:8",
+   "en": " (Maze)"
+  },
+  {
+   "k": "012ef1f1666d8517:20",
+   "en": "Lab (Lunacy)"
+  },
+  {
+   "k": "c39a70230610959b:12",
+   "en": "City Bustle"
+  },
+  {
+   "k": "2d231bb327fbf951:10",
+   "en": "Xiaomei"
+  },
+  {
+   "k": "abd073ccb0c135f8:4",
+   "en": "Master"
+  },
+  {
+   "k": "67c2a1db08370159:6",
+   "en": " Room"
+  },
+  {
+   "k": "bea24da193de7b69:8",
+   "en": "Captive"
+  },
+  {
+   "k": "55691c6995812f05:4",
+   "en": "Victory"
+  },
+  {
+   "k": "da6135502f5c2748:6",
+   "en": "Illusion Castle"
+  },
+  {
+   "k": "6bc6389329ed8c0b:4",
+   "en": "Stirring"
+  },
+  {
+   "k": "8acb01bfe0d3d6e7:6",
+   "en": "Demon Cult"
+  },
+  {
+   "k": "7a1959371d9e4169:4",
+   "en": "Ritual"
+  },
+  {
+   "k": "57a3dfe22267233c:4",
+   "en": "Crisis"
+  },
+  {
+   "k": "2447a029506f0db7:10",
+   "en": "Requiem"
+  },
+  {
+   "k": "e8d6df8c5442e40e:6",
+   "en": "Battle"
+  },
+  {
+   "k": "8720dff16409c2f3:12",
+   "en": "Hachibushu Battle"
+  },
+  {
+   "k": "d6dd8e9448bd7c64:20",
+   "en": "Tianren's apartment"
+  },
+  {
+   "k": "ac4368d572b7fd39:16",
+   "en": "SIVA HQ"
+  },
+  {
+   "k": "3b091d0814ac83ee:6",
+   "en": "West Ward"
+  },
+  {
+   "k": "b0db912aa24cb708:12",
+   "en": "Kowloon District"
+  },
+  {
+   "k": "efd8dd1294864d82:6",
+   "en": "Jura Ward"
+  },
+  {
+   "k": "2c5298e78cb16819:12",
+   "en": "Saikun District"
+  },
+  {
+   "k": "06b3212192d80dcd:6",
+   "en": "East Ward"
+  },
+  {
+   "k": "9917ae8b1f6273b5:16",
+   "en": "Haitao HQ"
+  },
+  {
+   "k": "bfe01323c6562531:16",
+   "en": "Tiuchan District"
+  },
+  {
+   "k": "8ec325d59508e75b:6",
+   "en": "Industrial Ward"
+  },
+  {
+   "k": "b4c76594ce4b1f02:14",
+   "en": "Industrial Plant"
+  },
+  {
+   "k": "dd36075f31d36347:14",
+   "en": "Shenlong District"
+  },
+  {
+   "k": "5de18461e3ea7d17:8",
+   "en": "Toro District"
+  },
+  {
+   "k": "688d9035fb7d29b3:10",
+   "en": "Bay City"
+  },
+  {
+   "k": "d6f1f4c635828ea6:8",
+   "en": "Floating City"
+  },
+  {
+   "k": "93f369729976e1cc:8",
+   "en": "Undersea City"
+  },
+  {
+   "k": "40dfb023515fc98b:14",
+   "en": "Shatin District"
+  },
+  {
+   "k": "a321ddeb9a3cc401:14",
+   "en": "Bio Lab Block"
+  },
+  {
+   "k": "7a86dc8953c52ce5:6",
+   "en": "Central Ward"
+  },
+  {
+   "k": "3a4efe381c766536:18",
+   "en": "SIVA Tower"
+  },
+  {
+   "k": "8bf8356431331e4c:10",
+   "en": "Illusion Castle"
+  },
+  {
+   "k": "55996e8f65e34ee5:22",
+   "en": "Informer"
+  },
+  {
+   "k": "f7e8bf13e59e5645:22",
+   "en": "Torturer"
+  },
+  {
+   "k": "ee4b311677278ae4:22",
+   "en": "Betrayer"
+  },
+  {
+   "k": "87f57692c9b3491a:22",
+   "en": "Avenger"
+  },
+  {
+   "k": "9300e82eb9892154:2",
+   "en": "Poison"
+  },
+  {
+   "k": "e8016df1363bafc1:2",
+   "en": "Hail"
+  },
+  {
+   "k": "8c00dcf936cbbe11:2",
+   "en": "Sword"
+  },
+  {
+   "k": "8f00e20e4a417b2c:2",
+   "en": "Staff"
+  },
+  {
+   "k": "9600ec65ccfedd91:2",
+   "en": "Cannon"
+  },
+  {
+   "k": "5da0d75197b4be57:16",
+   "en": "Metal Area"
+  },
+  {
+   "k": "2fe036b06eb2e626:16",
+   "en": "Water Pipe"
+  },
+  {
+   "k": "99886364863d9802:20",
+   "en": "Cavern (Labyrinth)"
+  },
+  {
+   "k": "3812a8eb2da10cc1:28",
+   "en": "Nightmare (Dark Dream)"
+  },
+  {
+   "k": "d6c7cc8945bb15f3:12",
+   "en": "VIP Room"
+  },
+  {
+   "k": "9e368bfbbdae22c7:24",
+   "en": "Network Image"
+  },
+  {
+   "k": "2b3c06972a30ceb1:24",
+   "en": "Illusion Theme 1"
+  },
+  {
+   "k": "2b3c06982a30ceb2:24",
+   "en": "Illusion Theme 2"
+  },
+  {
+   "k": "0582fbc135fdad4d:28",
+   "en": "Illusion Ending"
+  }
+ ],
+ "rules": [
+  {
+   "k": "873cbdeefecf7390:10",
+   "en": "[Load]"
+  },
+  {
+   "k": "303c8ea8eeee7a8a:10",
+   "en": "[Save]"
+  },
+  {
+   "k": "a4213ba193e77a5b:16",
+   "en": "Game disk 1"
+  },
+  {
+   "k": "64d85ab31574188b:16",
+   "en": "User disk"
+  },
+  {
+   "k": "f617cbd4a82a63fc:6",
+   "en": "Place"
+  },
+  {
+   "k": "5390ec42dd798b54:6",
+   "en": "Empty"
+  },
+  {
+   "k": "6dc876c726885967:6",
+   "en": "Money"
+  },
+  {
+   "k": "d6dd8e9448bd7c64:20",
+   "en": "Tianren's apartment"
+  },
+  {
+   "k": "734ef673437ef9b9:4",
+   "en": "Tianren"
+  },
+  {
+   "k": "54d10516d2eab198:4",
+   "en": "Meihong"
+  },
+  {
+   "k": "a67bb63f3f63dae7:8",
+   "en": "Houmei"
+  },
+  {
+   "k": "021683d62da921f8:6",
+   "en": "[Magic]"
+  },
+  {
+   "k": "7977d0724933503c:8",
+   "en": "MP cost"
+  },
+  {
+   "k": "4ef48fe9dc19a9bd:4",
+   "en": "MP"
+  },
+  {
+   "k": "5f6826b3d68aa347:4",
+   "en": "one"
+  },
+  {
+   "k": "666eed7def0db42b:4",
+   "en": "all"
+  },
+  {
+   "k": "a57888df061777e7:4",
+   "en": "Heal"
+  },
+  {
+   "k": "7876c671cac3815b:8",
+   "en": "Iron Skin"
+  },
+  {
+   "k": "e982a1443c332398:4",
+   "en": "Focus"
+  },
+  {
+   "k": "5b6a802273a1edc6:8",
+   "en": "Barrier"
+  },
+  {
+   "k": "fcf786e250d54b84:6",
+   "en": "Qi Blast"
+  },
+  {
+   "k": "bb34c36d37db530f:4",
+   "en": "Guard Up"
+  },
+  {
+   "k": "cee44040bd4d2ce0:4",
+   "en": "Power Up"
+  },
+  {
+   "k": "49b87a4259a3fdf8:4",
+   "en": "Seal"
+  },
+  {
+   "k": "43bc8a154754529f:4",
+   "en": "Slow"
+  },
+  {
+   "k": "bcde6332ff81b7c0:8",
+   "en": "[Equip]"
+  },
+  {
+   "k": "7eac0110e5e64d1c:4",
+   "en": "Wpn:"
+  },
+  {
+   "k": "cd2f93f303074ce1:4",
+   "en": "Arm:"
+  },
+  {
+   "k": "0b7e3df02118ba34:4",
+   "en": "Acc:"
+  },
+  {
+   "k": "64795794d72dbab2:10",
+   "en": "Handgun"
+  },
+  {
+   "k": "6ef2115b0649fef9:6",
+   "en": "Suit"
+  },
+  {
+   "k": "d8e8b57223894f3a:4",
+   "en": "Razor Wire"
+  },
+  {
+   "k": "696b79d7bd2541a1:5",
+   "en": " Atk+"
+  },
+  {
+   "k": "71b6dd4599128171:5",
+   "en": " Def+"
+  },
+  {
+   "k": "ed73510f66949421:5",
+   "en": " Spd+"
+  },
+  {
+   "k": "666fe824ec98d50a:5",
+   "en": " Skl+"
+  },
+  {
+   "k": "e53735fed0a92aec:5",
+   "en": " Hit+"
+  },
+  {
+   "k": "ad3a0a66db97e6bc:10",
+   "en": "Profile"
+  },
+  {
+   "k": "b29a4bf2839abda4:6",
+   "en": "Skills"
+  },
+  {
+   "k": "c0eea1faca5560ca:6",
+   "en": "Combat"
+  },
+  {
+   "k": "68d88a3415fcb518:8",
+   "en": "Speed"
+  },
+  {
+   "k": "e86b7671fb96d249:8",
+   "en": "Options"
+  },
+  {
+   "k": "081b1fe5fe404ca3:6",
+   "en": "Load"
+  },
+  {
+   "k": "1e63eedfefeb42e3:18",
+   "en": "[Music]"
+  },
+  {
+   "k": "4564fa909a8ba194:6",
+   "en": "Track:"
+  },
+  {
+   "k": "3b8047191b203b91:8",
+   "en": "Shop"
+  },
+  {
+   "k": "90545947f4d33d21:32",
+   "en": "Up/Down: select, Trigger 1: play,"
+  },
+  {
+   "k": "934068dc624ff0d0:22",
+   "en": "Trigger 2: exit."
+  },
+  {
+   "k": "3949ee2d4dcb09f7:10",
+   "en": "Status"
+  },
+  {
+   "k": "f568223f7e858247:8",
+   "en": "System"
+  },
+  {
+   "k": "541db689c97104c3:4",
+   "en": "Equip"
+  },
+  {
+   "k": "b00270565538f91c:4",
+   "en": "Talk"
+  },
+  {
+   "k": "81a607a98bcbd919:4",
+   "en": "HP"
+  },
+  {
+   "k": "25ded72d7cb3c065:8",
+   "en": "Buy 1"
+  },
+  {
+   "k": "3ee894ea52447736:10",
+   "en": "Buy 10"
+  },
+  {
+   "k": "b1cd796f6938243f:12",
+   "en": "Buy 100"
+  },
+  {
+   "k": "6da095fc1e5f3fc0:14",
+   "en": "Buy 1000"
+  },
+  {
+   "k": "4be151dba51e5163:8",
+   "en": "Sell 1"
+  },
+  {
+   "k": "64eb0f987aaf0834:10",
+   "en": "Sell 10"
+  },
+  {
+   "k": "d7cff41d91a2b53d:12",
+   "en": "Sell 100"
+  },
+  {
+   "k": "93a310aa46c9d0be:14",
+   "en": "Sell 1000"
+  },
+  {
+   "k": "65d1dd48766eb8b0:8",
+   "en": "Sell all"
+  },
+  {
+   "k": "5884d28dc27e0cd5:10",
+   "en": " sets: "
+  },
+  {
+   "k": "65055731c78b6b1b:8",
+   "en": "H$."
+  },
+  {
+   "k": "8100cb9144c6b493:2",
+   "en": "x"
+  },
+  {
+   "k": "589cfec9d94980dd:22",
+   "en": "You don't have enough money."
+  },
+  {
+   "k": "71c9adc0e1842efa:22",
+   "en": "Thank you very much."
+  },
+  {
+   "k": "3bbdcc34b6e7b5a2:20",
+   "en": "Can you carry any more?"
+  },
+  {
+   "k": "8f30ae7bf64b11f1:10",
+   "en": "Buying?"
+  },
+  {
+   "k": "efbde3b9bda2711f:10",
+   "en": "Selling?"
+  },
+  {
+   "k": "c6a3d47074f48d16:22",
+   "en": "I'll give you a discount."
+  },
+  {
+   "k": "fa8a2c4d83f49129:26",
+   "en": "I can't buy that."
+  },
+  {
+   "k": "fe23d9d96ec89231:22",
+   "en": "Hey, you're short of money!"
+  },
+  {
+   "k": "0e3c226b15f75145:14",
+   "en": "Thanks."
+  },
+  {
+   "k": "4d392f236680abe5:20",
+   "en": "You can't carry more!"
+  },
+  {
+   "k": "ba87ae87cf6b1ca5:14",
+   "en": "You'll buy it?"
+  },
+  {
+   "k": "6aaa79a589e49173:14",
+   "en": "You'll sell it?"
+  },
+  {
+   "k": "4ea5a0106bf4846c:26",
+   "en": "Hmph, I'll knock the price down."
+  },
+  {
+   "k": "f2be5d88e27cc1e6:20",
+   "en": "I won't buy that!"
+  },
+  {
+   "k": "1192b415a5b7097d:22",
+   "en": "This person can't use magic."
+  },
+  {
+   "k": "0c27182b1ca6c967:16",
+   "en": "[Speed]"
+  },
+  {
+   "k": "ac56994ff6419895:4",
+   "en": "Fast"
+  },
+  {
+   "k": "32bc6f462e63cfae:4",
+   "en": "Slow"
+  },
+  {
+   "k": "862dbd2e3119f798:10",
+   "en": "Message"
+  },
+  {
+   "k": "946baf349199260c:6",
+   "en": "Move"
+  },
+  {
+   "k": "e8cb5b33f236a6d1:16",
+   "en": "[Options]"
+  },
+  {
+   "k": "9e357ae4df723784:8",
+   "en": "VR see-through"
+  },
+  {
+   "k": "e867a2a31de4617f:10",
+   "en": "Use mouse"
+  },
+  {
+   "k": "b207730ac85622e6:8",
+   "en": "Auto-evade"
+  },
+  {
+   "k": "bdc72ad4fff2a626:4",
+   "en": "Talk"
+  },
+  {
+   "k": "b3eaee61261bbdb1:12",
+   "en": "[Restore HP]"
+  },
+  {
+   "k": "e25b3c9fc368bfeb:12",
+   "en": "[Restore MP]"
+  },
+  {
+   "k": "a02dd53f350d482b:10",
+   "en": "[Target]"
+  },
+  {
+   "k": "c90bbbef1b184f51:4",
+   "en": "One"
+  },
+  {
+   "k": "9fb6a6cd6c6eeadf:4",
+   "en": "All"
+  },
+  {
+   "k": "f3c0d11a2f989556:30",
+   "en": "No good. A barrier is blocking it."
+  },
+  {
+   "k": "47b346fd3e835af1:6",
+   "en": "Attack"
+  },
+  {
+   "ja": "ジョイスティック",
+   "en": "Joystick"
+  },
+  {
+   "k": "3eee1055b05cbaf7:6",
+   "en": "Mouse"
+  },
+  {
+   "k": "82225f062bedf758:8",
+   "en": "FM synth"
+  },
+  {
+   "ja": "ＭＩＤＩ音源（IFﾎﾞｰﾄﾞ）",
+   "en": "MIDI (interface board)"
+  },
+  {
+   "ja": "ＭＩＤＩ音源（RS-232C）",
+   "en": "MIDI (RS-232C)"
+  },
+  {
+   "ja": "セーブした時点から",
+   "en": "Continue"
+  },
+  {
+   "ja": "オープニングから",
+   "en": "From the opening"
+  },
+  {
+   "ja": "スタート地点から",
+   "en": "From the start"
+  },
+  {
+   "ja": "ユーザーディスクの作成",
+   "en": "Create user disk"
+  },
+  {
+   "k": "cbde657fc3dab41f:26",
+   "en": "Start from user disk"
+  },
+  {
+   "ja": "ドライブ１に生ディスクを入れてください",
+   "en": "Insert a blank disk in drive 1"
+  },
+  {
+   "k": "fc729fb6efab5372:12",
+   "en": "[Item]"
+  },
+  {
+   "k": "c5f7a1fe5069e9b8:4",
+   "en": "Use"
+  },
+  {
+   "k": "19ea5886d46abbae:4",
+   "en": "Swap"
+  },
+  {
+   "k": "a119a1bf213705e3:6",
+   "en": "Drop"
+  },
+  {
+   "k": "b6dd7b7d8cfb78a3:6",
+   "en": "Defend"
+  },
+  {
+   "k": "239b1bd44f44cc42:6",
+   "en": "Flee"
+  },
+  {
+   "k": "8f00e18d4a417aab:2",
+   "en": "Magic"
+  },
+  {
+   "k": "aeb99e6d17509ba5:8",
+   "en": "Item"
+  },
+  {
+   "k": "9a5de17661542ca4:14",
+   "en": "[Status]"
+  },
+  {
+   "k": "1c5e999eabebcd70:14",
+   "en": "Load Menu"
+  },
+  {
+   "k": "b5561488b4255efa:14",
+   "en": "Save Menu"
+  },
+  {
+   "k": "ff976205278968ed:8",
+   "en": "Drive"
+  },
+  {
+   "k": "213fab21041f6f9d:10",
+   "en": ": disk"
+  },
+  {
+   "k": "61d3e1e2a57e113e:18",
+   "en": ": user disk"
+  },
+  {
+   "k": "c09400dd8932cadf:16",
+   "en": " please"
+  },
+  {
+   "k": "9fb163458bae7577:40",
+   "en": "Check, then press the space bar."
+  },
+  {
+   "k": "9b26653137561287:14",
+   "en": "[ Sell ]"
+  },
+  {
+   "k": "03fc7fbc3c9fb628:14",
+   "en": "[ Armor ]"
+  },
+  {
+   "k": "92ead60cc69e9b74:14",
+   "en": "[ Weapons ]"
+  },
+  {
+   "k": "75e94cf4b5357b98:14",
+   "en": "[ Hobbies ]"
+  },
+  {
+   "k": "131de810fe288250:14",
+   "en": "[ Ammo ]"
+  },
+  {
+   "k": "dfccf02186a33119:14",
+   "en": "[ Medicine ]"
+  },
+  {
+   "k": "431e35f2073d3fb0:14",
+   "en": "[ Drugs ]"
+  },
+  {
+   "k": "48c072ec7abadb38:14",
+   "en": "[ Clothes ]"
+  },
+  {
+   "k": "1d6474c5bf5efad1:14",
+   "en": "[ Charms ]"
+  },
+  {
+   "k": "89d9b2833cd2f455:14",
+   "en": "[ Special ]"
+  },
+  {
+   "k": "9fabf400adeadc5c:14",
+   "en": "Arms & Armor"
+  },
+  {
+   "k": "6da81bdbaece9fd5:12",
+   "en": "Medicine & Charms"
+  },
+  {
+   "k": "add1c1133dd5a8a9:8",
+   "en": "Doc's Shop"
+  },
+  {
+   "k": "8e4e1b6bd019980b:10",
+   "en": "Drop one "
+  },
+  {
+   "k": "19433d201b318eb0:10",
+   "en": "Drop all "
+  },
+  {
+   "k": "f647d5352e6a9b35:5",
+   "en": "At + "
+  },
+  {
+   "k": "72f55b5f27650f45:5",
+   "en": "Df + "
+  },
+  {
+   "k": "069fa25df8cc1fb5:5",
+   "en": "Sp + "
+  },
+  {
+   "k": "9141786ca992f852:5",
+   "en": "Sk + "
+  },
+  {
+   "k": "ff01069ab8c1a6dc:5",
+   "en": "Ac + "
+  },
+  {
+   "k": "d3409be453956fc4:6",
+   "en": "Attack"
+  },
+  {
+   "k": "cf5dac341ad8f3e6:6",
+   "en": "Defense"
+  },
+  {
+   "k": "404ccff68735e9ee:6",
+   "en": "Speed "
+  },
+  {
+   "k": "f28ddde62ef07fa4:6",
+   "en": "Accuracy"
+  },
+  {
+   "k": "d8f0f49014447ffc:24",
+   "en": "[Skill data]     unit %"
+  },
+  {
+   "k": "0831b8acd4f16e5c:14",
+   "en": "[Battle data]"
+  },
+  {
+   "k": "e149d3bbdad495c7:16",
+   "en": "GUN RIFL CN HEVY"
+  },
+  {
+   "k": "8e734b6215f80506:16",
+   "en": "CLW  ST  SW WIRE"
+  },
+  {
+   "k": "a073a1340eb7ec44:6",
+   "en": "Ammo  "
+  },
+  {
+   "k": "56f06b5d6ff6008d:8",
+   "en": "Burst   "
+  },
+  {
+   "k": "e5f9c512d2808686:8",
+   "en": "Single  "
+  }
+ ],
+ "templates": [
+  {
+   "k": "5728090c4f6c6f76:12",
+   "en": "Enemies appeared!"
+  },
+  {
+   "k": "8db980d81eecffa6:31",
+   "en": "Whoa, the Quick Load failed!"
+  },
+  {
+   "k": "ecc4c6fd8e37d67d:8",
+   "en": "The enemies are defeated."
+  },
+  {
+   "k": "d33156c92402a46b:16",
+   "en": "Gained #1 EXP."
+  },
+  {
+   "k": "d2ab5a9eb2d7021e:19",
+   "en": "Received #1H$$ in prize money."
+  },
+  {
+   "k": "9b5cd7101c8479fa:22",
+   "en": "$1 reached level #1."
+  },
+  {
+   "k": "19dbee6841654408:12",
+   "en": "Found $1."
+  },
+  {
+   "ja": " \n \n \n−　ＧＡＭＥ　ＯＶＥＲ　−",
+   "en": " \n \n \n- GAME OVER -"
+  },
+  {
+   "k": "25037cb69ad632a0:14",
+   "en": "Missed! ($2)"
+  },
+  {
+   "k": "709224419cf0e869:12",
+   "en": "$1 focuses qi"
+  },
+  {
+   "k": "91de11b176d8a09b:16",
+   "en": "$1 releases qi!"
+  },
+  {
+   "k": "a94bbc16e606b108:10",
+   "en": "$3 is cast"
+  },
+  {
+   "k": "f7b3f045301b79c3:8",
+   "en": "$1 laughs"
+  },
+  {
+   "k": "faa84175d2ebdf0b:12",
+   "en": "$1's whistle sounds"
+  },
+  {
+   "k": "b356d9f708e6a31d:14",
+   "en": "$1 whips up a wind"
+  },
+  {
+   "k": "d7f3b6ae1c5a3828:16",
+   "en": "$1 merges with the wind"
+  },
+  {
+   "k": "4cdbd20a9c52ad56:16",
+   "en": "$1 scatters poison dust"
+  },
+  {
+   "k": "9b39a05ef7930d6e:14",
+   "en": "$1 braces itself"
+  },
+  {
+   "k": "7518080394e3ba8d:14",
+   "en": "$1 gathers power"
+  },
+  {
+   "k": "214200c90e55340f:18",
+   "en": "$1 causes an earthquake"
+  },
+  {
+   "k": "40ba5322d50ad688:12",
+   "en": "$1 turns to stone"
+  },
+  {
+   "k": "ca97503453221498:16",
+   "en": "$1 calls for help"
+  },
+  {
+   "k": "4c00f57ae7efee5e:16",
+   "en": "$1 lets out a strange sound"
+  },
+  {
+   "k": "26065c06f64bb738:16",
+   "en": "$1 takes aim"
+  },
+  {
+   "k": "6b9a117e42ae9130:10",
+   "en": "$1's Lightning Fist"
+  },
+  {
+   "k": "121279d650606e20:10",
+   "en": "$1's Flying Dragon Fist"
+  },
+  {
+   "k": "220d588a2cf2b3d8:12",
+   "en": "$1's White Light Burst"
+  },
+  {
+   "k": "e42ae1009d72bb1a:10",
+   "en": "$1's Steel Bind Wire"
+  },
+  {
+   "k": "ce32f174e2a04522:10",
+   "en": "$1's Steel Razor Wire"
+  },
+  {
+   "k": "814e3c782c348f84:12",
+   "en": "$1 splits apart"
+  },
+  {
+   "k": "1ad97b04728a9750:18",
+   "en": "$1 breathes blood"
+  },
+  {
+   "k": "fbfa711061a34fcc:18",
+   "en": "$1 fires a missile"
+  },
+  {
+   "k": "be6ad28bb36d66c5:12",
+   "en": "$1 gathers light"
+  },
+  {
+   "k": "230971858624281f:16",
+   "en": "$1 gathers cold"
+  },
+  {
+   "k": "e78a99ce72457366:12",
+   "en": "$1 defends"
+  },
+  {
+   "k": "6a7e543ef0c453ec:12",
+   "en": "$1 transforms"
+  },
+  {
+   "k": "ccdcd82acfa2f83c:16",
+   "en": "$2 recovers #1 HP"
+  },
+  {
+   "k": "48cc286a1cfc1660:16",
+   "en": "$2 recovers #1 MP"
+  },
+  {
+   "k": "712da4ea13beeadc:18",
+   "en": "$2's HP is fully restored"
+  },
+  {
+   "k": "73140f2a3501f2e0:18",
+   "en": "$2's MP is fully restored"
+  },
+  {
+   "k": "9993761fa9e2b4ff:18",
+   "en": "$2 wakes up"
+  },
+  {
+   "k": "d30a1b1c23bc2c2a:16",
+   "en": "$2 can move again"
+  },
+  {
+   "k": "e10f4e8b7a22dec7:14",
+   "en": "$2 is cured of poison"
+  },
+  {
+   "k": "03792e79765b4151:16",
+   "en": "$2 is no longer confused"
+  },
+  {
+   "k": "675737c77a5ba0d5:12",
+   "en": "$2 is fully healed"
+  },
+  {
+   "k": "73d72148c43949d0:16",
+   "en": "$2 is shielded by a barrier"
+  },
+  {
+   "k": "8115e53ce93293a4:16",
+   "en": "$2's spells are sealed"
+  },
+  {
+   "k": "6479c006b0d315a2:16",
+   "en": "$2 is poisoned"
+  },
+  {
+   "k": "d2d9ce26cdc156fa:14",
+   "en": "$2 is paralyzed"
+  },
+  {
+   "k": "c63666e7fb07088f:14",
+   "en": "$2 is petrified"
+  },
+  {
+   "k": "799db6e9f34efe6b:12",
+   "en": "$2 falls asleep"
+  },
+  {
+   "k": "0b82b5b3cc7bfd51:14",
+   "en": "$2 is confused"
+  },
+  {
+   "k": "b57027dacf045116:20",
+   "en": "$1 is possessed"
+  },
+  {
+   "k": "a9f816e79b1bd5cf:18",
+   "en": "$1 is hurt by poison"
+  },
+  {
+   "k": "8e9d883ab8811342:14",
+   "en": "$1 is asleep"
+  },
+  {
+   "k": "96ce57c4943ca630:16",
+   "en": "$1 is confused"
+  },
+  {
+   "k": "17f026250bc6365b:22",
+   "en": "$1 has lost all judgment"
+  },
+  {
+   "k": "05f45bc31c744325:28",
+   "en": "$1 can cast spells again"
+  },
+  {
+   "k": "2458bfa8d9f33fe4:18",
+   "en": "$1 escapes the illusion"
+  },
+  {
+   "k": "7bbe764aec2c031a:18",
+   "en": "$1 wakes up"
+  },
+  {
+   "k": "e5655783d05829a9:18",
+   "en": "$1 comes to their senses"
+  },
+  {
+   "k": "a8c9a2fc240f26cc:16",
+   "en": "$1's double vanishes"
+  },
+  {
+   "k": "b22ecafbcad5d78f:16",
+   "en": "$1 is possessing"
+  },
+  {
+   "k": "1c525aa3c7275255:10",
+   "en": "$1 lets go"
+  },
+  {
+   "k": "bf37df330e77ed09:22",
+   "en": "$1 can't see through the illusion"
+  },
+  {
+   "k": "3c8e7e99d55c52f7:8",
+   "en": "$1's turn"
+  },
+  {
+   "k": "0404b51485ee64f2:8",
+   "en": "$3 attack"
+  },
+  {
+   "k": "6e28b5ce922ca314:10",
+   "en": "Ammo left *1"
+  },
+  {
+   "k": "d13e3989b54fb68f:12",
+   "en": "Burst rounds *3"
+  },
+  {
+   "k": "990cb98d5a53d4b7:12",
+   "en": "Single rounds *2"
+  },
+  {
+   "k": "507d50a98fe86963:12",
+   "en": "$1 attacks with $3"
+  },
+  {
+   "k": "04b10519c0352c53:16",
+   "en": "$2 takes #1 damage"
+  },
+  {
+   "k": "011c65741e918eee:24",
+   "en": "$2 each take #1 damage"
+  },
+  {
+   "k": "2a7798084259e1ec:26",
+   "en": "$2 takes no damage"
+  },
+  {
+   "k": "3b269222d485f7de:12",
+   "en": "$1 uses medicine"
+  },
+  {
+   "k": "a8ff279568c2e81d:12",
+   "en": "$1 uses $3"
+  },
+  {
+   "k": "12ee9c207d0ebd70:16",
+   "en": "$1 can't use $3"
+  },
+  {
+   "k": "d10f3a2cf5ef8976:16",
+   "en": "$1 casts $3"
+  },
+  {
+   "k": "0a49ba86acc6b386:16",
+   "en": "The party fled"
+  },
+  {
+   "k": "faf16216dfcc9270:14",
+   "en": "Couldn't escape"
+  },
+  {
+   "k": "9506217aac4e38da:8",
+   "en": "$1 defends"
+  },
+  {
+   "k": "141c28fef5ccbe32:24",
+   "en": "$1's barrier absorbs the blow"
+  },
+  {
+   "k": "5d721d6b5f1883ab:24",
+   "en": "$1's barrier absorbs the spell"
+  },
+  {
+   "k": "fa1d946f75e2c017:24",
+   "en": "$1's spells are sealed"
+  },
+  {
+   "k": "19a283c4ea3fe5e2:20",
+   "en": "$1 loses HP to poison"
+  },
+  {
+   "k": "8e6597d2c3579e76:20",
+   "en": "$1 is paralyzed"
+  },
+  {
+   "k": "09339802d8202d12:26",
+   "en": "$1 is petrified"
+  },
+  {
+   "k": "524584c2f5882504:16",
+   "en": "$1 is unconscious"
+  },
+  {
+   "k": "04b85f595eb5bf1f:18",
+   "en": "$1 can't move"
+  },
+  {
+   "k": "90b604bf666d5e0f:24",
+   "en": "$2 is revived by the medicine"
+  },
+  {
+   "k": "3d33d44c843f72c4:24",
+   "en": "$1's defense barrier shatters"
+  },
+  {
+   "k": "40101f9d755a4ad7:24",
+   "en": "$1's spell barrier shatters"
+  },
+  {
+   "k": "382b2d96b253134c:20",
+   "en": "$2 is cured of poison"
+  },
+  {
+   "k": "24e09d6b05111577:24",
+   "en": "$2 can move again"
+  },
+  {
+   "k": "4d9f7a18a291e7ae:18",
+   "en": "$1 comes to their senses"
+  },
+  {
+   "k": "eca16965f676e5e5:12",
+   "en": "$1 recovers"
+  },
+  {
+   "k": "514bb30eb5d3b3a8:16",
+   "en": "$1 comes to"
+  },
+  {
+   "k": "96ae1e577ebe5175:8",
+   "en": "$1 attacks"
+  },
+  {
+   "k": "748495827491f170:12",
+   "en": "$1 can't move"
+  },
+  {
+   "k": "87ef51b56a89d7b5:22",
+   "en": "$1's magic is sealed"
+  },
+  {
+   "k": "dd4e9de2b8d6888e:22",
+   "en": "$1 calls for backup"
+  },
+  {
+   "k": "6ee3dd590d29bcd5:16",
+   "en": "Got $1."
+  },
+  {
+   "k": "0fab9a54057f3df4:42",
+   "en": "Found $1, but can't carry it."
+  },
+  {
+   "k": "3bbdcc34b6e7b5a2:20",
+   "en": "Can you carry any more?"
+  },
+  {
+   "k": "8f30ae7bf64b11f1:10",
+   "en": "Buying?"
+  },
+  {
+   "k": "efbde3b9bda2711f:10",
+   "en": "Selling?"
+  },
+  {
+   "k": "0e3c226b15f75145:14",
+   "en": "Thanks."
+  },
+  {
+   "k": "4d392f236680abe5:20",
+   "en": "You can't carry more!"
+  },
+  {
+   "k": "ba87ae87cf6b1ca5:14",
+   "en": "You'll buy it?"
+  },
+  {
+   "k": "6aaa79a589e49173:14",
+   "en": "You'll sell it?"
+  },
+  {
+   "k": "f2be5d88e27cc1e6:20",
+   "en": "I won't buy that!"
+  },
+  {
+   "k": "8a8aed88d91ad63e:28",
+   "en": "By my qi, be my shield!"
+  },
+  {
+   "k": "56494661eb49d84b:34",
+   "en": "Qi that fills this place, become a wall against curses!"
+  },
+  {
+   "k": "738c21d946dfb82b:28",
+   "en": "Your magic is sealed for a while! $3!"
+  },
+  {
+   "k": "7b421f994873bc15:48",
+   "en": "My other selves, born of the heavenly source, fight beside me!"
+  },
+  {
+   "k": "b3165935e7acf0e7:42",
+   "en": "$1 commands: let that one's time be held within me!"
+  },
+  {
+   "k": "d51dae6798fe4e3b:40",
+   "en": "$1 commands: evil qi dwelling in $2, begone!"
+  },
+  {
+   "k": "bca1f4822116d9ae:46",
+   "en": "$1 commands: body of $2, return to your rightful master!"
+  },
+  {
+   "k": "6a24f1922a065aa8:60",
+   "en": "As the moon-reader's words are chanted, I bring you the strange dream mirrored in your heart."
+  },
+  {
+   "k": "46555e928e8b5566:60",
+   "en": "As the moon-reader's words are recited, I bring you the fleeting illusion your heart desires."
+  },
+  {
+   "k": "214bafa9f5ec84af:58",
+   "en": "As the moon-reader's words are sung, I bring a thousand troubles to your heart."
+  },
+  {
+   "k": "c98543f18b87d1af:36",
+   "en": "$1 commands: $3, pierce that one!"
+  },
+  {
+   "k": "c95eb3fb3e66438b:38",
+   "en": "$1 commands: into a world of bitter cold! $3!"
+  },
+  {
+   "k": "cd2fab2580aa5705:58",
+   "en": "$1 commands: qi of the wind, become a blade and cut the foe! $3!"
+  },
+  {
+   "k": "0dd7ee573723911f:54",
+   "en": "$1 commands: circling wind, become a spiral and tear the foe! $3!"
+  },
+  {
+   "k": "697b91d3889ecdc7:46",
+   "en": "Thunder, O thunder! By your power, destroy $1's foes! $3!"
+  },
+  {
+   "k": "687efe897146ce6d:50",
+   "en": "Thunder, O thunder! By your great power, destroy $1's foes! $3!"
+  },
+  {
+   "k": "b3c58f2ef61a2276:48",
+   "en": "Thunder, O thunder! By the power within, destroy $1's foes! $3!"
+  },
+  {
+   "k": "8548001843b0fcb0:36",
+   "en": "$1 commands: burn that one to ash! $3!"
+  },
+  {
+   "k": "a46ca9ee0569bf86:56",
+   "en": "$1 commands: all-consuming hellfire, bring them ruin! $3!"
+  },
+  {
+   "k": "f91bd37f2781f89f:38",
+   "en": "$1 commands: searing flame! Death to that one!"
+  },
+  {
+   "k": "d38a15ee8728c774:38",
+   "en": "$1 commands: burn them all to ash! $3!"
+  },
+  {
+   "k": "85db8ef9de74631f:52",
+   "en": "$1 commands: you who wear the flames, burn $1's foes! $3!"
+  },
+  {
+   "k": "2b8bff91d0a72e0d:32",
+   "en": "$1 commands: you there, turn to stone!"
+  },
+  {
+   "k": "d407ce1ff465d995:40",
+   "en": "$1 commands: fangs of the earth, cut down my foe! $3!"
+  },
+  {
+   "k": "bf7e12343bc460fa:40",
+   "en": "$1 commands: dragon of the earth, break my foe! $3!"
+  },
+  {
+   "k": "2d68a71dc53ebe35:22",
+   "en": "$1 breathes Death Breath."
+  },
+  {
+   "k": "14ac3388809c300e:20",
+   "en": "$1 used a healing spell."
+  },
+  {
+   "k": "1953c7de1866645a:24",
+   "en": "$1 laughed at the party."
+  },
+  {
+   "k": "71a506e8ea870b0e:24",
+   "en": "$1 glares with freezing eyes."
+  },
+  {
+   "k": "6a283757ff88e0d5:24",
+   "en": "$1 gave a numbing kiss."
+  },
+  {
+   "k": "de8ef34c7a02a9ba:28",
+   "en": "$1 slammed down a furious fist."
+  },
+  {
+   "k": "833cf4dfd89d9007:26",
+   "en": "$1 chants: \"Be thou stone.\""
+  },
+  {
+   "k": "faeb4f56d15c4cc8:20",
+   "en": "$1 whispers of betrayal."
+  },
+  {
+   "k": "c93b51bf056959cd:24",
+   "en": "$1 called up the power within."
+  },
+  {
+   "k": "3709b8ef02a9d469:26",
+   "en": "$1 leapt at the party."
+  },
+  {
+   "k": "2ba3a428b8cbea1e:22",
+   "en": "$1 released binding bubbles."
+  },
+  {
+   "k": "0d7ba9a82e5d9968:22",
+   "en": "$1 spoke the forbidden word."
+  },
+  {
+   "k": "b1a2058eed7fec5c:32",
+   "en": "$1 chanted: \"Smite the foes who oppose me.\""
+  },
+  {
+   "k": "2bede172465dff20:28",
+   "en": "$1 chanted: \"Air, be still.\""
+  },
+  {
+   "k": "5c2ed14f432fb197:28",
+   "en": "$1 chanted: \"Protect me.\""
+  },
+  {
+   "k": "02751daadffd16d8:22",
+   "en": "$1 wrapped itself in a thunder barrier."
+  },
+  {
+   "k": "552fe3bbc87cecb1:20",
+   "en": "$1 breathed strong acid."
+  },
+  {
+   "k": "ed4ea5a7ad88cfdb:22",
+   "en": "$1 slashed with claws of death."
+  },
+  {
+   "k": "44013d672dff96c1:24",
+   "en": "$1 stared with hollow eyes."
+  },
+  {
+   "k": "00da783dba7438a5:40",
+   "en": "$1 whispers: \"Be my servant and smite the foe.\""
+  },
+  {
+   "k": "03aff1b0325476d6:30",
+   "en": "$1 murmurs: \"Air, grow heavy.\""
+  },
+  {
+   "k": "21cb350486b3e8be:24",
+   "en": "$1 spat sticky saliva."
+  },
+  {
+   "k": "092f6ee3390a0eb5:20",
+   "en": "$1 looked around."
+  },
+  {
+   "k": "90f474f546d62a59:22",
+   "en": "$1 made a strange orb glow."
+  },
+  {
+   "k": "afb27aa6ddf995ae:20",
+   "en": "$1 played the wind-tree flute."
+  },
+  {
+   "k": "dee4c12d7763f93f:20",
+   "en": "$1 healed with the power of the trees."
+  },
+  {
+   "k": "cbf5034bcde49965:20",
+   "en": "$1 rends with claws of death."
+  },
+  {
+   "k": "40d016befa1dec7a:20",
+   "en": "$1 stopped the wind."
+  },
+  {
+   "k": "5b2e2e083b2919d0:20",
+   "en": "$1 played the earth-flame flute."
+  },
+  {
+   "k": "ab8dde26d2c3ba12:36",
+   "en": "$1 spat out a Criminal."
+  },
+  {
+   "k": "038b2055696cb86d:22",
+   "en": "$1 summoned the earth dragon."
+  },
+  {
+   "k": "58471304df368452:24",
+   "en": "$1 used its self-repair function."
+  },
+  {
+   "k": "3bd743c67af0eb16:32",
+   "en": "$1 chants: \"Shield of heat, protect me.\""
+  },
+  {
+   "k": "3255a6da49ec0054:34",
+   "en": "$1 chants: \"Burn that one to nothing.\""
+  },
+  {
+   "k": "f856187550d73d3d:20",
+   "en": "$1 used its last strength."
+  },
+  {
+   "k": "486688c6d9a62566:20",
+   "en": "$1 recharged its thunder."
+  },
+  {
+   "k": "e7902ba31073b6e5:24",
+   "en": "$1 refuelled its energy."
+  },
+  {
+   "k": "8fb3141da19faff5:20",
+   "en": "$2's attack weakened."
+  },
+  {
+   "k": "278c2eed35138b47:20",
+   "en": "$2's defense weakened."
+  },
+  {
+   "k": "874a74a5f9128d1b:20",
+   "en": "$2's speed dropped."
+  },
+  {
+   "k": "713e7be22b30e2e6:22",
+   "en": "A strange power dwells in $2."
+  },
+  {
+   "k": "1b641fc63b6a2800:20",
+   "en": "$2's attack rose."
+  },
+  {
+   "k": "b33d3a96cede0352:20",
+   "en": "$2's defense rose."
+  },
+  {
+   "k": "b1c7eed8bc6374e0:20",
+   "en": "$2's accuracy rose."
+  },
+  {
+   "k": "ee927eddf333b0af:20",
+   "en": "$2 lost #1 MP."
+  },
+  {
+   "k": "72a32e9da5da928b:20",
+   "en": "$2 lost #1 HP."
+  },
+  {
+   "k": "ae706702a36aeeac:20",
+   "en": "$2's proficiency is now #1."
+  },
+  {
+   "k": "e82a2e1f165da66b:22",
+   "en": "$2 is bewildered by illusions."
+  },
+  {
+   "k": "108b705d4845c62d:30",
+   "en": "Aah, out of ammo!!"
+  },
+  {
+   "k": "7d8cebc9d84ba131:38",
+   "en": "Whew, break of bullet."
+  },
+  {
+   "k": "2b501d7af056054a:28",
+   "en": "Tch, not enough ammo!"
+  },
+  {
+   "k": "1d704591d0cca5fd:28",
+   "en": "I don't do anything so barbaric."
+  }
+ ]
+}

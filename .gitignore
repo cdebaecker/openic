@@ -1,0 +1,18 @@
+# Game data built from your disks, builds, generated code: never commit them
+godot/gamedata/
+godot/gamedata.zip
+godot/build/
+godot/.godot/
+godot/addons/
+dist/
+src/recomp/gen/
+node_modules/
+__pycache__/
+*.dim
+*.DIM
+*.xdf
+*.XDF
+*.hdm
+*.HDM
+*.d88
+*.D88

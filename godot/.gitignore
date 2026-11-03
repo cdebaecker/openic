@@ -1,0 +1,10 @@
+# Godot editor cache
+.godot/
+*.import
+# Exported game data (tools/export/build.mjs): never commit it
+gamedata/
+gamedata.zip
+# Builds
+build/
+# Local editor plugins (e.g. the AI tooling plugin): not part of the game
+addons/

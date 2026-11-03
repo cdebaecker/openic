@@ -46,6 +46,9 @@ var sfx_volume := 80
 ## Music: "fm" = the X68000's own FM + ADPCM, "mt32" = the game's Roland MT-32 version
 ## (in the game data only when it was rendered with the player's ROMs, tools/export/mt32.mjs)
 var music_device := "fm"
+## FM music: true = synthesized live from the chip logs (the chipsynth extension), false = the
+## rendered files (also what plays without the extension)
+var live_synth := true
 var smooth_movement := false
 ## Saving: false = the original's (save points only), true = also quick saves anywhere (F5 / F9);
 ## chosen when a new game starts, changeable in the options
@@ -132,6 +135,7 @@ func apply_display() -> void:
 func apply_audio() -> void:
 	Audio.set_volumes(_db(music_volume), _db(sfx_volume))
 	Audio.set_device(music_device)
+	Audio.set_live_synth(live_synth)
 
 
 func _db(v: int) -> float:
@@ -210,6 +214,7 @@ func load_settings() -> void:
 	smooth_movement = bool(cf.get_value("game", "smooth_movement", smooth_movement))
 	quick_saves = bool(cf.get_value("game", "quick_saves", quick_saves))
 	music_device = "mt32" if cf.get_value("audio", "device", music_device) == "mt32" else "fm"
+	live_synth = bool(cf.get_value("audio", "live_synth", live_synth))
 	game_speed = float(cf.get_value("game", "speed", game_speed))
 	battle_speed = float(cf.get_value("game", "battle_speed", battle_speed))
 	for k: String in FIXES:
@@ -230,6 +235,7 @@ func save_settings() -> void:
 	cf.set_value("game", "smooth_movement", smooth_movement)
 	cf.set_value("game", "quick_saves", quick_saves)
 	cf.set_value("audio", "device", music_device)
+	cf.set_value("audio", "live_synth", live_synth)
 	cf.set_value("game", "speed", game_speed)
 	cf.set_value("game", "battle_speed", battle_speed)
 	for k: String in fixes:

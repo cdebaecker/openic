@@ -78,6 +78,22 @@ func set_device(d: String) -> void:
 		play_music(track)
 
 
+## True when the chipsynth extension is loaded (FM music can play live).
+func can_synthesize() -> bool:
+	return ClassDB.class_exists("AudioStreamChipLog")
+
+
+## Live or recorded FM music; the playing FM track switches at once.
+func set_live_synth(on: bool) -> void:
+	if on == live_synth:
+		return
+	live_synth = on
+	var track := current
+	if track != "" and _music.playing and _music_info(track).has("chip_log"):
+		current = ""
+		play_music(track)
+
+
 func _music_info(track: String) -> Dictionary:
 	return _music_info_for(track, device)
 
@@ -113,7 +129,7 @@ func play_music(track: String, fade_in := 0.0) -> void:
 
 ## The track's chip log as an AudioStreamChipLog, or null (no extension, no log, live_synth off).
 func _chip_stream(info: Dictionary) -> AudioStream:
-	if not live_synth or not info.has("chip_log") or not ClassDB.class_exists("AudioStreamChipLog"):
+	if not live_synth or not info.has("chip_log") or not can_synthesize():
 		return null
 	var rel: String = String(info["file"]).get_base_dir().path_join(String(info["chip_log"]).get_file())
 	var bytes := FileAccess.get_file_as_bytes(GameData.path(rel))

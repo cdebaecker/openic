@@ -1,0 +1,70 @@
+# OpenIC Windows release, built from this repository (tools/openic/sync.mjs writes this file as
+# .github/workflows/release.yml). A pushed tag v* builds the package and attaches it to that tag's
+# release (created if needed); a manual run only builds it and keeps it as an artifact.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: 4.7.2
+  NODE_VERSION: 20.17.0   # the version of tools/openic/LICENSE-nodejs.txt
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Godot and its export templates
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
+          curl -sSfL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_win64.exe.zip"
+          curl -sSfL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$RUNNER_TEMP/godot" && unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          tpl="$APPDATA/Godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$tpl" && unzip -q templates.tpz -d "$RUNNER_TEMP/tpl" && cp -r "$RUNNER_TEMP/tpl/templates/." "$tpl/"
+          echo "GODOT=$(cygpath -m "$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_win64_console.exe")" >> "$GITHUB_ENV"
+          rm godot.zip templates.tpz
+
+      - name: chipsynth (live synthesis of the music)
+        run: node tools/native/build.mjs
+
+      - name: Import the Godot project
+        run: '"$GODOT" --headless --path godot --import || true'
+
+      - name: Package
+        run: node tools/openic/package.mjs --godot "$GODOT" --zip
+
+      - name: Check the package
+        run: |
+          test -f dist/windows/IllusionCity.exe
+          test -f dist/windows/chipsynth.windows.template_release.x86_64.dll
+          test -f dist/windows/importer/node.exe
+          mv dist/windows.zip dist/OpenIC-windows-x86_64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OpenIC-windows-x86_64
+          path: dist/OpenIC-windows-x86_64.zip
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v} (Windows)" --notes "Windows build of $tag. Unzip, start IllusionCity.exe and point it at your seven X68000 disk images."
+          gh release upload "$tag" dist/OpenIC-windows-x86_64.zip --clobber

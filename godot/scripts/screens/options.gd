@@ -88,6 +88,7 @@ func _build_rows() -> void:
 		{"kind": "header", "id": "", "label": ["Sound", "音", "Son"]},
 		{"kind": "opt", "id": "music", "label": ["Music volume", "音楽の音量", "Volume de la musique"]},
 		{"kind": "opt", "id": "device", "label": ["Music played on", "音源", "Musique jouée sur"]},
+		{"kind": "opt", "id": "synth", "label": ["FM music", "FM音源の演奏", "Musique FM"]},
 		{"kind": "opt", "id": "sfx", "label": ["Sound effects volume", "効果音の音量", "Volume des effets sonores"]},
 		{"kind": "header", "id": "", "label": ["Game", "ゲーム", "Jeu"]},
 		{"kind": "opt", "id": "language", "label": ["Language", "言語", "Langue"]},
@@ -147,6 +148,12 @@ func _opt_value(id: String) -> String:
 			if not Audio.has_mt32():
 				return _t("FM (no MT-32 data)", "FM音源（MT-32なし）", "FM (pas de données MT-32)")
 			return _t("FM (X68000)", "FM音源（X68000）", "FM (X68000)")
+		"synth":
+			if not Audio.can_synthesize():
+				return _t("Recorded (no synthesizer)", "録音（シンセなし）", "Enregistrée (pas de synthétiseur)")
+			if Settings.live_synth:
+				return _t("Live (ymfm)", "リアルタイム（ymfm）", "En direct (ymfm)")
+			return _t("Recorded", "録音", "Enregistrée")
 		"sfx":
 			return "%d %%" % Settings.sfx_volume
 		"language":
@@ -326,6 +333,9 @@ func _change_opt(id: String, d: int) -> void:
 		"device":
 			if Audio.has_mt32():
 				Settings.music_device = "fm" if Settings.music_device == "mt32" else "mt32"
+		"synth":
+			if Audio.can_synthesize():
+				Settings.live_synth = not Settings.live_synth
 		"sfx":
 			Settings.sfx_volume = clampi(Settings.sfx_volume + 10 * d, 0, 100)
 			Audio.play_sfx("se_01")

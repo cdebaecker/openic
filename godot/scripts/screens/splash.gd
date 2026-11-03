@@ -27,7 +27,7 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 14)
 	center.add_child(box)
 
-	box.add_child(_label("FAN-MADE PORT", 16, Color(0.85, 0.65, 0.25)))
+	box.add_child(_label("OpenIC: FAN-MADE PORT OF", 16, Color(0.85, 0.65, 0.25)))
 	box.add_child(_label("幻影都市", 48, Color(0.95, 0.92, 0.85)))
 	box.add_child(_label("Illusion City", 32, Color(0.8, 0.78, 0.72)))
 	var notice := _label(NOTICE, 16, Color(0.75, 0.75, 0.78))

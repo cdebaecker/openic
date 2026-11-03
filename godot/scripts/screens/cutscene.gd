@@ -42,6 +42,8 @@ var _music_by_source := {}
 
 # Subtitles for text drawn in pictures (text/<name>_subtitles.json: [{from, to, en, fr}]).
 var _subtitles: Array = []
+## Bottom edge of the subtitles, 16 pixels above the screen's (the pictures' own text ends higher).
+const SUBTITLE_BOTTOM := 496
 var _subtitle := Label.new()
 
 # English narration shown in place of the Japanese one (null when not active).
@@ -151,7 +153,7 @@ func _update_subtitle() -> void:
 	if text != _subtitle.text:
 		_subtitle.text = text
 		_subtitle.size = Vector2(752, 0)
-		_subtitle.position.y = 510 - _subtitle.get_combined_minimum_size().y
+		_subtitle.position.y = SUBTITLE_BOTTOM - _subtitle.get_combined_minimum_size().y
 	_subtitle.visible = text != ""
 
 

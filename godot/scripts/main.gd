@@ -51,6 +51,10 @@ func _ready() -> void:
 			# Development: start on a screen (title, options, ...)
 			show_screen(arg.trim_prefix("--screen="))
 			return
+		if arg == "--new-game":
+			# Development: the title's "Start from the beginning"
+			show_screen("field", {"new_game": true})
+			return
 		if arg.begins_with("--load-block="):
 			# Development: start from a saved game block (e.g. extracted from an emulator state)
 			show_screen("field", {"block": arg.trim_prefix("--load-block=")})

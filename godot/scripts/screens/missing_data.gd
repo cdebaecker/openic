@@ -48,14 +48,14 @@ func _ready() -> void:
 func _intro() -> void:
 	_state = "intro"
 	_label.text = GameText.pick(
-		"Illusion City needs your own copy of the game.\n\nThe port contains none of the original's "
+		"OpenIC needs your own copy of Illusion City.\n\nThe port contains none of the original's "
 		+ "pictures, music or text: it builds them from the seven floppy disk images of the X68000 "
 		+ "game (DIM, XDF, HDM or D88), once, on this computer.\n\nPress Enter (or click) to choose "
 		+ "the folder with your disk images.",
 		"幻影都市のゲームデータがありません。\n\nこの移植版には元のゲームの画像・音楽・テキストは含まれていません。"
 		+ "お手持ちのX68000版の７枚のディスクイメージ（DIM、XDF、HDM、D88）から、このパソコンで一度だけ作成します。"
 		+ "\n\nEnter（またはクリック）でディスクイメージのフォルダを選んでください。",
-		"Illusion City a besoin de votre propre exemplaire du jeu.\n\nCe portage ne contient aucune "
+		"OpenIC a besoin de votre propre exemplaire d'Illusion City.\n\nCe portage ne contient aucune "
 		+ "image, musique ou texte de l'original : il les construit, une seule fois et sur cet ordinateur, "
 		+ "à partir des sept images de disquettes du jeu X68000 (DIM, XDF, HDM ou D88).\n\nAppuyez sur "
 		+ "Entrée (ou cliquez) pour choisir le dossier de vos images disque.")

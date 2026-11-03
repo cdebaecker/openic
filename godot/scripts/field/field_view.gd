@@ -44,11 +44,11 @@ func render(map, field, sprites: Array = [], windows: Array = [], frame_tiles: C
 		panel: Dictionary = {}, boxes: Array = []) -> void:
 	var v: Vector2i = field.view
 	if picture != null:
-		# picture mode (f_798e8): no frame art, no field; the panel tiles stay
+		# picture mode (f_798e8): no frame art, no field, no panel; the picture shows inside the
+		# window's right part, in front of it (the original's intro: Freddy's intercom)
 		screen.clear_blank()
-		screen.draw_picture(picture)
-		_draw_panel(panel)
 		_draw_windows(windows, frame_tiles, boxes)
+		screen.draw_picture(picture)
 		screen.flush()
 		return
 	screen.clear_to_frame()

@@ -29,7 +29,7 @@ if (!fs.existsSync(dll)) {
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 console.log('exporting the game…');
-execFileSync(godot, ['--headless', '--path', path.join(repo, 'godot'), '--export-release', 'Windows', path.join(out, 'IllusionCity.exe')], { stdio: 'inherit' });
+execFileSync(godot, ['--headless', '--path', path.join(repo, 'godot'), '--export-release', 'Windows', path.join(out, 'OpenIC.exe')], { stdio: 'inherit' });
 
 const importer = path.join(out, 'importer');
 for (const d of ['tools', 'src', 'text']) {
@@ -42,9 +42,9 @@ fs.copyFileSync(process.execPath, path.join(importer, 'node.exe'));
 // version bundled here; the Windows installer does not install it
 fs.copyFileSync(path.join(here, 'LICENSE-nodejs.txt'), path.join(out, 'LICENSE-nodejs.txt'));
 fs.writeFileSync(path.join(out, 'README.txt'), [
-  'Illusion City (fan port) - OpenIC',
+  'OpenIC - unofficial fan port of Illusion City (X68000)',
   '',
-  'Start IllusionCity.exe. On first launch it asks for the folder with your seven disk images of the',
+  'Start OpenIC.exe. On first launch it asks for the folder with your seven disk images of the',
   'X68000 game (DIM, XDF, HDM or D88) and builds the game data from them (about 2 minutes).',
   'Nothing of the original game is included. Unofficial, non-commercial fan project.',
   '',

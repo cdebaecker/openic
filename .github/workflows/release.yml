@@ -50,7 +50,7 @@ jobs:
 
       - name: Check the package
         run: |
-          test -f dist/windows/IllusionCity.exe
+          test -f dist/windows/OpenIC.exe
           test -f dist/windows/chipsynth.windows.template_release.x86_64.dll
           test -f dist/windows/importer/node.exe
           mv dist/windows.zip dist/OpenIC-windows-x86_64.zip
@@ -66,5 +66,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v} (Windows)" --notes "Windows build of $tag. Unzip, start IllusionCity.exe and point it at your seven X68000 disk images."
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v} (Windows)" --notes "Windows build of $tag. Unzip, start OpenIC.exe and point it at your seven X68000 disk images."
           gh release upload "$tag" dist/OpenIC-windows-x86_64.zip --clobber

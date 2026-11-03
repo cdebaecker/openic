@@ -38,6 +38,9 @@ for (const d of ['tools', 'src', 'text']) {
 }
 fs.copyFileSync(path.join(repo, 'package.json'), path.join(importer, 'package.json'));
 fs.copyFileSync(process.execPath, path.join(importer, 'node.exe'));
+// Node.js's licence (and its bundled dependencies'), from the nodejs/node repository at the
+// version bundled here; the Windows installer does not install it
+fs.copyFileSync(path.join(here, 'LICENSE-nodejs.txt'), path.join(out, 'LICENSE-nodejs.txt'));
 fs.writeFileSync(path.join(out, 'README.txt'), [
   'Illusion City (fan port) - OpenIC',
   '',

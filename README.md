@@ -45,6 +45,8 @@ node tools/openic/import.mjs --disks <folder with the 7 images> --out godot/game
 | `src/` | the X68000 emulator the exporters use |
 | `text/` | translations: dialogue by message id, interface glossary (keys hashed, restored from your disks), French tables, opening subtitles |
 | `tools/openic/package.mjs` | builds a Windows release (game + importer + Node.js) |
+| `native/`, `tools/native/build.mjs` | chipsynth: the FM music synthesized live (ymfm), a Godot extension |
+| `.github/workflows/release.yml` | a pushed tag `v*` builds the Windows release on GitHub Actions and attaches it to that tag's release |
 
 ## Licence
 

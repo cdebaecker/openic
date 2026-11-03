@@ -20,6 +20,8 @@ const ITEMS := [
 	["エンディング", "Ending", "ending", "Fin"],
 	["マップ", "Map viewer (development)", "map_viewer", "Visionneuse de cartes (développement)"],
 ]
+## Development tools, listed only when running from the editor (not in exported builds)
+const DEV_ACTIONS := ["field", "map_viewer"]
 ## Asked before a new game: the original's saving or quick saves anywhere (Settings.quick_saves)
 const MODE_ITEMS := [
 	["オリジナル（セーブポイントでのみ）", "Original (save at save points only)", "mode_original",
@@ -37,7 +39,9 @@ const MODE_HELP := {
 const FRAME_COLOR := Color(0.85, 0.65, 0.25)
 const ROW_H := 20
 
-var _items: Array = ITEMS
+var _main: Array = ITEMS.filter(func(it: Array) -> bool: return OS.has_feature("editor") or not it[2] in DEV_ACTIONS)
+var _items: Array = _main
+var _pending := ""           # "opening" or "new_game": what the save mode question leads to
 var _selected := 1
 var _rows: Array[Label] = []
 var _cursor := ColorRect.new()
@@ -58,7 +62,7 @@ func _ready() -> void:
 	style.set_border_width_all(3)
 	style.set_corner_radius_all(2)
 	_panel.add_theme_stylebox_override("panel", style)
-	_panel.size = Vector2(380, ITEMS.size() * ROW_H + 28)
+	_panel.size = Vector2(380, _main.size() * ROW_H + 28)
 	_panel.position = Vector2((768 - _panel.size.x) / 2, 160)
 	add_child(_panel)
 
@@ -66,7 +70,7 @@ func _ready() -> void:
 	_cursor.size = Vector2(_panel.size.x - 24, ROW_H)
 	_cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(_cursor)
-	for i in ITEMS.size():
+	for i in _main.size():
 		var l := Label.new()
 		l.position = Vector2(24, 14 + i * ROW_H)
 		l.size = Vector2(_panel.size.x - 36, ROW_H)
@@ -133,7 +137,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_up"):
 		_select((_selected + _items.size() - 1) % _items.size())
 	elif event.is_action_pressed("cancel") and _items == MODE_ITEMS:
-		_show_items(ITEMS, 2)
+		_show_items(_main, 1 if _pending == "opening" else 2)
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_L:
 		_next_language()
 	elif event.is_action_pressed("confirm"):
@@ -147,22 +151,26 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _choose(action: String) -> void:
 	match action:
-		"opening":
-			finished.emit("cutscene", {"name": "opening", "next": "title"})
+		"opening", "new_game":
+			# both start a new game, as in the original (the opening leads into it): first the
+			# saving question
+			_pending = action
+			_show_items(MODE_ITEMS, 1 if Settings.quick_saves else 0)
 		"ending":
 			finished.emit("cutscene", {"name": "ending", "next": "title"})
 		"options":
 			finished.emit("options", {})
 		"language":
 			_next_language()
-		"new_game":
-			_show_items(MODE_ITEMS, 1 if Settings.quick_saves else 0)
 		"mode_original", "mode_quick":
 			Settings.quick_saves = action == "mode_quick"
 			Settings.save_settings()
-			finished.emit("field", {"new_game": true})
+			if _pending == "opening":
+				finished.emit("cutscene", {"name": "opening", "next": "field", "next_args": {"new_game": true}})
+			else:
+				finished.emit("field", {"new_game": true})
 		"back":
-			_show_items(ITEMS, 2)
+			_show_items(_main, 1 if _pending == "opening" else 2)
 		"field":
 			finished.emit("field", {})
 		"map_viewer":

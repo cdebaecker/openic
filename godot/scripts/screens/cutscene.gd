@@ -21,6 +21,7 @@ const NARRATION_WIDTH := 46
 
 var cutscene := "opening"
 var next_screen := "title"
+var next_args := {}         # arguments of the next screen (the opening: the new game)
 
 var _timeline: Dictionary = {}
 var _steps: Array = []
@@ -60,6 +61,7 @@ var _shot_path := ""
 func setup(args: Dictionary) -> void:
 	cutscene = args.get("name", cutscene)
 	next_screen = args.get("next", next_screen)
+	next_args = args.get("next_args", next_args)
 
 
 func _ready() -> void:
@@ -82,13 +84,13 @@ func _ready() -> void:
 	var data: Variant = GameData.json("cutscenes/%s.json" % cutscene)
 	if not data is Dictionary:
 		push_error("Cutscene %s: no timeline" % cutscene)
-		finished.emit.call_deferred(next_screen, {})
+		finished.emit.call_deferred(next_screen, next_args)
 		return
 	_timeline = data
 	_steps = _timeline.get("steps", [])
 	_frame_rate = float(_timeline.get("recorded", {}).get("frameRate", _frame_rate))
 	if _steps.is_empty():
-		finished.emit.call_deferred(next_screen, {})
+		finished.emit.call_deferred(next_screen, next_args)
 		return
 	_frame = float(_steps[0]["f"]) - 1.0
 	_end_frame = int(_steps[-1]["f"]) + int(_frame_rate)
@@ -190,7 +192,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _finish() -> void:
 	set_process(false)
 	set_process_unhandled_input(false)
-	finished.emit(next_screen, {})
+	finished.emit(next_screen, next_args)
 
 
 func _apply(op: Dictionary) -> void:

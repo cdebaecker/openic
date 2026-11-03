@@ -82,7 +82,7 @@ func texture(rel: String) -> Texture2D:
 	return tex
 
 
-## Audio from a .wav or .ogg file. loop_start/loop_end are in seconds; loop_end <= 0 means
+## Audio from a .wav, .qoa or .ogg file. loop_start/loop_end are in seconds; loop_end <= 0 means
 ## the end of the file, loop_start < 0 means no loop.
 func audio(rel: String, loop_start := -1.0, loop_end := 0.0) -> AudioStream:
 	var key := "%s|%f|%f" % [rel, loop_start, loop_end]

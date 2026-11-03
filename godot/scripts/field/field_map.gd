@@ -25,6 +25,12 @@ var sub_size := Vector2i.ZERO        # the overlay layer's own size in metatiles
 var sub_origin := Vector2i.ZERO      # scroll of the overlay layer in tiles (builtin 11)
 var atlases: Array[Image] = []      # 0 = vr_chr (main layer), 1 = sub_chr (overlay); R8, 16 x 4096
 var masks: Array[Image] = []        # LA8, alpha = opaque
+## Tile animation (f_742e8 / f_749aa; docs/cutscenes-field.md section 3), per layer (0 vr, 1 sub):
+## the tileset's 24 records {period, countdown, tiles}, and the remap a bank-0 tile number goes
+## through before it is drawn ($CB22 / $CE22).
+var tile_anim: Array = [[], []]
+var remap: Array[PackedByteArray] = [PackedByteArray(), PackedByteArray()]
+var _remap_src: Array = [{}, {}]      # tile -> [record, position] (f_742e8's pointer table)
 var palette_words := PackedInt32Array()   # X68000 text palette words
 var attr_words := PackedInt32Array()      # vr_chr attribute words, 2 per tile
 var sub_attr_words := PackedInt32Array()  # sub_chr attribute words (the overlay's draw modes)
@@ -74,6 +80,9 @@ func _load(m: Dictionary) -> bool:
 	if m.get("subChr") != null:
 		sub_chr = GameData.json("data/" + m["subChr"]["json"])
 	_add_tileset(sub_chr)
+	_load_tile_anim(0, vr_chr)
+	# the sub layer animates only with its own tileset (its table at $C300 is empty otherwise)
+	_load_tile_anim(1, sub_chr if m.get("subChr") != null else {})
 	sub_attr_words = PackedInt32Array(sub_chr.get("attrWords", []))
 	# Tileset palette entries are 0x0GRB (4 bits a gun); the X68000 value of a gun is 2n with the
 	# intensity bit set.
@@ -135,6 +144,64 @@ static func draw_mode(words: PackedInt32Array, entry: int) -> int:
 	if a & 0x40:
 		return DRAW_NONE
 	return DRAW_MASKED if a & 0x80 else DRAW_OPAQUE
+
+
+func _load_tile_anim(layer: int, ts: Dictionary) -> void:
+	var recs: Array = []
+	var src := {}
+	var ident := PackedByteArray()
+	ident.resize(256)
+	for t in 256:
+		ident[t] = t
+	for r: Dictionary in ts.get("animRecords", []):
+		var raw: Array = r["raw"]
+		var n: int = mini(raw[2], 13)
+		var tiles := PackedByteArray(raw.slice(3, 3 + n))
+		var rec := {"index": int(r["index"]), "period": int(raw[0]), "countdown": int(raw[1]), "tiles": tiles}
+		recs.append(rec)
+		for i in tiles.size():
+			src[tiles[i]] = [rec, i]
+	tile_anim[layer] = recs
+	_remap_src[layer] = src
+	remap[layer] = ident
+
+
+## One field redraw's worth of tile animation (f_749aa(0) and (1) in f_73668): each running record
+## counts down; when its countdown is (or reaches) 0 its tiles rotate by one and it restarts. Then
+## every listed tile shows the tile now at its position.
+func tick_tiles() -> void:
+	for layer in 2:
+		for rec: Dictionary in tile_anim[layer]:
+			if rec["period"] == 0:
+				continue
+			if rec["countdown"] != 0:
+				rec["countdown"] -= 1
+				if rec["countdown"] != 0:
+					continue
+			var t: PackedByteArray = rec["tiles"]
+			if t.size() > 1:
+				var first := t[0]
+				for i in t.size() - 1:
+					t[i] = t[i + 1]
+				t[t.size() - 1] = first
+				rec["tiles"] = t
+			rec["countdown"] = rec["period"]
+	rebuild_remap()
+
+
+## Every listed tile shows the tile now at its position (the end of f_749aa).
+func rebuild_remap() -> void:
+	for layer in 2:
+		for tile: int in _remap_src[layer]:
+			var at: Array = _remap_src[layer][tile]
+			remap[layer][tile] = (at[0]["tiles"] as PackedByteArray)[at[1]]
+
+
+## The metatile entry as drawn: a bank-0 tile goes through the layer's animation remap.
+func shown(entry: int, layer: int) -> int:
+	if entry < 0 or (entry >> 8) & 1:
+		return entry
+	return (entry & ~255) | remap[layer][entry & 255]
 
 
 ## Metatile entry (tile | bank << 8) of a layer at tile coordinates, or -1 outside the map.

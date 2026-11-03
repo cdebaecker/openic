@@ -41,12 +41,12 @@ func draw_map(map, ox: int, oy: int) -> void:
 	for ty in range(lo, WINDOW_TILES.y - lo):
 		for tx in range(lo, WINDOW_TILES.x - lo):
 			var pos: Vector2i = WINDOW.position + Vector2i(tx, ty) * 16 + shift
-			var t: int = map.tile_at(map.vr_cells, map.vr_meta, ox + tx, oy + ty)
+			var t: int = map.shown(map.tile_at(map.vr_cells, map.vr_meta, ox + tx, oy + ty), 0)
 			var t_mode: int = map.draw_mode(map.attr_words, t)
 			if t_mode == map.DRAW_OPAQUE:
 				_blit(map.atlases[0], null, Rect2i(0, (t & 255) * map.TILE, map.TILE, map.TILE), pos)
 				continue
-			var s: int = map.tile_at(map.sub_cells, map.sub_meta, ox + tx + so.x, oy + ty + so.y)
+			var s: int = map.shown(map.tile_at(map.sub_cells, map.sub_meta, ox + tx + so.x, oy + ty + so.y), 1)
 			var s_mode: int = map.draw_mode(map.sub_attr_words, s)
 			var rect := Rect2i(0, (s & 255) * map.TILE, map.TILE, map.TILE)
 			if s_mode == map.DRAW_OPAQUE:
@@ -98,7 +98,7 @@ func pos_of(tx: int, ty: int, vx: int, vy: int) -> Vector2i:
 ## foreground redraw over a sprite.
 func redraw_tile_masked(map, tx: int, ty: int, vx: int, vy: int) -> void:
 	var pos := pos_of(tx, ty, vx, vy)
-	var t: int = map.tile_at(map.vr_cells, map.vr_meta, tx, ty)
+	var t: int = map.shown(map.tile_at(map.vr_cells, map.vr_meta, tx, ty), 0)
 	if t >= 0:
 		_blit(map.atlases[0], map.masks[0], Rect2i(0, (t & 255) * 16, 16, 16), pos)
 

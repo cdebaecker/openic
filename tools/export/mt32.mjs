@@ -12,7 +12,7 @@
 // Usage: node tools/export/mt32.mjs [--munt DLL] [--roms DIR] [--jobs N] [--only REGEX]
 //   --munt   libmt32emu shared library (default ../work/munt/build/mt32emu-2.dll, or $IC_MUNT)
 //   --roms   folder with the control and PCM ROM files (default ../work/mt32rom, or $IC_MT32_ROMS)
-// Output: ../work/export/mt32/music/<name>.wav and mt32/index.json (same fields as audio/).
+// Output: ../work/export/mt32/music/<name>.qoa (.wav with IC_AUDIO_FORMAT=wav) and mt32/index.json (same fields as audio/).
 // Without Munt or the ROMs it prints why and writes nothing.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fork, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { root, allFiles, loadDisks, exportDir, ensureDir, writeWav, writeJson } from './common.mjs';
+import { writeQoa } from './qoa.mjs';
 import { unpackMusic } from './audio/unpack.mjs';
 import { MUSIC_TABLE } from './audio/songs.mjs';
 
@@ -90,8 +91,9 @@ async function renderJob(job) {
     const end = Math.min(au.length >> 1, lastAudible(au) + Math.round(0.05 * rate));
     out = au.slice(lead * 2, Math.max(lead, end) * 2);
   }
-  const file = `${OUT}/music/${job.name}.wav`;
-  writeWav(file, out, rate, 2);
+  // QOA (tools/export/qoa.mjs) unless IC_AUDIO_FORMAT=wav
+  const file = `${OUT}/music/${job.name}.${process.env.IC_AUDIO_FORMAT === 'wav' ? 'wav' : 'qoa'}`;
+  (file.endsWith('.wav') ? writeWav : writeQoa)(file, out, rate, 2);
   const notes = channelNotes(bytes.filter(([t]) => t < until));
   const n = out.length / 2;
   return {
@@ -164,7 +166,7 @@ if (argv[0] === '--worker') {
   writeJson(indexFile, {
     generator: 'tools/export/mt32.mjs',
     driver: 'ZMUSIC 1.49F in MIDI mode (emulated YM3802) -> Munt (libmt32emu) with ICITY.MDD sent first',
-    format: 'wav',
+    format: process.env.IC_AUDIO_FORMAT === 'wav' ? 'wav' : 'qoa',
     loop_convention: 'as audio/index.json: file = intro + one loop body, loop region [loop_start_sec, loop_end_sec)',
     items,
   });

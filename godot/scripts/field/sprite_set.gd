@@ -48,6 +48,26 @@ func frame_for(action: int, dir: int, shown: int) -> int:
 	return int(seq[posmod(shown, seq.size())]["frame"])
 
 
+## Cells covered by a frame's drawn parts, relative to the anchor (f_74d74's per-sprite box for the
+## foreground walk): Rect2i(left, top, width, height), so the bottom row is end.y - 1. Empty if the
+## frame draws nothing.
+func cell_box(frame: int) -> Rect2i:
+	var box := Rect2i()
+	var first := true
+	if frame < 0 or frame >= data["frames"].size():
+		return box
+	for pi in data["frames"][frame]["parts"]:
+		if pi >= data["parts"].size():
+			continue
+		var p: Dictionary = data["parts"][pi]
+		if p.get("skipped", false) or not p.has("sheetRect"):
+			continue
+		var r := Rect2i(int(p["x"]), int(p["y"]) - int(p["h"]) + 1, int(p["w"]), int(p["h"]))
+		box = r if first else box.merge(r)
+		first = false
+	return box
+
+
 ## Parts of a frame: [{rect: Rect2i in the sheet, offset: Vector2i from the anchor}].
 func parts(frame: int) -> Array:
 	var out := []

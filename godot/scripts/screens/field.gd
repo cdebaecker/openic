@@ -373,6 +373,7 @@ func _process(delta: float) -> void:
 	var evs: Array = field.tick(_input_bits(), m)
 	state.rt["last_trigger"] = field.last_trigger   # one variable in the original ($9EEEA)
 	events.run_map_animation()
+	map.tick_tiles()
 	var contact := -1
 	for i in range(3, events.n_actors):
 		var s: Dictionary = events.sprites[i]

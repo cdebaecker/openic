@@ -2,6 +2,9 @@
 godot/gamedata/
 godot/gamedata.zip
 godot/build/
+godot/bin/
+native/deps/
+native/build/
 godot/.godot/
 godot/addons/
 dist/

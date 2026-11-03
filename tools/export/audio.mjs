@@ -6,11 +6,13 @@
 // on the OPM/ADPCM register-write stream, see audio/render.mjs) and written as
 // intro + one loop body, so the file end flows into loop_start_sec.
 //
-// Usage: node tools/export/audio.mjs [--jobs N] [--only REGEX] [--wav] [--keep-wav]
+// Usage: node tools/export/audio.mjs [--jobs N] [--only REGEX] [--wav | --ogg] [--keep-wav]
 //   --jobs N     worker processes (default: CPU count - 1)
 //   --only RE    render only items whose name matches RE (index.json is merged)
-//   --wav        write WAV instead of OGG (OGG needs ffmpeg with libvorbis)
-// Output: ../work/export/audio/{music,sfx}/<name>.ogg and audio/index.json.
+//   --wav        write 16-bit WAV instead of QOA (tools/export/qoa.mjs, about 5 times smaller)
+//   --ogg        write Ogg Vorbis (needs ffmpeg with libvorbis; QOA without it)
+// Output: ../work/export/audio/{music,sfx}/<name>.qoa, music/<name>.icl (chip logs) and
+// audio/index.json.
 // See docs/formats/audio.md for where the data lives and how the game selects it.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -18,6 +20,7 @@ import path from 'node:path';
 import { fork, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { allFiles, loadDisks, exportDir, ensureDir, writeWav, writeJson } from './common.mjs';
+import { writeQoa } from './qoa.mjs';
 import { unpackMusic } from './audio/unpack.mjs';
 import { MUSIC_TABLE } from './audio/songs.mjs';
 
@@ -130,22 +133,36 @@ async function renderJob(job, opts) {
     });
   }
   const dir = job.kind === 'music' ? 'music' : 'sfx';
-  const wavPath = opts.wav ? `${OUT}/${dir}/${job.name}.wav` : `${opts.tmp}/${job.name}.wav`;
+  let chipLog = null;
+  if (job.kind === 'music') {
+    const { buildChipLog } = await import('./audio/chiplog.mjs');
+    chipLog = `${OUT}/music/${job.name}.icl`;
+    ensureDir(path.dirname(chipLog));
+    fs.writeFileSync(chipLog, buildChipLog(sess, r.cut));
+  }
+  let file;
+  if (opts.format === 'qoa') {
+    file = `${OUT}/${dir}/${job.name}.qoa`;
+    writeQoa(file, r.audio, RATE, 2);
+  } else {
+  const wavPath = opts.format === 'wav' ? `${OUT}/${dir}/${job.name}.wav` : `${opts.tmp}/${job.name}.wav`;
   writeWav(wavPath, r.audio, RATE, 2);
-  let file = wavPath;
-  if (!opts.wav) {
+  file = wavPath;
+  if (opts.format === 'ogg') {
     file = `${OUT}/${dir}/${job.name}.ogg`;
     ensureDir(path.dirname(file));
     const p = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', wavPath, '-c:a', 'libvorbis', '-q:a', '6', file]);
     if (p.status !== 0) throw new Error(`ffmpeg failed: ${p.stderr}`);
     if (!opts.keepWav) fs.unlinkSync(wavPath);
   }
+  }
   const n = r.audio.length / 2;
   return {
-    name: job.name, kind: job.kind, file: path.relative(OUT, file),
+    name: job.name, kind: job.kind, file: path.relative(OUT, file).replaceAll('\\', '/'),
     source: job.src + (job.entry ? `#${job.entry}` : ''), source_disks: f.disks,
     ...(f.consistent ? {} : { warning: 'file differs between disks; first copy used' }),
     duration: +(n / RATE).toFixed(4), sample_rate: RATE, channels: 2,
+    ...(chipLog ? { chip_log: path.relative(OUT, chipLog).replaceAll('\\', '/') } : {}),
     loop: !!r.loop,
     loop_start_sec: r.loop ? +(r.loop.start / RATE).toFixed(4) : null,
     loop_end_sec: r.loop ? +(r.loop.end / RATE).toFixed(4) : null,
@@ -168,7 +185,8 @@ async function renderJob(job, opts) {
 // ---- main ------------------------------------------------------------------------------------
 const argv = process.argv.slice(2);
 const arg = (k) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
-const opts = { wav: argv.includes('--wav'), keepWav: argv.includes('--keep-wav'), tmp: `${OUT}/.tmp` };
+const opts = { format: arg('--format') ?? (argv.includes('--wav') ? 'wav' : argv.includes('--ogg') ? 'ogg' : 'qoa'),
+  keepWav: argv.includes('--keep-wav'), tmp: `${OUT}/.tmp` };
 
 if (argv[0] === '--worker') {
   process.on('message', async (job) => {
@@ -176,9 +194,9 @@ if (argv[0] === '--worker') {
     catch (e) { process.send({ ok: false, name: job.name, error: e.stack }); }
   });
 } else {
-  if (!opts.wav && spawnSync('ffmpeg', ['-hide_banner', '-encoders']).stdout?.toString().includes('libvorbis') !== true) {
-    console.log('ffmpeg with libvorbis not found: writing WAV');
-    opts.wav = true;
+  if (opts.format === 'ogg' && spawnSync('ffmpeg', ['-hide_banner', '-encoders']).stdout?.toString().includes('libvorbis') !== true) {
+    console.log('ffmpeg with libvorbis not found: writing QOA');
+    opts.format = 'qoa';
   }
   ensureDir(opts.tmp);
   const only = arg('--only') ? new RegExp(arg('--only')) : null;
@@ -192,7 +210,7 @@ if (argv[0] === '--worker') {
   const self = fileURLToPath(import.meta.url);
   await new Promise((done) => {
     const startWorker = () => {
-      const w = fork(self, ['--worker', ...argv, ...(opts.wav && !argv.includes('--wav') ? ['--wav'] : [])]);
+      const w = fork(self, ['--worker', ...argv, '--format', opts.format]);
       const feed = () => {
         if (next >= todo.length) { w.kill(); if (--running === 0) done(); return; }
         const job = todo[next++];
@@ -218,7 +236,7 @@ if (argv[0] === '--worker') {
   const items = [...results.values()].sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
   writeJson(indexFile, {
     generator: 'tools/export/audio.mjs', driver: 'ZMUSIC 1.49F (ZMUSIC -U -BICITY.ZPD) in the emulator',
-    sample_rate: RATE, format: opts.wav ? 'wav' : 'ogg',
+    sample_rate: RATE, format: opts.format,
     loop_convention: 'file = intro + one loop body; loop region is [loop_start_sec, loop_end_sec) and loop_end_sec is the file end. Godot: AudioStreamOggVorbis.loop = true, loop_offset = loop_start_sec.',
     trim: 'leading silence removed up to the first sample above 2e-4 (-74 dBFS); one-shot items end 20-50 ms after the last audible sample',
     items,

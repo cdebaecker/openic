@@ -512,6 +512,7 @@ func _display(b: PackedByteArray) -> String:
 
 func frame(vsyncs: int) -> void:
 	run_map_animation()
+	map.tick_tiles()
 	screen.render()
 	await screen.get_tree().create_timer(maxi(vsyncs, 1) / FRAME_RATE).timeout
 

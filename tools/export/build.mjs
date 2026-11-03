@@ -81,7 +81,7 @@ for (const [name, , done] of EXPORTERS) {
   if (!fs.existsSync(`${exportDir}/${done}`)) { console.warn(`${name}: missing (${exportDir}/${done}), not included`); continue; }
   // (an exporter may write into another one's folder, e.g. systems -> data/)
   if (!fs.existsSync(`${exportDir}/${name}`)) continue;
-  fs.cpSync(`${exportDir}/${name}`, `${out}/${name}`, { recursive: true, filter: (p) => !p.endsWith('.wav') || !fs.existsSync(p.slice(0, -4) + '.ogg') });
+  fs.cpSync(`${exportDir}/${name}`, `${out}/${name}`, { recursive: true, filter: (p) => !p.endsWith('.wav') || !['.ogg', '.qoa'].some((x) => fs.existsSync(p.slice(0, -4) + x)) });
   sections[name] = `${name}/`;
 }
 // Translation: dialogue/narration table and interface glossary (README, "English translation"),

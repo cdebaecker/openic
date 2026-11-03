@@ -21,6 +21,7 @@ var _view: RefCounted = null
 var _set_paths := {}      # "fileSize,packedSize,field24,field26" -> cg9 path (without .json)
 var _sets := {}           # same key -> SpriteSet
 var _frame_mismatch := 0  # recorded frames that are not seq[step - 1] of the port's SpriteSet
+var _anim_mismatch := 0   # flips where the port's tile animation remap differs from the original's
 
 
 func _ready() -> void:
@@ -49,6 +50,8 @@ func _ready() -> void:
 	print("total %d/%d" % [exact, shots])
 	if _frame_mismatch > 0:
 		print("sprite frames different from seq[step - 1]: %d" % _frame_mismatch)
+	print("tile animation: %s" % ("remaps identical at every flip" if _anim_mismatch == 0
+		else "%d flips with a different remap" % _anim_mismatch))
 	get_tree().quit()
 
 
@@ -69,6 +72,29 @@ func _check(dir: String, scenario: String, diff_dir: String) -> Array:
 		for c in fl.get("cellChanges", []):
 			map.vr_cells[int(c[1]) * map.width + int(c[0])] = int(c[2])
 		cells.append(map.vr_cells.duplicate())
+	# tile animation: start from the recorded tables, tick once per later flip (one f_73668 each), and
+	# compare with the remaps the original drew with; the renders use the recorded remaps
+	var remaps: Array = []
+	var anim_bad := 0
+	if f0.has("tileAnimB64"):
+		_sync_tile_anim(map, Marshalls.base64_to_raw(f0["tileAnimB64"]))
+	var recorded := PackedByteArray()
+	for fi in flips.size():
+		var fl: Dictionary = flips[fi]
+		if fi > 0:   # the tables were read in the redraw of the first flip, after its tick
+			map.tick_tiles()
+		if fl.has("remapB64"):
+			recorded = Marshalls.base64_to_raw(fl["remapB64"])
+		if not recorded.is_empty():
+			# a map without a sub layer keeps the previous map's sub tileset in the original (not
+			# reloaded, still animated, never drawn): compare the sub remap only where it is drawn
+			var drawn := 512 if map.info.get("subMap") != null else 256
+			if (map.remap[0] + map.remap[1]).slice(0, drawn) != recorded.slice(0, drawn):
+				_anim_mismatch += 1
+				anim_bad += 1
+			remaps.append(recorded if drawn == 512 else recorded.slice(0, 256) + map.remap[1])
+		else:
+			remaps.append(map.remap[0] + map.remap[1])
 	var first_warp := INF
 	for w in t["warps"]:
 		first_warp = minf(first_warp, w["frame"])
@@ -100,6 +126,9 @@ func _check(dir: String, scenario: String, diff_dir: String) -> Array:
 		var renders: Array = []
 		for ci in cand.slice(-2):
 			map.vr_cells = cells[ci]
+			var rm: PackedByteArray = remaps[ci]
+			map.remap[0] = rm.slice(0, 256)
+			map.remap[1] = rm.slice(256, 512)
 			var r := _render_diff(map, field, flips[ci], palette, want)
 			renders.append(r)
 			if OS.has_environment("FIELD_RENDER_CANDIDATES") and diff_dir != "":
@@ -121,6 +150,8 @@ func _check(dir: String, scenario: String, diff_dir: String) -> Array:
 			_save_pair(shot, best[1], diff_dir.path_join("%s_%s" % [scenario, f]))
 	if torn > 0:
 		worst = " (%d torn: flip during the scan)%s" % [torn, worst]
+	if anim_bad:
+		worst += "  tile animation differs at %d flips" % anim_bad
 	return [ok, count, worst]
 
 
@@ -186,6 +217,17 @@ func _render_diff(map, field, fl: Dictionary, palette: PackedByteArray, want: Pa
 			n += 1
 			per_row[i / ScreenImage.WINDOW.size.x] += 1
 	return [n, got, per_row]
+
+
+## Tile animation state from the recorded $C100 / $C300 tables (countdowns and rotated tile lists of
+## the map's records), then the remap they give.
+func _sync_tile_anim(map, raw: PackedByteArray) -> void:
+	for layer in 2:
+		for rec: Dictionary in map.tile_anim[layer]:
+			var o: int = layer * 0x200 + int(rec["index"]) * 16
+			rec["countdown"] = raw[o + 1]
+			rec["tiles"] = raw.slice(o + 3, o + 3 + (rec["tiles"] as PackedByteArray).size())
+	map.rebuild_remap()
 
 
 ## The CG9 set of a recorded sprite, found by its header fields [fileSize, packedSize, +24, +26].

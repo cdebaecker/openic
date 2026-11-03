@@ -42,6 +42,8 @@ export class Session {
     this.samples = 0;       // stereo frames captured so far
     this.events = [];       // {t (sample position), k (token)}
     this.keyOns = 0;
+    this.opmRegs = new Int16Array(257).fill(-1);   // last value per register (256: $19 with bit 7 set)
+    this.chip = [];         // ADPCM chip log: {t, op: 'play' | 'cont' | 'stop' | 'ppi', addr, len, v}
     const sys = this.sys = new X68k({ epoch: Date.UTC(1993, 4, 24, 12, 0, 0), disks, font: new Font(), log: () => {},
       audioRate: rate, audioOut: (buf) => { this.chunks.push(Float32Array.from(buf)); this.samples += buf.length / 2; } });
     // No display needed: skip scanline rendering (most of the emulation time otherwise).
@@ -50,6 +52,7 @@ export class Session {
     opm.write = (r, v) => {
       if (r < 0x10 || r > 0x14) {
         this.events.push(this.now(), (r << 8) | v);
+        this.opmRegs[r === 0x19 && (v & 0x80) ? 256 : r] = v;
         if (r === 0x08 && (v & 0x78)) this.keyOns++;
       }
       origWrite(r, v);
@@ -60,6 +63,33 @@ export class Session {
       // and the DMA registers at start depend on how the previous sample was cut off.
       if (n === 3) this.keyOns++;
       origStart(n);
+    };
+    // ADPCM for the chip log (tools/export/audio/chiplog.mjs): commands, PPI settings, and the
+    // bytes the MSM6258 takes, grouped into runs of consecutive addresses.
+    const adpcm = sys.adpcm, origCommand = adpcm.command.bind(adpcm), origNext = adpcm.nextByte.bind(adpcm);
+    let run = null;
+    adpcm.command = (d) => {
+      origCommand(d);
+      if (d & 1) { this.chip.push({ t: this.now(), op: 'stop' }); run = null; }
+      else if (d & 2) { run = { t: this.now(), op: 'play', addr: -1, len: 0 }; this.chip.push(run); }
+    };
+    adpcm.nextByte = () => {
+      const c = sys.dmac.ch[3], a = c.mar;
+      const b = origNext();
+      if (b < 0) { run = null; return b; }
+      if (!run || (run.addr >= 0 && a !== run.addr + run.len)) {
+        run = { t: this.now(), op: 'cont', addr: a, len: 0 };
+        this.chip.push(run);
+      }
+      if (run.addr < 0) run.addr = a;
+      run.len++;
+      return b;
+    };
+    const origPPI = sys.setPPIC.bind(sys);
+    sys.setPPIC = (d) => {
+      const before = sys.ppiC & 15;
+      origPPI(d);
+      if ((d & 15) !== before) this.chip.push({ t: this.now(), op: 'ppi', v: d & 15 });
     };
     // The IPL ROM leaves DMAC channel 3 with SCR = $04 (memory address counts up); ZMUSIC
     // relies on that and never writes SCR. The emulator's HLE boot leaves it 0, so every
@@ -80,7 +110,11 @@ export class Session {
   get mbox() { return this.base + MBOX; }
 
   // Drop captured audio and events (keeps the machine state).
-  reset() { this.chunks = []; this.samples = 0; this.events = []; this.keyOns = 0; }
+  reset() {
+    this.chunks = []; this.samples = 0; this.events = []; this.keyOns = 0; this.chip = [];
+    this.startRegs = Int16Array.from(this.opmRegs);   // chip state the log starts from
+    this.startPPI = this.sys.ppiC & 15;
+  }
 
   write(offset, bytes) { this.sys.m.writeBytes(this.base + DATA_OFFSET + offset, bytes); return this.base + DATA_OFFSET + offset; }
 

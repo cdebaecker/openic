@@ -57,7 +57,7 @@ All text, the port's own screens included, is drawn with the game font (`fonts/`
 |---|---|
 | `scripts/main.gd` | screen flow: splash → title → cutscenes / game |
 | `scripts/autoload/game_data.gd` | finds and loads the exported data (PNG, JSON, OGG/WAV) |
-| `scripts/autoload/audio.gd` | music with loop points, sound effects (`audio/index.json`); MT-32 music (`mt32/index.json`) |
+| `scripts/autoload/audio.gd` | music with loop points, sound effects (`audio/index.json`); FM music played live from chip logs by the chipsynth GDExtension when built (`native/README.md`), else from the rendered files; MT-32 music (`mt32/index.json`) |
 | `scripts/autoload/game_text.gd` | English / French / Japanese text from the translation tables and glossaries |
 | `scripts/screens/` | splash (required credit), title menu, cutscene player |
 | `scripts/cutscene/` | graphic VRAM model and text layer used by the cutscene player |
@@ -115,15 +115,15 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    pushing, followers, mouse/pad input, camera and triggers follow `docs/field.md` and reproduce
    all 526 recorded ticks of the reference traces (`-- --field-test=<traces>`), on A00 and seven
    later maps (BK2, B01, CK2, C00, E3X, AK3, J5X). Rendered states match the original's
-   screenshots in 676 of 695 cases (`-- --field-render-test=<traces>`: layer draw modes, masked
-   foreground over each sprite, the attribute-bit rule; the test compares each screenshot with the
-   page flips the trace logs, torn frames included). Known gap: the foreground over a sprite is
-   walked over a fixed 2 x 4 tiles (the party's size), while the original walks each CG9 part of
-   the sprite (f_7504c); with the large vehicle sprite on AK3 that hides 4 pixel rows of its
-   bottom edge in 19 screenshots. Direct doors warp
+   screenshots in all 680 cases (`-- --field-render-test=<traces>`: layer draw modes, masked
+   foreground over each sprite, the attribute-bit rule, tile animation; the test compares each
+   screenshot with the page flips the trace logs, torn frames included, and checks the tile
+   animation remaps against the original's at every flip). The foreground over a sprite is walked
+   over the box of the frame's parts (f_74d74 / f_7504c). Direct doors warp
    as in the original; map actors (NPCs) are drawn, moved and animated by their scripts and wander
-   (f_76980), map and tile animations run, the partial-foreground rule (attribute bits 1/9) is
-   applied, script doors warp through the VM. Not yet: the field tile-animation remap (no traced map uses it).
+   (f_76980), map and tile animations run (tile animation: f_742e8 / f_749aa, once per field
+   redraw; e.g. the blinking floor lights under the vehicle on AK3), the partial-foreground rule (attribute bits 1/9) is
+   applied, script doors warp through the VM.
    The party panel shows the names and LV/HP/MP as the original's (English names drawn over the
    name tiles in English mode).
 4. **Events** — playable through the intro: "Start from the beginning" runs IC_MAIN's new-game
@@ -167,9 +167,10 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    set 2 per map, scrolling battle layers, battle tile animation, the contact-battle palette
    flash, the per-tile layer rule (attribute bits 6/7), enemy call for help / split and
    impact-time messages are traced (J20, H51, I52, F60, B6X) and reproduced: the arena test
-   covers 1 355 snapshots of seven traces and 255 actions, all exact. Known gaps: the event
-   formations of group 3 (F7X: the original leaves out enemy record 4) and group 9 (J07, the last
-   battle: party records 1-2 and record 4 left out) are not modelled; groups 5-8 are not traced
+   covers 1 355 snapshots of seven traces and 255 actions, all exact. Event battles run the map's
+   trigger-block +8 entry once before the battle is shown, as the original does: its scripts hide
+   records (F7X holds an enemy back, the last battle on J07 leaves Meihong and Lee out); all 26
+   recorded battles, event groups 0-4 and 9 included, replay exactly. Groups 5-8 are not traced
    yet (the injected battle does not start on those maps).
 7. **Whole game** — completable unattended. Stability: `-- --sweep-map=ID` runs every map's enter /
    always scripts, all triggers and talk entries unattended; all 150 maps complete without errors.

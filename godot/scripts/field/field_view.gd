@@ -74,25 +74,36 @@ func render(map, field, sprites: Array = [], windows: Array = [], frame_tiles: C
 	screen.flush()
 
 
-## Foreground over one sprite (f_7504c from $7523C): every column of the sprite's 2 x 4 tiles is
-## walked up from the actor's row with a flag that starts at 1. A main tile without attribute bit 0
-## (bit 8 on layer 1) sets the flag to 1 and is not redrawn; one with bit 1 (9) as well sets it to
-## "this is the actor's row"; a tile with bit 0 is redrawn when the flag is 1. The redraw is the main
-## tile alone, masked by its own mask (f_8749e), so the sprite shows through its clear pixels.
+## Foreground over one sprite (f_7504c from $7523C). The box is the cells of the frame's parts
+## (f_74d74: left/right columns, bottom and top rows; 2 x 4 above the anchor for the party). Each
+## column is walked up from the box's bottom row, or from the anchor row when the box is above it,
+## with a flag that starts at 1 and a row counter that starts at bottom - anchor. A main tile
+## without attribute bit 0 (bit 8 on layer 1) sets the flag to 1 and is not redrawn; one with
+## bit 1 (9) as well sets it to "this is the first row"; a tile with bit 0 is redrawn when the flag
+## is 1 and the counter is not negative (rows between the anchor and a box above it are only
+## walked). The redraw is the main tile alone, masked by its own mask (f_8749e), so the sprite
+## shows through its clear pixels.
 func _redraw_foreground(map, field, s: Dictionary, v: Vector2i) -> void:
 	var full: int = 1 << (8 * int(s["layer"]))
 	var part: int = 2 << (8 * int(s["layer"]))
-	for tx in range(int(s["x"]), int(s["x"]) + 2):
+	var box: Rect2i = s["set"].cell_box(int(s["frame"]))
+	if not box.has_area():
+		return
+	var below: int = box.end.y - 1          # bottom row relative to the anchor
+	var start: int = int(s["y"]) + maxi(below, 0)
+	var rows: int = box.size.y - mini(below, 0)
+	for tx in range(int(s["x"]) + box.position.x, int(s["x"]) + box.end.x):
 		var flag := true
-		for row in 4:
-			var ty: int = int(s["y"]) - row
+		for k in rows:
+			var counter: int = below + k
+			var ty: int = start - k
 			var at: int = field.attr_at(tx, ty)
+			if at & part and at & full:
+				flag = k == 0
 			if not (at & full):
 				flag = true
 				continue
-			if at & part:
-				flag = row == 0
-			if flag:
+			if flag and counter >= 0:
 				screen.redraw_tile_masked(map, tx, ty, v.x, v.y)
 
 

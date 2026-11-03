@@ -80,6 +80,10 @@ func run(mode: int, actor: int) -> String:
 	_sel = {"x": SELECTOR.position.x, "y": SELECTOR.position.y, "w": SELECTOR.size.x, "h": SELECTOR.size.y,
 		"cx": 0, "cy": 0, "colour": 7}
 	field.enter_battle(self)
+	# event battles: the trigger-block +8 entry also runs once before the battle is shown (f_6abca
+	# $6AD06: f_6b8de($A0354)); scripts hide records there (combatantVisible): the last battle's
+	# party members, F7X's enemy that comes in later
+	await BM._run_hook(bs, self, "act")
 	_play_battle_music()
 	await field.fade(false)
 	# enemies' entrance (action $40), then idle

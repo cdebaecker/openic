@@ -330,6 +330,7 @@ export function renderMusic(sess, addr, { maxSec = 900, fallbackSec = 300, audio
     const sim = envelopeMatch(au, S, S + P, Math.min(P, 20 * rate), rate);
     const spec = spectralMatch(au, S, S + P, Math.min(P, 20 * rate), rate);
     return { audio: out, loop: { start: S - lead, end: (S - lead) + P }, ended: false,
+      cut: { lead, S, P, second: confirmed.approx ? 0 : P },
       exactStart: (Math.max(Math.round(confirmed.start), lead) - lead) / rate,
       loopMatch: sim.corr, loopLagMs: sim.lagMs, specMatch: spec.match, specBaseline: spec.baseline, rendered: sec(),
       ...(confirmed.approx ? { approx: confirmed.method === 'audio' ? { method: 'audio', score: confirmed.score }
@@ -337,7 +338,8 @@ export function renderMusic(sess, addr, { maxSec = 900, fallbackSec = 300, audio
   }
   const last = lastAudible(au);
   const end = Math.min(au.length >> 1, last + Math.round(0.05 * rate));
-  return { audio: au.slice(lead * 2, Math.max(lead, end) * 2), loop: null, ended, rendered: sec() };
+  return { audio: au.slice(lead * 2, Math.max(lead, end) * 2), loop: null, ended, rendered: sec(),
+    cut: { lead, end: Math.max(lead, end) } };
 }
 
 // ---- sound effects -------------------------------------------------------------------------

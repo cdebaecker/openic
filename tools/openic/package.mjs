@@ -20,6 +20,12 @@ const godot = opt('--godot', process.env.GODOT);
 const out = path.resolve(opt('--out', path.join(repo, 'dist/windows')));
 if (!godot) { console.log('Godot executable: pass --godot <path> or set GODOT'); process.exit(1); }
 
+// live synthesis of the music (native/); without it the game plays the rendered files
+const dll = path.join(repo, 'godot/bin/chipsynth.windows.template_release.x86_64.dll');
+if (!fs.existsSync(dll)) {
+  try { execFileSync(process.execPath, [path.join(repo, 'tools/native/build.mjs')], { stdio: 'inherit' }); }
+  catch { console.log('chipsynth not built: the release plays the rendered music files'); }
+}
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 console.log('exporting the game…');
@@ -43,9 +49,14 @@ fs.writeFileSync(path.join(out, 'README.txt'), [
   'exporters of OpenIC).',
   '',
   'OpenIC is free software under the GNU GPL v3 (LICENSE.txt); source: https://github.com/cdebaecker/openic',
+  'The music is synthesized live with ymfm (BSD 3-Clause, Copyright Aaron Giles) and godot-cpp (MIT).',
   '',
 ].join('\r\n'));
 if (fs.existsSync(path.join(repo, 'LICENSE'))) fs.copyFileSync(path.join(repo, 'LICENSE'), path.join(out, 'LICENSE.txt'));
+for (const [dep, file] of [['ymfm', 'LICENSE'], ['godot-cpp', 'LICENSE.md']]) {
+  const f = path.join(repo, 'native/deps', dep, file);
+  if (fs.existsSync(f)) fs.copyFileSync(f, path.join(out, `LICENSE-${dep}.txt`));
+}
 
 if (args.includes('--zip')) {
   const { writeZip } = await import('../export/zip.mjs');

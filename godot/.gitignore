@@ -8,3 +8,4 @@ gamedata.zip
 build/
 # Local editor plugins (e.g. the AI tooling plugin): not part of the game
 addons/
+bin/

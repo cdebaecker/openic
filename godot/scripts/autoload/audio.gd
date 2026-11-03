@@ -5,6 +5,9 @@ extends Node
 ## The MT-32 versions of the area music (mt32/index.json, same fields) replace the FM tracks of
 ## the same name when the device is "mt32"; the jingles and the opening / ending music exist
 ## only in FM, as in the original.
+## FM music plays live from its chip log (chip_log in the index: the OPM and ADPCM writes, played
+## by the chipsynth GDExtension with ymfm, native/) when the extension is loaded; otherwise, or
+## with live_synth off, from the rendered files.
 
 const SFX_VOICES := 4
 
@@ -22,6 +25,7 @@ var _next_sfx := 0
 var _index := {}
 var _mt32 := {}
 var device := "fm"
+var live_synth := true
 
 
 func _ready() -> void:
@@ -98,12 +102,27 @@ func play_music(track: String, fade_in := 0.0) -> void:
 		push_warning("Audio: unknown track %s" % track)
 		return
 	var loop_start: float = info.get("loop_start_sec", 0.0) if info.get("loop", false) else -1.0
-	_music.stream = GameData.audio(info["file"], loop_start)
+	var live := _chip_stream(info)
+	_music.stream = live if live != null else GameData.audio(info["file"], loop_start)
 	current = track
 	_music.volume_db = -40.0 if fade_in > 0.0 else music_volume_db
 	_music.play()
 	if fade_in > 0.0:
 		create_tween().tween_property(_music, "volume_db", music_volume_db, fade_in)
+
+
+## The track's chip log as an AudioStreamChipLog, or null (no extension, no log, live_synth off).
+func _chip_stream(info: Dictionary) -> AudioStream:
+	if not live_synth or not info.has("chip_log") or not ClassDB.class_exists("AudioStreamChipLog"):
+		return null
+	var rel: String = String(info["file"]).get_base_dir().path_join(String(info["chip_log"]).get_file())
+	var bytes := FileAccess.get_file_as_bytes(GameData.path(rel))
+	if bytes.is_empty():
+		return null
+	var s: AudioStream = ClassDB.instantiate("AudioStreamChipLog")
+	s.set("data", bytes)
+	s.set("loop", info.get("loop", false))
+	return s if s.call("is_valid") else null
 
 
 func stop_music(fade_out := 0.0) -> void:

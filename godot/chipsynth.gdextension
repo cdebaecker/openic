@@ -1,0 +1,8 @@
+[configuration]
+
+entry_symbol = "chipsynth_init"
+compatibility_minimum = "4.5"
+
+[libraries]
+
+windows.x86_64 = "res://bin/chipsynth.windows.template_release.x86_64.dll"

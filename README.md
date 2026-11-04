@@ -22,8 +22,8 @@ It is non-commercial: it may not be sold or used to make money in any way.
   copy, in DIM, XDF, HDM or D88 format. Put all seven in one folder. File names don't matter:
   OpenIC recognises each disk by its contents. We can't help you find disk images; use your own.
 - **Windows 10 or 11** (64-bit). For other systems, see [Other systems](#other-systems) below.
-- About 400 MB of free space: about 190 MB for OpenIC itself, plus about 190 MB of game data
-  built from your disks.
+- About 130 MB of free space: about 110 MB for OpenIC itself (a 44 MB download), plus about
+  20 MB of game data built from your disks.
 
 ### 2. Download
 
@@ -112,9 +112,12 @@ Escape in the field (with no menu open) returns to the title menu, **without sav
 - **"Some disks are missing from that folder":** the import screen lists which of the seven
   disks it found. Check that all seven images are in the same folder and are complete, in DIM,
   XDF, HDM or D88 format.
-- **Starting over with a fresh import:** close OpenIC and delete the `gamedata` folder in
-  `%APPDATA%\Godot\app_userdata\OpenIC`. The next launch runs the import again. Your saves and
-  settings are kept.
+- **Starting over with a fresh import:** close OpenIC and delete `gamedata.zip` (and the
+  `gamedata` folder, if an older version made one) in `%APPDATA%\Godot\app_userdata\OpenIC`. The
+  next launch runs the import again. Your saves and settings are kept.
+- **Upgrading from 0.2 or older:** those versions imported into a `gamedata` folder of about
+  190 MB. It still works, but you can delete it to import again into the new 17 MB
+  `gamedata.zip`.
 - **No music:** check **Music volume** in Options. If live music doesn't play on your
   computer, set **FM music** to **Recorded**.
 - **Removing OpenIC:** delete the folder you unzipped it into and

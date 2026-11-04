@@ -2,6 +2,9 @@ extends Node
 ## Music and sound effects, named as in audio/index.json of the exported data
 ## (items: {name, kind, file, loop, loop_start_sec, loop_end_sec}, files relative to audio/).
 ## Each looping file is intro + one loop body. Sound effects play on a small pool of voices.
+## The MT-32 versions of the area music (mt32/index.json, same fields) replace the FM tracks of
+## the same name when the device is "mt32"; the jingles and the opening / ending music exist
+## only in FM, as in the original.
 ## FM music plays live from its chip log (chip_log in the index: the OPM and ADPCM writes, played
 ## by the chipsynth GDExtension with ymfm, native/) when the extension is loaded; otherwise, or
 ## with live_synth off, from the rendered files.
@@ -20,6 +23,8 @@ var _music := AudioStreamPlayer.new()
 var _sfx: Array[AudioStreamPlayer] = []
 var _next_sfx := 0
 var _index := {}
+var _mt32 := {}
+var device := "fm"
 var live_synth := true
 
 
@@ -43,6 +48,8 @@ func _load_index() -> void:
 	if not _index.is_empty() or not GameData.exists("audio/index.json"):
 		return
 	_read_index("audio", _index)
+	if GameData.exists("mt32/index.json"):
+		_read_index("mt32", _mt32)
 
 
 func _read_index(dir: String, into: Dictionary) -> void:
@@ -54,6 +61,24 @@ func _read_index(dir: String, into: Dictionary) -> void:
 		if e.has("chip_log"):
 			e["chip_log"] = dir.path_join(e["chip_log"])
 		into[e["name"]] = e
+
+
+## True when the game data has the MT-32 music.
+func has_mt32() -> bool:
+	_load_index()
+	return not _mt32.is_empty()
+
+
+## "fm" or "mt32"; the playing area music switches at once.
+func set_device(d: String) -> void:
+	if d == device:
+		return
+	var old := device
+	device = d
+	var track := current
+	if track != "" and _music.playing and _music_info_for(track, old) != _music_info(track):
+		current = ""
+		play_music(track)
 
 
 ## True when the game data has the FM music as rendered files (not only as chip logs).
@@ -82,7 +107,13 @@ func set_live_synth(on: bool) -> void:
 
 
 func _music_info(track: String) -> Dictionary:
+	return _music_info_for(track, device)
+
+
+func _music_info_for(track: String, d: String) -> Dictionary:
 	_load_index()
+	if d == "mt32" and _mt32.has(track):
+		return _mt32[track]
 	return _index.get(track, {})
 
 

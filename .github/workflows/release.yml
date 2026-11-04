@@ -79,7 +79,7 @@ jobs:
           path: template/godot.windows.template_release.x86_64.exe
           retention-days: 14
 
-      - name: chipsynth (live synthesis of the music)
+      - name: chipsynth and mt32render (native/)
         run: node tools/native/build.mjs
 
       - name: Import the Godot project
@@ -93,6 +93,7 @@ jobs:
           test -f dist/windows/OpenIC.exe
           test -f dist/windows/chipsynth.windows.template_release.x86_64.dll
           test -f dist/windows/importer/node.exe
+          test -f dist/windows/importer/bin/mt32render.exe
           mv dist/windows.zip dist/OpenIC-windows-x86_64.zip
 
       - uses: actions/upload-artifact@v7
@@ -164,7 +165,7 @@ jobs:
           path: template
           key: ${{ steps.template.outputs.cache-primary-key }}
 
-      - name: chipsynth (live synthesis of the music)
+      - name: chipsynth and mt32render (native/)
         run: node tools/native/build.mjs
 
       - name: Import the Godot project
@@ -178,13 +179,16 @@ jobs:
           test -x dist/OpenIC/OpenIC.x86_64
           test -f dist/OpenIC/chipsynth.linux.template_release.x86_64.so
           test -x dist/OpenIC/importer/node
+          test -x dist/OpenIC/importer/bin/mt32render
           mv dist/OpenIC.tar.gz dist/OpenIC-linux-x86_64.tar.gz
 
-      # the release starts (no game data: the import screen) with the music extension loaded, and
-      # the importer's Node.js runs here
+      # the release starts (no game data: the import screen), with the music extension loaded, and
+      # the importer's executables run here
       - name: Smoke test
         run: |
           dist/OpenIC/importer/node --version
+          ! dist/OpenIC/importer/bin/mt32render --check "$RUNNER_TEMP" 2> mt32.log
+          grep -q "no MT-32 or CM-32L" mt32.log
           timeout 120 dist/OpenIC/OpenIC.x86_64 --headless --quit-after 120 > game.log 2>&1 || true
           cat game.log
           ! grep -E "Can't open dynamic library|GDExtension.*(fail|error)|SCRIPT ERROR" game.log

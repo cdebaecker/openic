@@ -2,6 +2,7 @@
 // runs this; it also works from a terminal).
 //
 //   node tools/openic/import.mjs --root <dir> --out <dir> [--text <dir>] [--live-music] [--folder]
+//                                [--mt32-roms <dir>] [--mt32-partials N]
 //     --root  work folder holding the seven images under the names tools/export/common.mjs
 //             expects ("Genei Toshi (1991)(Microcabin)(Disk N of 7).dim"; raw XDF/HDM or DIM);
 //             the exporters' scratch files go to <root>/work
@@ -10,6 +11,10 @@
 //     --live-music  FM music as chip logs only, for a game with the chipsynth extension
 //     --text  translation tables (messages.json, glossary.json, *_fr.json, *_subtitles.json);
 //             default: the text folder next to tools/
+//     --mt32-roms  folder with the player's MT-32 or CM-32L control and PCM ROMs: the MT-32
+//             version of the music is rendered too (mt32render, built from native/ with Munt:
+//             bin/ next to tools/ in a release, else godot/bin). The ROMs are only read.
+//     --mt32-partials  Munt's partial count for that render (default 32, as the hardware)
 //   Or: --disks <dir> instead of --root: finds and names the seven images in <dir> itself (raw
 //   or DIM only; the game's importer also reads D88).
 //
@@ -31,7 +36,7 @@ const DISK_NAME = (i) => `Genei Toshi (1991)(Microcabin)(Disk ${i} of 7).dim`;
 // A file only disk N has (the game's file tree; checked by name and size class only)
 const SIGNATURE = ['ZMUSIC.X', 'GROUP00/000028.DAT', 'GROUP02/000000.DAT', 'GROUP03/000000.DAT',
   'GROUP05/000025.DAT', 'GROUP05/000014.DAT', 'GROUP06/000089.DAT'];
-const EXPORTERS = 14;   // tools/export/build.mjs EXPORTERS
+const EXPORTERS = 15;   // tools/export/build.mjs EXPORTERS
 
 let root = opt('--root');
 const out = opt('--out');
@@ -67,6 +72,12 @@ fs.mkdirSync(workText, { recursive: true });
 if (fs.existsSync(text)) for (const f of fs.readdirSync(text)) if (f.endsWith('.json')) fs.copyFileSync(path.join(text, f), path.join(workText, f));
 
 const env = { ...process.env, IC_ROOT: root.replace(/\\/g, '/'), IC_EXPORT: path.join(root, 'work', 'export').replace(/\\/g, '/') };
+// MT-32 music (tools/export/mt32.mjs): only with the player's ROMs; otherwise it renders nothing
+const exe = process.platform === 'win32' ? 'mt32render.exe' : 'mt32render';
+const mt32render = [path.join(repo, 'bin', exe), path.join(repo, 'godot', 'bin', exe)].find((f) => fs.existsSync(f));
+if (mt32render) env.IC_MT32RENDER = mt32render;
+env.IC_MT32_ROMS = path.resolve(opt('--mt32-roms') ?? path.join(root, 'no-mt32-roms'));
+if (opt('--mt32-partials')) env.IC_MT32_PARTIALS = opt('--mt32-partials');
 const run = (script, extra, label) => {
   const p = spawnSync(process.execPath, ['--max-old-space-size=8192', path.join(repo, script), ...extra], { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   if (p.status !== 0) fail(`${label}: ${(p.stderr || p.stdout || String(p.error)).trim().split('\n').slice(-3).join(' | ')}`);

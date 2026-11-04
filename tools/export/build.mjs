@@ -3,7 +3,7 @@
 //
 // Usage: node tools/export/build.mjs [--reuse] [--only name,...] [--out DIR] [--zip] [--previews] [--live-music]
 //   --reuse   skip exporters whose output already exists in ../work/export
-//   --only    run just these exporters (pic, cg9, data, audio, cutscenes, frame, text, events, ui, gep, systems, uistrings, battle, battledata)
+//   --only    run just these exporters (pic, cg9, data, audio, mt32, cutscenes, frame, text, events, ui, gep, systems, uistrings, battle, battledata)
 //   --out     destination (default godot/gamedata, which the project finds in development)
 //   --zip     also write <out>.zip (compressed), which the game mounts as a resource pack
 //   --previews  also write the maps' preview pictures (data/previews; not used by the game)
@@ -25,12 +25,14 @@ const opt = (f, d) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] :
 const out = path.resolve(opt('--out', `${repo}/godot/gamedata`));
 const only = opt('--only', '')?.split(',').filter(Boolean);
 
-// name, exporter arguments, file that shows the export is complete.
+// name, exporter arguments, file that shows the export is complete. mt32 is optional: it needs
+// Munt and the player's own MT-32 / CM-32L ROMs (tools/export/mt32.mjs) and writes nothing without.
 const EXPORTERS = [
   ['pic', [], 'pic/index.json'],
   ['cg9', [], 'cg9/index.json'],
   ['data', flag('--previews') ? ['--previews'] : [], 'data/index.json'],
   ['audio', flag('--live-music') ? ['--live-music'] : [], 'audio/index.json'],
+  ['mt32', [], 'mt32/index.json'],
   ['cutscenes', [], 'cutscenes/ending.json'],
   ['frame', [], 'frame/battle.json'],
   ['text', [], 'text/sjis.json'],
@@ -55,9 +57,10 @@ const exportOne = (name, extra, done) => {
     const t0 = Date.now();
     const runs = (PARTS[name] ?? [null]).map((part) => new Promise((r) => spawn(process.execPath,
       ['--max-old-space-size=8192', `${here}/${name}.mjs`, ...extra, ...(part ? [part] : [])],
-      { stdio: ['ignore', 'ignore', 'inherit'] }).on('close', r)));
+      { stdio: ['ignore', name === 'mt32' ? 'inherit' : 'ignore', 'inherit'] }).on('close', r)));
     const codes = await Promise.all(runs);
     if (codes.some((c) => c !== 0)) throw new Error(`${name}: the exporter failed (exit codes ${codes.join(', ')})`);
+    if (name === 'mt32' && !fs.existsSync(`${exportDir}/${done}`)) { console.log(`${name}: done in 0s (not rendered)`); return; }
     if (!fs.existsSync(`${exportDir}/${done}`)) throw new Error(`${name}: the exporter finished without writing ${exportDir}/${done}`);
     console.log(`${name}: done in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
   })();

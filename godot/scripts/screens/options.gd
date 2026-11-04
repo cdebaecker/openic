@@ -87,6 +87,7 @@ func _build_rows() -> void:
 		{"kind": "opt", "id": "pixel", "label": ["Pixel-perfect scaling", "整数倍で拡大", "Agrandissement au pixel près"]},
 		{"kind": "header", "id": "", "label": ["Sound", "音", "Son"]},
 		{"kind": "opt", "id": "music", "label": ["Music volume", "音楽の音量", "Volume de la musique"]},
+		{"kind": "opt", "id": "device", "label": ["Music played on", "音源", "Musique jouée sur"]},
 		{"kind": "opt", "id": "synth", "label": ["FM music", "FM音源の演奏", "Musique FM"]},
 		{"kind": "opt", "id": "sfx", "label": ["Sound effects volume", "効果音の音量", "Volume des effets sonores"]},
 		{"kind": "header", "id": "", "label": ["Game", "ゲーム", "Jeu"]},
@@ -141,6 +142,12 @@ func _opt_value(id: String) -> String:
 			return _on_off(Settings.pixel_perfect)
 		"music":
 			return "%d %%" % Settings.music_volume
+		"device":
+			if Settings.music_device == "mt32" and Audio.has_mt32():
+				return "Roland MT-32"
+			if not Audio.has_mt32():
+				return _t("FM (no MT-32 data)", "FM音源（MT-32なし）", "FM (pas de données MT-32)")
+			return _t("FM (X68000)", "FM音源（X68000）", "FM (X68000)")
 		"synth":
 			if not Audio.can_synthesize():
 				return _t("Recorded (no synthesizer)", "録音（シンセなし）", "Enregistrée (pas de synthétiseur)")
@@ -323,6 +330,9 @@ func _change_opt(id: String, d: int) -> void:
 			Settings.pixel_perfect = not Settings.pixel_perfect
 		"music":
 			Settings.music_volume = clampi(Settings.music_volume + 10 * d, 0, 100)
+		"device":
+			if Audio.has_mt32():
+				Settings.music_device = "fm" if Settings.music_device == "mt32" else "mt32"
 		"synth":
 			if Audio.can_synthesize() and Audio.has_recorded_music():
 				Settings.live_synth = not Settings.live_synth

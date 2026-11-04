@@ -19,6 +19,7 @@ var _file: FileAccess
 var _cb_chunk: JavaScriptObject
 var _cb_done: JavaScriptObject
 var _disks := {}
+var _mt32_roms := ""        # folder with MT-32 / CM-32L ROMs next to the disks, if any
 var _state := "intro"       # intro, choosing, ready, running, failed
 var _pipe := {}
 var _thread: Thread
@@ -101,6 +102,12 @@ func _on_folder(folder: String) -> void:
 		lines.append(GameText.pick("Disk %d: %s", "ディスク%d：%s", "Disque %d : %s") % [n, mark])
 	if _disks.size() == 7:
 		_state = "ready"
+		# the MT-32 music too, from the player's own ROMs put with the disks
+		_mt32_roms = DiscImport.find_mt32_roms(folder)
+		if _mt32_roms != "":
+			lines.append(GameText.pick("MT-32 ROMs: found (the MT-32 music will be built too)",
+				"MT-32 ROM：あり（MT-32版の音楽も作成します）",
+				"ROM MT-32 : trouvées (la musique MT-32 sera aussi construite)"))
 		_label.text = "\n".join(lines) + "\n\n" + GameText.pick(
 			"All seven disks found. Press Enter to build the game data (about 2 minutes).",
 			"７枚とも見つかりました。Enterでゲームデータを作成します（２分ほど）。",
@@ -118,7 +125,7 @@ func _run() -> void:
 	if not DiscImport.stage(_disks):
 		_fail(GameText.pick("A disk image could not be read.", "ディスクイメージを読めませんでした。", "Une image disque est illisible."))
 		return
-	_pipe = DiscImport.start()
+	_pipe = DiscImport.start(_mt32_roms)
 	if _pipe.is_empty():
 		_fail(GameText.pick("The importer (Node.js and tools/openic) was not found.",
 			"インポーター（Node.jsとtools/openic）が見つかりません。",

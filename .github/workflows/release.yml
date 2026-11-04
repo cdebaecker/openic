@@ -40,10 +40,11 @@ jobs:
           rm godot.zip templates.tpz
 
       # Godot without what the game does not use (tools/openic/godot_template.py), built once per
-      # Godot version and option set from Godot's own repository, then taken from the cache
+      # Godot version and option set from Godot's own repository, then taken from the cache (saved
+      # as soon as it is built, whatever happens to the rest of the job)
       - name: Trimmed export template (cache)
         id: template
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: template
           key: godot-template-${{ env.GODOT_VERSION }}-${{ hashFiles('tools/openic/godot_template.py') }}
@@ -63,6 +64,13 @@ jobs:
           scons platform=windows target=template_release arch=x86_64 vulkan=no d3d12=no -j"$NUMBER_OF_PROCESSORS"
           mkdir -p "$GITHUB_WORKSPACE/template"
           cp bin/godot.windows.template_release.x86_64.exe "$GITHUB_WORKSPACE/template/"
+
+      - name: Keep the template in the cache
+        if: steps.template.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: template
+          key: ${{ steps.template.outputs.cache-primary-key }}
 
       # the template itself, for other builds of the game (the private port's)
       - uses: actions/upload-artifact@v7
@@ -125,7 +133,7 @@ jobs:
 
       - name: Trimmed export template (cache)
         id: template
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: template
           key: godot-template-linux-${{ env.GODOT_VERSION }}-${{ hashFiles('tools/openic/godot_template.py') }}
@@ -149,6 +157,13 @@ jobs:
           scons platform=linuxbsd target=template_release arch=x86_64 vulkan=no -j"$(nproc)"
           mkdir -p "$GITHUB_WORKSPACE/template"
           cp bin/godot.linuxbsd.template_release.x86_64 "$GITHUB_WORKSPACE/template/"
+
+      - name: Keep the template in the cache
+        if: steps.template.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: template
+          key: ${{ steps.template.outputs.cache-primary-key }}
 
       - name: chipsynth and mt32render (native/)
         run: node tools/native/build.mjs

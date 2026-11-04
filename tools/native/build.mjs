@@ -7,6 +7,7 @@
 // Needs git, CMake 3.17+ and a C++17 compiler (on Windows: Visual Studio with the C++ workload,
 // whose bundled CMake is found when cmake is not on the PATH).
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -51,5 +52,6 @@ for (const [name, url, commit] of DEPS) {
 const cmake = findCmake();
 const build = path.join(native, 'build');
 run(cmake, ['-S', native, '-B', build, `-DDEPS=${deps}`, '-DCMAKE_BUILD_TYPE=Release']);   // single-config generators (Linux)
-run(cmake, ['--build', build, '--config', 'Release', '--target', 'chipsynth', 'icl2wav', 'mt32render', '--parallel']);
+// a bounded job count: plain --parallel is unlimited make -j on Linux, too many compilers at once
+run(cmake, ['--build', build, '--config', 'Release', '--target', 'chipsynth', 'icl2wav', 'mt32render', '--parallel', String(os.availableParallelism())]);
 console.log(`chipsynth in ${path.resolve(native, '../godot/bin')}`);

@@ -1,5 +1,5 @@
 // OpenIC: build a release - the exported game, and next to it the importer it runs on first
-// launch (Node.js, the exporters, the emulator, the translations, mt32render). No game data:
+// launch (Node.js, the exporters, the emulator, the translations). No game data:
 // players build it from their own disks.
 //
 //   node tools/openic/package.mjs [--godot <Godot executable>] [--platform windows|linux]
@@ -22,21 +22,20 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const platform = opt('--platform', process.platform === 'win32' ? 'windows' : 'linux');
 const P = {
-  windows: { preset: 'Windows', game: 'OpenIC.exe', node: 'node.exe', ext: '.dll', mt32: 'mt32render.exe' },
-  linux: { preset: 'Linux', game: 'OpenIC.x86_64', node: 'node', ext: '.so', mt32: 'mt32render' },
+  windows: { preset: 'Windows', game: 'OpenIC.exe', node: 'node.exe', ext: '.dll' },
+  linux: { preset: 'Linux', game: 'OpenIC.x86_64', node: 'node', ext: '.so' },
 }[platform];
 if (!P) { console.log(`unknown platform ${platform}`); process.exit(1); }
 const godot = opt('--godot', process.env.GODOT);
 const out = path.resolve(opt('--out', path.join(repo, 'dist', platform)));
 if (!godot) { console.log('Godot executable: pass --godot <path> or set GODOT'); process.exit(1); }
 
-// live synthesis of the music and the MT-32 renderer (native/); without chipsynth the game plays
-// the rendered files, without mt32render there is no MT-32 music
+// live synthesis of the music (native/); without it the game plays the rendered files
 const bin = path.join(repo, 'godot/bin');
 const dll = path.join(bin, `chipsynth.${platform}.template_release.x86_64${P.ext}`);
-if (!fs.existsSync(dll) || !fs.existsSync(path.join(bin, P.mt32))) {
+if (!fs.existsSync(dll)) {
   try { execFileSync(process.execPath, [path.join(repo, 'tools/native/build.mjs')], { stdio: 'inherit' }); }
-  catch { console.log('native/ not built: the release plays the rendered music files and has no MT-32 renderer'); }
+  catch { console.log('chipsynth not built: the release plays the rendered music files'); }
 }
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
@@ -66,11 +65,6 @@ for (const d of ['tools', 'src', 'text']) {
 fs.copyFileSync(path.join(repo, 'package.json'), path.join(importer, 'package.json'));
 fs.copyFileSync(process.execPath, path.join(importer, P.node));
 fs.chmodSync(path.join(importer, P.node), 0o755);
-if (fs.existsSync(path.join(bin, P.mt32))) {
-  fs.mkdirSync(path.join(importer, 'bin'), { recursive: true });
-  fs.copyFileSync(path.join(bin, P.mt32), path.join(importer, 'bin', P.mt32));
-  fs.chmodSync(path.join(importer, 'bin', P.mt32), 0o755);
-}
 // Node.js's licence (and its bundled dependencies'), from the nodejs/node repository at the
 // version bundled here; the Windows installer does not install it
 fs.copyFileSync(path.join(here, 'LICENSE-nodejs.txt'), path.join(out, 'LICENSE-nodejs.txt'));
@@ -80,20 +74,17 @@ fs.writeFileSync(path.join(out, 'README.txt'), [
   '',
   `Start ${P.game}. On first launch it asks for the folder with your seven disk images of the`,
   'X68000 game (DIM, XDF, HDM or D88) and builds the game data from them (about 2 minutes).',
-  'Put your MT-32 or CM-32L ROMs (control and PCM) in that folder too to also get the game\'s',
-  'MT-32 music. Nothing of the original game is included. Unofficial, non-commercial fan project.',
+  'Nothing of the original game is included. Unofficial, non-commercial fan project.',
   '',
   'importer/ holds the tools that read your disks (Node.js, MIT licence; the X68000 emulator and',
-  'exporters of OpenIC; mt32render, with Munt).',
+  'exporters of OpenIC).',
   '',
   'OpenIC is free software under the GNU GPL v3 (LICENSE.txt); source: https://github.com/cdebaecker/openic',
   'The music is synthesized live with ymfm (BSD 3-Clause, Copyright Aaron Giles) and godot-cpp (MIT).',
-  'The MT-32 music is rendered with Munt\'s libmt32emu (LGPL 2.1 or later, LICENSE-munt.txt;',
-  'source: https://github.com/munt/munt).',
   '',
 ].join(nl));
 if (fs.existsSync(path.join(repo, 'LICENSE'))) fs.copyFileSync(path.join(repo, 'LICENSE'), path.join(out, 'LICENSE.txt'));
-for (const [dep, file] of [['ymfm', 'LICENSE'], ['godot-cpp', 'LICENSE.md'], ['munt', 'mt32emu/COPYING.LESSER.txt']]) {
+for (const [dep, file] of [['ymfm', 'LICENSE'], ['godot-cpp', 'LICENSE.md']]) {
   const f = path.join(repo, 'native/deps', dep, file);
   if (fs.existsSync(f)) fs.copyFileSync(f, path.join(out, `LICENSE-${dep}.txt`));
 }

@@ -88,48 +88,8 @@ static func text_dir() -> String:
 	return dir.path_join("text")
 
 
-## The MT-32 renderer the importer runs (bin/ next to the tools in a release), or "".
-static func mt32render_path() -> String:
-	var dir := tools_dir()
-	var exe := "mt32render.exe" if OS.get_name() == "Windows" else "mt32render"
-	for p in [dir.path_join("bin").path_join(exe), dir.path_join("godot/bin").path_join(exe)]:
-		if dir != "" and FileAccess.file_exists(p):
-			return p
-	return ""
-
-
-## A folder holding MT-32 or CM-32L ROMs (a control ROM and a PCM ROM, told apart by size): the
-## disk folder itself or a subfolder of it. "" when there are none or the renderer is missing.
-## mt32render identifies them for real during the import.
-static func find_mt32_roms(folder: String) -> String:
-	if mt32render_path() == "":
-		return ""
-	var dirs := [folder]
-	var d := DirAccess.open(folder)
-	if d:
-		for sub in d.get_directories():
-			dirs.append(folder.path_join(sub))
-	for f in dirs:
-		var control := false
-		var pcm := false
-		var dir := DirAccess.open(f)
-		if dir == null:
-			continue
-		for name in dir.get_files():
-			var size := FileAccess.open(f.path_join(name), FileAccess.READ)
-			if size == null:
-				continue
-			var n := size.get_length()
-			control = control or n == 32768 or n == 65536
-			pcm = pcm or n == 524288 or n == 1048576
-		if control and pcm:
-			return f
-	return ""
-
-
 ## Start the import; {stdio, stderr, pid} from OS.execute_with_pipe (empty on failure).
-## mt32_roms: a folder from find_mt32_roms, to render the MT-32 music too.
-static func start(mt32_roms := "") -> Dictionary:
+static func start() -> Dictionary:
 	var dir := tools_dir()
 	if dir == "":
 		return {}
@@ -140,8 +100,6 @@ static func start(mt32_roms := "") -> Dictionary:
 	# FM music as chip logs only when it can be synthesized (about 100 MB less game data)
 	if ClassDB.class_exists("AudioStreamChipLog"):
 		args.append("--live-music")
-	if mt32_roms != "":
-		args.append_array(["--mt32-roms", mt32_roms])
 	return OS.execute_with_pipe(node_path(), args, false)
 
 

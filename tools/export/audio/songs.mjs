@@ -1,5 +1,5 @@
 // ICITY68 music number (resource type 7) -> file, as returned by the game's path routine
-// $6A79C(7, n), and the MIDI tone file MTABLE.COM assigns to it (tools/export/audio/musictable.mjs).
+// $6A79C(7, n), and the tone file MTABLE.COM assigns to it (unused) (tools/export/audio/musictable.mjs).
 // In FM mode (PARA.DAT word 1 = 0, the default) f_69B44 loads GROUP00\0000nn.DAT; in MIDI mode
 // it loads GROUPMD\0000nn.DAT instead. Numbers 12, 19, 36 have no file; 30 and 31 point at
 // files that are not music (GROUP01\000060.DAT does not exist, GROUP00\000045.DAT is map data).

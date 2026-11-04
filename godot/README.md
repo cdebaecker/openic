@@ -57,7 +57,7 @@ All text, the port's own screens included, is drawn with the game font (`fonts/`
 |---|---|
 | `scripts/main.gd` | screen flow: splash → title → cutscenes / game |
 | `scripts/autoload/game_data.gd` | finds and loads the exported data (PNG, JSON, OGG/WAV) |
-| `scripts/autoload/audio.gd` | music with loop points, sound effects (`audio/index.json`); FM music played live from chip logs by the chipsynth GDExtension when built (`native/README.md`), else from the rendered files; MT-32 music (`mt32/index.json`) |
+| `scripts/autoload/audio.gd` | music with loop points, sound effects (`audio/index.json`); FM music played live from chip logs by the chipsynth GDExtension when built (`native/README.md`), else from the rendered files |
 | `scripts/autoload/game_text.gd` | English / French / Japanese text from the translation tables and glossaries |
 | `scripts/screens/` | splash (required credit), title menu, cutscene player |
 | `scripts/cutscene/` | graphic VRAM model and text layer used by the cutscene player |
@@ -105,8 +105,8 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    in the ending; English subtitles for the text the opening draws in its pictures,
    `data/text/opening_subtitles.json`). Options (title > Options, `scripts/screens/options.gd`,
    saved by the `Settings` autoload in `user://settings.cfg`): fullscreen (F11), window size,
-   pixel-perfect scaling, music / effects volume, music device (FM or MT-32, when the game data
-   has the MT-32 renders), language, smooth movement, game and battle
+   pixel-perfect scaling, music / effects volume, FM music live or recorded, language, smooth
+   movement, game and battle
    speed (`Engine.time_scale`; hold Tab / RB to fast-forward), the battle bug fixes, key and
    gamepad bindings, and importing the original's saves from X68000 disk images (XDF, HDM, DIM,
    D88; `scripts/systems/disk_image.gd`, `save_import.gd`; a file dropped on the window works too).
@@ -190,7 +190,5 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    half-width slots, `text_codec.gd` LATIN). Remaining: a human playtest (balance,
    feel, reachability; Holland's cell on F51 opens only after the map is reloaded once after the
    bluff scene, in the original as in the port, and the route walks there on both layers);
-   desktop builds export (web deferred). MIDI music: the game's MT-32 versions of the 31 area
-   songs, rendered with Munt and the player's own ROMs (`tools/export/mt32.mjs`, optional in the
-   build; the ROMs are never in the repository or the game data's sources); the jingles and the
-   opening / ending music are FM only, as in the original.
+   desktop builds export (web deferred). Music is the X68000's FM version only; the game's
+   MIDI (MT-32) mode is not reproduced (`docs/formats/audio.md`).

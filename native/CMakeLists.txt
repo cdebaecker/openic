@@ -30,7 +30,7 @@ add_subdirectory("${DEPS}/godot-cpp" godot-cpp EXCLUDE_FROM_ALL)
 add_library(chipsynth SHARED src/godot_chipsynth.cpp)
 target_link_libraries(chipsynth PRIVATE chipcore godot-cpp)
 get_target_property(GODOTCPP_SUFFIX godot-cpp GODOTCPP_SUFFIX)
-set(OUT "${CMAKE_CURRENT_SOURCE_DIR}/../godot/bin" CACHE PATH "where the extension and mt32render go")
+set(OUT "${CMAKE_CURRENT_SOURCE_DIR}/../godot/bin" CACHE PATH "where the extension goes")
 set_target_properties(chipsynth PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     OUTPUT_NAME "chipsynth${GODOTCPP_SUFFIX}"
@@ -38,22 +38,8 @@ set_target_properties(chipsynth PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "$<1:${OUT}>"
     RUNTIME_OUTPUT_DIRECTORY "$<1:${OUT}>")
 
-# mt32render: the MT-32 music rendered with Munt (libmt32emu, linked in) for the importer, from
-# the player's own ROMs (tools/export/mt32.mjs). Built only when Munt is in DEPS.
-if(EXISTS "${DEPS}/munt/mt32emu/CMakeLists.txt")
-    set(libmt32emu_SHARED OFF CACHE BOOL "" FORCE)
-    set(libmt32emu_BUILD_TESTING OFF CACHE BOOL "" FORCE)
-    add_subdirectory("${DEPS}/munt/mt32emu" munt EXCLUDE_FROM_ALL)
-    add_executable(mt32render src/mt32render.cpp)
-    target_link_libraries(mt32render PRIVATE MT32Emu::mt32emu)
-    set_target_properties(mt32render PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<1:${OUT}>")
-endif()
-
 # Linux: the C++ runtime linked in, so the release runs on other distributions than the build's
 if(NOT MSVC)
     target_link_options(chipsynth PRIVATE -static-libstdc++ -static-libgcc)
-    if(TARGET mt32render)
-        target_link_options(mt32render PRIVATE -static-libstdc++ -static-libgcc)
-    endif()
     target_link_options(icl2wav PRIVATE -static-libstdc++ -static-libgcc)
 endif()

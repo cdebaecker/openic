@@ -63,7 +63,7 @@ function jobs() {
     const src = `GROUP00/${String(file).padStart(6, '0')}.DAT`;
     list.push({ name: `bgm_${pad(id)}`, kind: 'music', src, unpack: true,
       used_by: [`ICITY68 music ${id} (f_69B44 -> f_66988 -> play_cnv_data)`],
-      notes: `MIDI version GROUPMD/${String(file).padStart(6, '0')}.DAT, MIDI tone file ${tone}.BIN` +
+      notes: `MIDI version GROUPMD/${String(file).padStart(6, '0')}.DAT (not used by the port), tone file ${tone}.BIN` +
         (file === 35 ? '; FM mode loads the identical GROUPMD/100035.DAT instead' : '') });
   }
   const bem = findFile('IC98.BEM').data;

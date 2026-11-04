@@ -182,6 +182,17 @@ jobs:
           test -x dist/OpenIC/importer/bin/mt32render
           mv dist/OpenIC.tar.gz dist/OpenIC-linux-x86_64.tar.gz
 
+      # the release starts (no game data: the import screen), with the music extension loaded, and
+      # the importer's executables run here
+      - name: Smoke test
+        run: |
+          dist/OpenIC/importer/node --version
+          ! dist/OpenIC/importer/bin/mt32render --check "$RUNNER_TEMP" 2> mt32.log
+          grep -q "no MT-32 or CM-32L" mt32.log
+          timeout 120 dist/OpenIC/OpenIC.x86_64 --headless --quit-after 120 > game.log 2>&1 || true
+          cat game.log
+          ! grep -E "Can't open dynamic library|GDExtension.*(fail|error)|SCRIPT ERROR" game.log
+
       - uses: actions/upload-artifact@v7
         with:
           name: OpenIC-linux-x86_64

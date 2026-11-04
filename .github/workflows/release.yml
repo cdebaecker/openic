@@ -1,6 +1,6 @@
-# OpenIC Windows release, built from this repository (tools/openic/sync.mjs writes this file as
-# .github/workflows/release.yml). A pushed tag v* builds the package and attaches it to that tag's
-# release (created if needed); a manual run only builds it and keeps it as an artifact.
+# OpenIC releases for Windows and Linux, built from this repository (tools/openic/sync.mjs writes
+# this file as .github/workflows/release.yml). A pushed tag v* builds the packages and attaches
+# them to that tag's release (created if needed); a manual run only builds them as artifacts.
 name: release
 
 on:
@@ -22,9 +22,9 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -43,12 +43,12 @@ jobs:
       # Godot version and option set from Godot's own repository, then taken from the cache
       - name: Trimmed export template (cache)
         id: template
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: template
           key: godot-template-${{ env.GODOT_VERSION }}-${{ hashFiles('tools/openic/godot_template.py') }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         if: steps.template.outputs.cache-hit != 'true'
         with:
           python-version: '3.12'
@@ -64,7 +64,14 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/template"
           cp bin/godot.windows.template_release.x86_64.exe "$GITHUB_WORKSPACE/template/"
 
-      - name: chipsynth (live synthesis of the music)
+      # the template itself, for other builds of the game (the private port's)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: godot-template-windows
+          path: template/godot.windows.template_release.x86_64.exe
+          retention-days: 14
+
+      - name: chipsynth and mt32render (native/)
         run: node tools/native/build.mjs
 
       - name: Import the Godot project
@@ -78,9 +85,10 @@ jobs:
           test -f dist/windows/OpenIC.exe
           test -f dist/windows/chipsynth.windows.template_release.x86_64.dll
           test -f dist/windows/importer/node.exe
+          test -f dist/windows/importer/bin/mt32render.exe
           mv dist/windows.zip dist/OpenIC-windows-x86_64.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: OpenIC-windows-x86_64
           path: dist/OpenIC-windows-x86_64.zip
@@ -91,5 +99,84 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v} (Windows)" --notes "Windows build of $tag. Unzip, start OpenIC.exe and point it at your seven X68000 disk images."
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v}" --notes "Unzip, start OpenIC and point it at your seven X68000 disk images." || true
           gh release upload "$tag" dist/OpenIC-windows-x86_64.zip --clobber
+
+  linux:
+    # the oldest supported runner, so the release runs on older distributions (glibc 2.35+)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Godot and its export templates
+        run: |
+          base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
+          curl -sSfL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -sSfL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p "$RUNNER_TEMP/godot" && unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          tpl="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$tpl" && unzip -q templates.tpz -d "$RUNNER_TEMP/tpl" && cp -r "$RUNNER_TEMP/tpl/templates/." "$tpl/"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+          rm godot.zip templates.tpz
+
+      - name: Trimmed export template (cache)
+        id: template
+        uses: actions/cache@v6
+        with:
+          path: template
+          key: godot-template-linux-${{ env.GODOT_VERSION }}-${{ hashFiles('tools/openic/godot_template.py') }}
+
+      - uses: actions/setup-python@v7
+        if: steps.template.outputs.cache-hit != 'true'
+        with:
+          python-version: '3.12'
+
+      - name: Build the trimmed export template
+        if: steps.template.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libx11-dev libxcursor-dev libxinerama-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev \
+            libwayland-dev wayland-protocols libwayland-bin
+          pip install scons==4.9.1
+          git clone --depth 1 --branch "${GODOT_VERSION}-stable" https://github.com/godotengine/godot.git "$RUNNER_TEMP/godot-src"
+          cd "$RUNNER_TEMP/godot-src"
+          cp "$GITHUB_WORKSPACE/tools/openic/godot_template.py" custom.py   # SCons reads custom.py
+          scons platform=linuxbsd target=template_release arch=x86_64 vulkan=no -j"$(nproc)"
+          mkdir -p "$GITHUB_WORKSPACE/template"
+          cp bin/godot.linuxbsd.template_release.x86_64 "$GITHUB_WORKSPACE/template/"
+
+      - name: chipsynth and mt32render (native/)
+        run: node tools/native/build.mjs
+
+      - name: Import the Godot project
+        run: '"$GODOT" --headless --path godot --import || true'
+
+      - name: Package
+        run: node tools/openic/package.mjs --godot "$GODOT" --out dist/OpenIC --zip --template template/godot.linuxbsd.template_release.x86_64
+
+      - name: Check the package
+        run: |
+          test -x dist/OpenIC/OpenIC.x86_64
+          test -f dist/OpenIC/chipsynth.linux.template_release.x86_64.so
+          test -x dist/OpenIC/importer/node
+          test -x dist/OpenIC/importer/bin/mt32render
+          mv dist/OpenIC.tar.gz dist/OpenIC-linux-x86_64.tar.gz
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OpenIC-linux-x86_64
+          path: dist/OpenIC-linux-x86_64.tar.gz
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "OpenIC ${tag#v}" --notes "Unpack, start OpenIC and point it at your seven X68000 disk images." || true
+          gh release upload "$tag" dist/OpenIC-linux-x86_64.tar.gz --clobber

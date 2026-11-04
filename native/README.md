@@ -20,13 +20,17 @@ Plays the game's FM music live instead of from rendered files: a GDExtension wit
 node tools/native/build.mjs
 ```
 
-The script fetches godot-cpp and ymfm at pinned commits into `native/deps`. It then builds:
+The script fetches godot-cpp, ymfm and Munt at pinned commits into `native/deps`. It then builds:
 
 - `godot/bin/chipsynth.<platform>.template_release.<arch>` (the extension, loaded through
   `godot/chipsynth.gdextension`);
+- `godot/bin/mt32render[.exe]`, which renders the game's MT-32 music through Munt (libmt32emu,
+  LGPL 2.1+, linked in) from the player's own ROMs. `tools/export/mt32.mjs` runs it; the OpenIC
+  importer ships it in `importer/bin`. It also counts the notes Munt drops when the module runs
+  out of partials (`--partials N` raises the hardware's 32);
 - `native/build/Release/icl2wav`.
 
-You need CMake and a C++17 compiler. Only Windows x86_64 is listed in the `.gdextension` so far.
+You need CMake and a C++17 compiler. The `.gdextension` lists Windows and Linux x86_64.
 
 ## Checking
 

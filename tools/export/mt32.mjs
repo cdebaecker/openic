@@ -4,16 +4,20 @@
 // ICITY.MDD (the patches and timbres) to the module. Here the game's own sound driver (ZMUSIC
 // 1.49F) plays each song to an emulated MIDI interface (audio/midi.mjs); the bytes it sends are
 // recorded with their timing until the song loops, then played through Munt (libmt32emu) with
-// the user's ROMs (audio/mt32render.py) and cut like the FM tracks: intro + one loop body.
+// the user's ROMs and cut like the FM tracks: intro + one loop body. The renderer is mt32render
+// (native/, Munt linked in) when it is built, else audio/mt32render.py with Python and a Munt
+// library; both give the same samples.
 //
 // The ROMs are not part of the game and never go into the repository or the game data's source:
 // the render needs the user's own MT-32 or CM-32L control and PCM ROMs.
 //
-// Usage: node tools/export/mt32.mjs [--munt DLL] [--roms DIR] [--jobs N] [--only REGEX]
-//   --munt   libmt32emu shared library (default ../work/munt/build/mt32emu-2.dll, or $IC_MUNT)
+// Usage: node tools/export/mt32.mjs [--render EXE] [--munt DLL] [--roms DIR] [--jobs N] [--only REGEX]
+//   --render mt32render executable (default godot/bin/mt32render[.exe], or $IC_MT32RENDER)
+//   --munt   without mt32render: the libmt32emu library for Python (default ../work/munt/build/mt32emu-2.dll, or $IC_MUNT)
 //   --roms   folder with the control and PCM ROM files (default ../work/mt32rom, or $IC_MT32_ROMS)
+//   --partials  Munt's partial count with mt32render (default 32, the hardware's; or $IC_MT32_PARTIALS)
 // Output: ../work/export/mt32/music/<name>.qoa (.wav with IC_AUDIO_FORMAT=wav) and mt32/index.json (same fields as audio/).
-// Without Munt or the ROMs it prints why and writes nothing.
+// Without a renderer or the ROMs it prints why and writes nothing.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -31,6 +35,11 @@ const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] :
 const munt = path.resolve(arg('--munt', process.env.IC_MUNT ?? `${root}/work/munt/build/mt32emu-2.dll`));
 const roms = path.resolve(arg('--roms', process.env.IC_MT32_ROMS ?? `${root}/work/mt32rom`));
 const python = process.env.PYTHON ?? (process.platform === 'win32' ? 'python' : 'python3');
+const render = path.resolve(arg('--render', process.env.IC_MT32RENDER
+  ?? path.join(here, '../../godot/bin', process.platform === 'win32' ? 'mt32render.exe' : 'mt32render')));
+const native = fs.existsSync(render);
+// Munt's partial count (mt32render only): 32 as the hardware, which cuts notes short in the dense songs
+const partials = arg('--partials', process.env.IC_MT32_PARTIALS);
 
 const findFile = (p) => allFiles().find((f) => f.path === p);
 const pad = (n, w = 2) => String(n).padStart(w, '0');
@@ -71,16 +80,22 @@ async function renderJob(job) {
   // render up to the end of the second loop pass (+ the crossfade), or the whole song
   const until = cap.loop ? cap.loop.start + 2 * cap.loop.period + 0.1 * crate : Infinity;
   const tmp = ensureDir(`${OUT}/.tmp`);
-  const capFile = `${tmp}/${job.name}.json`, wavFile = `${tmp}/${job.name}.wav`;
-  fs.writeFileSync(capFile, JSON.stringify({ rate: crate, bytes: bytes.filter(([t]) => t < until) }));
+  const capFile = `${tmp}/${job.name}.${native ? 'txt' : 'json'}`, wavFile = `${tmp}/${job.name}.wav`;
+  const kept = bytes.filter(([t]) => t < until);
+  // mt32render reads "rate" then "position byte" lines; the Python renderer JSON
+  fs.writeFileSync(capFile, native ? `${crate}\n${kept.map(([t, b]) => `${t} ${b}`).join('\n')}\n`
+    : JSON.stringify({ rate: crate, bytes: kept }));
   const mdd = findFile('ICITY.MDD').data;
   const mddFile = `${tmp}/ICITY.MDD`;
   if (!fs.existsSync(mddFile)) fs.writeFileSync(mddFile, mdd);
-  const p = spawnSync(python, ['-I', `${here}/audio/mt32render.py`, munt, roms, mddFile, capFile, wavFile,
-    ...(cap.loop ? ['--end', String(Math.ceil(until))] : [])], { encoding: 'utf8' });
+  const end = cap.loop ? ['--end', String(Math.ceil(until))] : [];
+  const p = native ? spawnSync(render, [roms, mddFile, capFile, wavFile, ...end, ...(partials ? ['--partials', partials] : [])], { encoding: 'utf8' })
+    : spawnSync(python, ['-I', `${here}/audio/mt32render.py`, munt, roms, mddFile, capFile, wavFile, ...end], { encoding: 'utf8' });
   if (p.status !== 0) throw new Error(`mt32render failed: ${p.stderr || p.error}`);
+  // notes the module dropped for want of partials (mt32render only), as a real MT-32 would
+  const drops = /notes ignored (\d+), polys silenced (\d+)/.exec(p.stdout ?? '');
   const { rate, au } = readWav(wavFile);
-  fs.rmSync(capFile); fs.rmSync(wavFile);
+  if (!process.env.IC_MT32_KEEP) { fs.rmSync(capFile); fs.rmSync(wavFile); }   // IC_MT32_KEEP=1: keep captures and raw renders in mt32/.tmp
   const lead = Math.max(0, firstAudible(au));
   let out, loop = null;
   if (cap.loop) {
@@ -106,6 +121,7 @@ async function renderJob(job) {
     loop_end_sample: loop ? loop.end : null,
     ...(loop ? {} : { ends: cap.ended }),
     midi_bytes: bytes.length,
+    ...(drops && +drops[1] + +drops[2] ? { notes_ignored: +drops[1], polys_silenced: +drops[2] } : {}),
     notes_per_channel: Object.fromEntries(notes.map((c, i) => [i, c]).filter(([i, c]) => i && c)),
     ...(opmKeyOns ? { opm_key_ons: opmKeyOns } : {}),
     rms: +rms(out).toFixed(4),
@@ -120,9 +136,17 @@ if (argv[0] === '--worker') {
   });
 } else {
   const missing = [];
-  if (!fs.existsSync(munt)) missing.push(`Munt library ${munt}`);
-  if (!fs.existsSync(roms) || !fs.readdirSync(roms).some((f) => /\.rom$/i.test(f))) missing.push(`ROM files (*.rom) in ${roms}`);
-  if (spawnSync(python, ['--version']).status !== 0) missing.push(`Python (${python})`);
+  if (!fs.existsSync(roms)) missing.push(`the ROM folder ${roms}`);
+  else if (native) {
+    const c = spawnSync(render, ['--check', roms], { encoding: 'utf8' });
+    if (c.status !== 0) missing.push((c.stderr || String(c.error)).trim().replace(/^mt32render: /, ''));
+    else console.log(`MT-32 ROMs: ${c.stdout.trim().replace(/^ok /, '')}`);
+  }
+  if (!native) {
+    if (!fs.existsSync(munt)) missing.push(`mt32render (${render}) or the Munt library ${munt}`);
+    if (fs.existsSync(roms) && !fs.readdirSync(roms).some((f) => /\.rom$/i.test(f))) missing.push(`ROM files (*.rom) in ${roms}`);
+    if (spawnSync(python, ['--version']).status !== 0) missing.push(`Python (${python})`);
+  }
   if (missing.length) {
     console.log(`MT-32 music not rendered: missing ${missing.join(', ')}`);
     process.exit(0);
@@ -149,6 +173,7 @@ if (argv[0] === '--worker') {
             console.log(`${e.name.padEnd(8)} ${e.duration.toFixed(2).padStart(7)}s ` +
               (e.loop ? `loop ${e.loop_start_sec.toFixed(2)}-${e.loop_end_sec.toFixed(2)}s` : e.ends ? 'ends' : 'NO LOOP FOUND') +
               ` rms ${e.rms}${hi.length ? `  notes outside the LA parts: ${hi.join(' ')}` : ''}${e.opm_key_ons ? `  OPM key-ons ${e.opm_key_ons}` : ''}` +
+              `${e.notes_ignored || e.polys_silenced ? `  out of partials: ${e.notes_ignored} notes ignored, ${e.polys_silenced} silenced` : ''}` +
               `  (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
           } else { failed++; console.log(`${m.name} FAILED\n${m.error}`); }
           feed();
@@ -160,7 +185,7 @@ if (argv[0] === '--worker') {
     };
     for (let i = 0; i < nWorkers; i++) startWorker();
   });
-  fs.rmSync(`${OUT}/.tmp`, { recursive: true, force: true });
+  if (!process.env.IC_MT32_KEEP) fs.rmSync(`${OUT}/.tmp`, { recursive: true, force: true });
   const order = jobs().map((j) => j.name);
   const items = [...results.values()].sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
   writeJson(indexFile, {

@@ -1,14 +1,23 @@
 ; Engine configuration file.
-; Godot 4.3 or later.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
 config/name="OpenIC"
 config/description="OpenIC: an unofficial, non-commercial fan port of the 1991 X68000 game 幻影都市 (Illusion City)."
 run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -17,6 +26,7 @@ GameData="*res://scripts/autoload/game_data.gd"
 Audio="*res://scripts/autoload/audio.gd"
 GameText="*res://scripts/autoload/game_text.gd"
 Settings="*res://scripts/autoload/settings.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
@@ -25,7 +35,10 @@ window/size/viewport_height=512
 window/size/window_width_override=1536
 window/size/window_height_override=1024
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
 [input]
 

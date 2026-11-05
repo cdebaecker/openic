@@ -134,6 +134,7 @@ export const recomputeSlot = (s, slot) => recomputeChar(s, party(s)[slot]);
 // when used in the field; they are reported as { battleOnly: true }.
 const HEAL_HP = { 18: 50, 19: 100, 20: 300, 21: 9999 };            // f_845c2(n): 体力 (HP)
 const HEAL_MP = { 22: 100, 23: 200, 24: 999, 25: 16 };             // f_846ba(n): 術気 (MP)
+// s.fixes?.effects: the MSX values (霊神石 MP + 20, 延寿丸 MP + 999; battle model FIXES 'effects')
 export function effect(s, id, mode, { rec = null, targets = null } = {}) {
   const T = tables();
   if (!id || id > 0x6f) return { skipped: true };
@@ -143,9 +144,10 @@ export function effect(s, id, mode, { rec = null, targets = null } = {}) {
   targets ??= s.rt?.targets ?? [];
   const P = party(s);
   if (HEAL_HP[id] !== undefined) { for (const t of targets) heal(s, P[t], C.HP, C.MAXHP, HEAL_HP[id]); return { heal: 'hp' }; }
-  if (HEAL_MP[id] !== undefined) { for (const t of targets) heal(s, P[t], C.MP, C.MAXMP, HEAL_MP[id]); return { heal: 'mp' }; }
+  const fix = !!s.fixes?.effects;
+  if (HEAL_MP[id] !== undefined) { for (const t of targets) heal(s, P[t], C.MP, C.MAXMP, fix && id === 25 ? 20 : HEAL_MP[id]); return { heal: 'mp' }; }
   switch (id) {
-    case 30: for (const t of targets) { heal(s, P[t], C.HP, C.MAXHP, 9999); } for (const t of targets) heal(s, P[t], C.MP, C.MAXMP, 16); return { heal: 'full', battleOnly: true }; // f_84d5a: + status cures (battle)
+    case 30: for (const t of targets) { heal(s, P[t], C.HP, C.MAXHP, 9999); } for (const t of targets) heal(s, P[t], C.MP, C.MAXMP, fix ? 999 : 16); return { heal: 'full', battleOnly: true }; // f_84d5a: + status cures (battle)
     case 31: return { none: true };                                   // f_84d78: sound only
     case 67: setBe16(s, 0x3b8, 200); return { repel: 200 };           // f_853ca: $9CB4C = 200 (encounter repel steps)
     case 90: return returnSpell(s);                                   // f_85602

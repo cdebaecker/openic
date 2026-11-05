@@ -110,8 +110,9 @@ Escape in the field (with no menu open) returns to the title menu, **without sav
   rendered during the import.
 - **Game speed and Battle speed:** speed up walking and battles. **Tab** fast-forwards while
   held.
-- **Fixes:** optional fixes for bugs in the original. The first three are on by default. The
-  last one (enemy action choice) changes the game's balance, so it is off.
+- **Fixes:** optional fixes for bugs in the original, all on by default except the enemy action
+  choice, which changes the game's balance. The enemy action choice and the item and spell
+  effects follow the MSX version of the game, whose code shows the intended values.
 - **Smooth movement:** scrolls the map smoothly, unlike the original. Off by default.
 
 ## MT-32 music

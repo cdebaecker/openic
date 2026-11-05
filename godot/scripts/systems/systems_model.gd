@@ -54,6 +54,9 @@ const SPEED := {"message": 0x39e, "move": 0x39a, "battle": 0x39c}
 const SWITCH := {"vr": 0x3a4, "mouse": 0x3a6, "auto_avoid": 0x3a0, "talk": 0x3a2}
 const HEAL_HP := {18: 50, 19: 100, 20: 300, 21: 9999}    # f_845c2(n)
 const HEAL_MP := {22: 100, 23: 200, 24: 999, 25: 16}     # f_846ba(n)
+## The "effects" fix in the field (Settings sets it; tests leave the original): the MSX values,
+## 霊神石 MP + 20 and 延寿丸 MP + 999 (battle model FIXES).
+static var fix_effects := false
 const KEY_CODES := [0x201, 0x238, 0x317, 0x331]
 const COL1 := [0x0d, 0x0c, 0x0b, 0x0a, 0x02, 0x03, 0x14, 0x15, 0x18, 0x19, 0x1a]
 const COL2 := [0x01, 0x0f, 0x10, 0x04, 0x05, 0x07, 0x08, 0x06, 0x12, 0x11]
@@ -248,14 +251,14 @@ static func effect(s: GameState, id: int, mode: int, opts := {}) -> Dictionary:
 		return {"heal": "hp"}
 	if HEAL_MP.has(id):
 		for t: int in targets:
-			_heal(s, pt[t], C_MP, C_MAXMP, HEAL_MP[id])
+			_heal(s, pt[t], C_MP, C_MAXMP, 20 if fix_effects and id == 25 else HEAL_MP[id])
 		return {"heal": "mp"}
 	match id:
 		30:   # f_84d5a: + status cures (battle)
 			for t: int in targets:
 				_heal(s, pt[t], C_HP, C_MAXHP, 9999)
 			for t: int in targets:
-				_heal(s, pt[t], C_MP, C_MAXMP, 16)
+				_heal(s, pt[t], C_MP, C_MAXMP, 999 if fix_effects else 16)
 			return {"heal": "full", "battle_only": true}
 		31:
 			return {"none": true}

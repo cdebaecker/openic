@@ -18,6 +18,7 @@ const FIX_NAMES := {
 	"status_messages": ["Fix: status recovery messages", "修正：状態回復のメッセージ", "Correctif : messages de guérison des états"],
 	"flight": ["Fix: escape check reading the party", "修正：逃走判定の範囲", "Correctif : test de fuite lisant l'équipe"],
 	"enemy_ai": ["Fix: enemy action choice (changes balance)", "修正：敵の行動選択（難易度が変わる）", "Correctif : choix d'action ennemi (change l'équilibre)"],
+	"effects": ["Fix: item and spell effects", "修正：アイテムと術の効果", "Correctif : effets des objets et des sorts"],
 }
 
 var _rows: Array = []        # [{kind, id, label}]
@@ -311,6 +312,7 @@ func _change(d: int) -> void:
 	var row: Dictionary = _rows[_selected]
 	if row["kind"] == "fix":
 		Settings.fixes[row["id"]] = not bool(Settings.fixes[row["id"]])
+		Settings.sync_fixes()
 	elif row["kind"] == "opt":
 		_change_opt(str(row["id"]), d)
 	else:

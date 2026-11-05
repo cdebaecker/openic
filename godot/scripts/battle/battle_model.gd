@@ -498,7 +498,8 @@ static func _cast_spell(s: GameState, data: Dictionary, bs: Dictionary, rng: CRa
 		cost = cost * 4 if flags & 0x80 else 0
 	elif not (flags & 0x40):
 		cost = 0
-	if _is_party(bs, i) and (_cb(s, _char_of(s, bs, i), 36) & 0x80):
+	# the MSX tests +37 bit 7 (孔雀冠, 天竜の杯); the X68000 +36 bit 7 (ヘッドギア)
+	if _is_party(bs, i) and (_cb(s, _char_of(s, bs, i), 37 if _fixed(bs, "effects") else 36) & 0x80):
 		cost -= cost >> 2
 	# f_7141a: the character's MP pays; written to the battle record and the character
 	var c := _char_of(s, bs, i)

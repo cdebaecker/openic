@@ -9,11 +9,12 @@ extends Node
 signal changed
 
 const PATH := "user://settings.cfg"
+const SystemsModel := preload("res://scripts/systems/systems_model.gd")
 const SCALES := [1, 2, 3, 4]
 const SPEEDS := [1.0, 1.5, 2.0, 3.0]
 const FAST_FORWARD := 4.0
 ## Battle fixes (bs.fixes of the battle model): name -> default
-const FIXES := {"damage": true, "status_messages": true, "flight": true, "enemy_ai": false}
+const FIXES := {"damage": true, "status_messages": true, "flight": true, "enemy_ai": false, "effects": true}
 ## Rebindable actions: [action, English, Japanese, default key, default gamepad button, French]
 const ACTIONS := [
 	["ui_up", "Up", "上", KEY_UP, JOY_BUTTON_DPAD_UP, "Haut"],
@@ -73,7 +74,13 @@ func _ready() -> void:
 		buttons[a[0]] = a[4]
 	if not _testing():
 		load_settings()
+		sync_fixes()
 	apply()
+
+
+## The field side of the fixes (the battle model gets them per battle): tests keep the original.
+func sync_fixes() -> void:
+	SystemsModel.fix_effects = bool(fixes.get("effects", false))
 
 
 func _process(_delta: float) -> void:

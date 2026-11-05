@@ -207,7 +207,7 @@ static func _effects(s: GameState, data: Dictionary, bs: Dictionary, rng: CRand,
 		18, 19, 20, 21, 66:
 			_heal_hp(s, data, bs, e, {18: 50, 19: 100, 20: 300, 21: 9999, 66: 50}[e])
 		22, 23, 24, 25:
-			_heal_mp(s, data, bs, e, {22: 100, 23: 200, 24: 999, 25: 16}[e])
+			_heal_mp(s, data, bs, e, {22: 100, 23: 200, 24: 999, 25: 20 if _fixed(bs, "effects") else 16}[e])
 		26:
 			_each(bs, func(t: int) -> void: br_set(bs, t, R.SLEEP, 0))
 		27:
@@ -218,7 +218,7 @@ static func _effects(s: GameState, data: Dictionary, bs: Dictionary, rng: CRand,
 			_each(bs, func(t: int) -> void: br_set(bs, t, R.CONF, 0))
 		30:
 			_heal_hp(s, data, bs, e, 9999)
-			_heal_mp(s, data, bs, e, 16)
+			_heal_mp(s, data, bs, e, 999 if _fixed(bs, "effects") else 16)
 			for x in [26, 27, 28, 29]:
 				_effects(s, data, bs, rng, i, x)
 		36:
@@ -233,6 +233,9 @@ static func _effects(s: GameState, data: Dictionary, bs: Dictionary, rng: CRand,
 				br_set16(bs, t, R.DEF, br_get16(bs, t, R.DEF) + (p >> 3)))
 		38:
 			_each(bs, func(t: int) -> void:
+				if _fixed(bs, "effects"):   # + 50, at most 127 (the MSX)
+					br_set(bs, t, R.HITMOD, mini(127, s8(br_get(bs, t, R.HITMOD)) + 50) & 255)
+					return
 				var d := mini((s8(br_get(bs, t, R.HITMOD)) & 0xff) + 50, 255)
 				br_set(bs, t, R.HITMOD, br_get(bs, t, R.HITMOD) + d))
 		40, 41:

@@ -31,8 +31,9 @@ const M := {
 ## Optional fixes of bugs of the original (bs["fixes"] = {name: true}; none = the original game,
 ## as every verification and golden case runs), see tools/battle/model.mjs FIXES:
 ## damage (16-bit square of f_6bd5e), status_messages (expiry lines never shown), flight (the target
-## list read past the enemies), enemy_ai (the wrapped weight sum).
-const FIXES := ["damage", "status_messages", "flight", "enemy_ai"]
+## list read past the enemies), enemy_ai (the wrapped weight sum), effects (item / spell effect values
+## and the spell cost bit, as the MSX code has them).
+const FIXES := ["damage", "status_messages", "flight", "enemy_ai", "effects"]
 const COUNTERS := [R.SEAL, R.ILLU, R.SLEEP, R.CONF, R.CLONE]
 const WEAPON_LIKE := {106: 1, 107: 2, 108: 3, 109: 4, 110: 5, 111: 7}
 

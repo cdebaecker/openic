@@ -674,7 +674,7 @@ static func choose_action(bs: Dictionary, rng: CRand, i: int) -> Dictionary:
 	for k in 6:
 		var w := _attr(bs, i, 9 + 2 * k)
 		if fix:
-			sum += 10 if w > 19 else w
+			sum += (w - 1) % 10 + 1 if w else 0   # the MSX version's sum (docs/msx.md)
 			continue
 		var x := w if w > 10 else (w - 10 * ((w + 32768) / 10 + 1) + 65536)
 		sum = (sum + x) & 0xffff

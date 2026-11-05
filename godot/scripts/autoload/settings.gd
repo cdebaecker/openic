@@ -220,7 +220,8 @@ func load_settings() -> void:
 		GameText.language = lang
 	smooth_movement = bool(cf.get_value("game", "smooth_movement", smooth_movement))
 	quick_saves = bool(cf.get_value("game", "quick_saves", quick_saves))
-	music_device = "mt32" if cf.get_value("audio", "device", music_device) == "mt32" else "fm"
+	var dev := str(cf.get_value("audio", "device", music_device))
+	music_device = dev if dev in ["fm", "msx", "mt32"] else "fm"
 	live_synth = bool(cf.get_value("audio", "live_synth", live_synth))
 	game_speed = float(cf.get_value("game", "speed", game_speed))
 	battle_speed = float(cf.get_value("game", "battle_speed", battle_speed))

@@ -1,6 +1,8 @@
 // Live synthesis of the game's music from chip logs (tools/export/audio/chiplog.mjs): the OPM
 // register writes go to ymfm's YM2151, the ADPCM events to an MSM6258 decoder modelled on the
 // emulator's (src/adpcm.js). Output is stereo at the OPM's own rate (4 MHz / 64 = 62500 Hz).
+// MSX logs ("MSL1", tools/export/msx.mjs: the MSX version's own sound driver) drive ymfm's
+// YM2413 (MSX-MUSIC) and YM2149 (PSG) instead, resampled to the same rate.
 #pragma once
 
 #include <cstddef>
@@ -37,6 +39,10 @@ private:
 	static constexpr uint32_t NO_LOOP = 0xffffffffu;
 	struct Opm;
 	std::unique_ptr<Opm> opm;
+	struct Msx;
+	std::unique_ptr<Msx> msx;
+	bool msx_log = false;
+	double msx_opll_phase = 0, msx_psg_phase = 0, msx_opll[2] = {0, 0}, msx_psg[2] = {0, 0};
 
 	// log
 	std::vector<uint8_t> data;

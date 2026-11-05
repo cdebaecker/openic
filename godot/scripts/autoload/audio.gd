@@ -24,6 +24,7 @@ var _sfx: Array[AudioStreamPlayer] = []
 var _next_sfx := 0
 var _index := {}
 var _mt32 := {}
+var _msx := {}
 var device := "fm"
 var live_synth := true
 
@@ -50,6 +51,8 @@ func _load_index() -> void:
 	_read_index("audio", _index)
 	if GameData.exists("mt32/index.json"):
 		_read_index("mt32", _mt32)
+	if GameData.exists("msx/index.json"):
+		_read_index("msx", _msx)
 
 
 func _read_index(dir: String, into: Dictionary) -> void:
@@ -69,7 +72,23 @@ func has_mt32() -> bool:
 	return not _mt32.is_empty()
 
 
-## "fm" or "mt32"; the playing area music switches at once.
+## True when the game data has the MSX version's FM music (chip logs: it needs the extension).
+func has_msx() -> bool:
+	_load_index()
+	return not _msx.is_empty() and can_synthesize()
+
+
+## The music devices this game data and build can play, in the order Options cycles them.
+func devices() -> Array:
+	var out := ["fm"]
+	if has_msx():
+		out.append("msx")
+	if has_mt32():
+		out.append("mt32")
+	return out
+
+
+## "fm", "msx" or "mt32"; the playing area music switches at once.
 func set_device(d: String) -> void:
 	if d == device:
 		return
@@ -114,6 +133,8 @@ func _music_info_for(track: String, d: String) -> Dictionary:
 	_load_index()
 	if d == "mt32" and _mt32.has(track):
 		return _mt32[track]
+	if d == "msx" and _msx.has(track) and can_synthesize():
+		return _msx[track]   # songs the MSX disks lack (12, 19) stay the X68000's
 	return _index.get(track, {})
 
 
@@ -144,7 +165,8 @@ func play_music(track: String, fade_in := 0.0) -> void:
 
 ## The track's chip log as an AudioStreamChipLog, or null (no extension, no log, live_synth off).
 func _chip_stream(info: Dictionary) -> AudioStream:
-	# live_synth off: the rendered file, when the game data has one (a live-music import has none)
+	# live_synth off: the rendered file, when the game data has one (a live-music import has none);
+	# the MSX logs have no rendered file and always play live
 	if (not live_synth and info.get("file") != null) or not info.has("chip_log") or not can_synthesize():
 		return null
 	var rel: String = info["chip_log"]

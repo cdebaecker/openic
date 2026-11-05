@@ -127,9 +127,37 @@ static func find_mt32_roms(folder: String) -> String:
 	return ""
 
 
+## A folder holding the MSX turbo R version's game disk 1 (a 720 KB image labelled IPROJ01): the
+## disk folder itself or a subfolder. "" when there is none, or when the build cannot synthesize
+## (the MSX music exists only as chip logs). tools/export/msx.mjs reads the disks during the import.
+static func find_msx_disks(folder: String) -> String:
+	if not ClassDB.class_exists("AudioStreamChipLog"):
+		return ""
+	var dirs := [folder]
+	var d := DirAccess.open(folder)
+	if d:
+		for sub in d.get_directories():
+			dirs.append(folder.path_join(sub))
+	for f in dirs:
+		var dir := DirAccess.open(f)
+		if dir == null:
+			continue
+		for name in dir.get_files():
+			if not name.get_extension().to_lower() in ["dsk", "di1"]:
+				continue
+			var fa := FileAccess.open(f.path_join(name), FileAccess.READ)
+			if fa == null or fa.get_length() != 737280:
+				continue
+			var head := fa.get_buffer(16)
+			if head.slice(3, 10).get_string_from_ascii() == "IPROJ01":
+				return f
+	return ""
+
+
 ## Start the import; {stdio, stderr, pid} from OS.execute_with_pipe (empty on failure).
-## mt32_roms: a folder from find_mt32_roms, to render the MT-32 music too.
-static func start(mt32_roms := "") -> Dictionary:
+## mt32_roms: a folder from find_mt32_roms, to render the MT-32 music too; msx_disks: a folder from
+## find_msx_disks, for the MSX version's music.
+static func start(mt32_roms := "", msx_disks := "") -> Dictionary:
 	var dir := tools_dir()
 	if dir == "":
 		return {}
@@ -142,6 +170,8 @@ static func start(mt32_roms := "") -> Dictionary:
 		args.append("--live-music")
 	if mt32_roms != "":
 		args.append_array(["--mt32-roms", mt32_roms])
+	if msx_disks != "":
+		args.append_array(["--msx-disks", msx_disks])
 	return OS.execute_with_pipe(node_path(), args, false)
 
 

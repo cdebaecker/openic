@@ -15,7 +15,8 @@ if(MSVC)
     add_compile_definitions(_USE_MATH_DEFINES)
 endif()
 
-add_library(ymfm STATIC "${DEPS}/ymfm/src/ymfm_opm.cpp")
+add_library(ymfm STATIC "${DEPS}/ymfm/src/ymfm_opm.cpp" "${DEPS}/ymfm/src/ymfm_opl.cpp"
+    "${DEPS}/ymfm/src/ymfm_misc.cpp" "${DEPS}/ymfm/src/ymfm_ssg.cpp" "${DEPS}/ymfm/src/ymfm_adpcm.cpp" "${DEPS}/ymfm/src/ymfm_pcm.cpp")
 target_include_directories(ymfm PUBLIC "${DEPS}/ymfm/src")
 
 add_library(chipcore STATIC src/chipsynth.cpp)

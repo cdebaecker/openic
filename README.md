@@ -131,6 +131,22 @@ MT-32, CM-32L or LAPC-I (a control ROM and a PCM ROM).
 The ROMs are only read during the import. To add the MT-32 music after an import without it,
 start over with a fresh import (see below), with the ROMs in the folder.
 
+## MSX music
+
+Illusion City also came out on the MSX turbo R, with its own FM arrangements of the music for
+the MSX-MUSIC chip. If you have that version too, OpenIC can play its music: during the import
+it runs the MSX version's own sound driver on your MSX disks and keeps what the driver sends to
+the sound chips, which OpenIC then synthesizes live like the X68000's FM music.
+
+1. Put the MSX disk images (720 KB `.dsk` files) in the folder with your X68000 disk images, or
+   in a subfolder of it. Game disk 1 is needed; the songs are spread over game disks 1–8, and a
+   song whose disk is missing plays in its X68000 version.
+2. Run the import. The import screen says "MSX disks: found" before it starts.
+3. In **Options**, set **Music played on** to **FM (MSX turbo R)**.
+
+The MSX music needs the live synthesis included in the releases. The sound effects and short
+jingles stay the X68000's.
+
 ## Troubleshooting
 
 - **"Some disks are missing from that folder":** the import screen lists which of the seven

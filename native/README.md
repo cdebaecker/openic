@@ -15,7 +15,7 @@ Plays the game's FM music live instead of from rendered files: a GDExtension wit
   rendered files.
 - **MSX logs.** `msx/music/<song>.msl` (tools/export/msx.mjs: the MSX version's own sound driver)
   hold YM2413 and YM2149 register writes per frame; ymfm's YM2413 (49716 Hz) and YM2149 (27965 Hz)
-  play them, interpolated to 62500 Hz and summed 1 : 1. They have no rendered fallback.
+  play them, interpolated to 62500 Hz, the PSG at half the FM's level. They have no rendered fallback.
 
 ## Build
 

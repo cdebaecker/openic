@@ -12,8 +12,9 @@
 // full level; tools/export/audio/chipplay.mjs and icl2wav compare the two).
 static constexpr double OPM_GAIN = 0.18 / 8192.0;
 static constexpr double ADPCM_GAIN = 0.5;
-// MSX: YM2413 (melody + rhythm) and YM2149 (three channels) summed 1 : 1, as tools/msx renders
-static constexpr double MSX_GAIN = 1.0 / 32768.0;
+// MSX: YM2413 (melody + rhythm) at full level, the YM2149 (three channels) at half, as MSX-MUSIC
+// sits above the PSG on the machine
+static constexpr double MSX_GAIN = 1.0 / 32768.0, MSX_PSG = 0.5;
 static constexpr double OPLL_CLOCK = 3579545.0, PSG_CLOCK = 1789772.5;
 
 static const int STEP[49] = { 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97,
@@ -187,7 +188,7 @@ void ChipLogPlayer::tick(float &l, float &r) {
 			msx_psg[0] = msx_psg[1]; msx_psg[1] = o.data[0] + o.data[1] + o.data[2];
 		}
 		double v = (msx_opll[0] + (msx_opll[1] - msx_opll[0]) * msx_opll_phase
-			+ msx_psg[0] + (msx_psg[1] - msx_psg[0]) * msx_psg_phase) * MSX_GAIN;
+			+ (msx_psg[0] + (msx_psg[1] - msx_psg[0]) * msx_psg_phase) * MSX_PSG) * MSX_GAIN;
 		static const double RM = 1.0 - 2.0 * M_PI * 4.0 / RATE;
 		dc_y[0] = v - dc_x[0] + RM * dc_y[0];
 		dc_x[0] = v;

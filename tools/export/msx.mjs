@@ -23,9 +23,16 @@ const FPS = 59.9227;               // NTSC VDP interrupt (MSX turbo R, 60 Hz mod
 const UNIT = 1000;                 // log time units per frame: rate = FPS * UNIT
 
 // Run one song for `frames` ticks; returns [{f, chip, reg, val}] and whether the song stopped.
+// The custom FM voice most songs set: the OPLL keeps the last one set, so a song that uses
+// instrument 0 before setting its own plays with the voice the previous songs left
+const DEFAULT_VOICE = [0x51, 0x61, 0x17, 0x07, 0x50, 0xf1, 0x5c, 0xdc];
+
+// driver: disk 1 system files 0-3, put where the game's loader (file 4) puts them in the sound
+// segment: the driver at 8000h, file 1 (PSG envelopes, voices) at 9000h, the effect and jingle
+// tables at 9200h and 9980h.
 export function runSong(driver, song, frames) {
   const mem = new Uint8Array(0x10000);
-  mem.set(driver.subarray(0, Math.min(driver.length, 0x1800)), 0x8000);
+  for (const [data, at] of driver) mem.set(data.subarray(0, Math.min(data.length, 0x10000 - at)), at);
   mem.set(song.subarray(0, Math.min(song.length, 0x10000 - 0x9800)), 0x9800);
   const log = []; let frame = 0, timer = 0, psgReg = 0, opllReg = 0;
   const psg = new Uint8Array(16);
@@ -47,6 +54,8 @@ export function runSong(driver, song, frames) {
   };
   call(0x8003, { a: 0 });
   call(0x8003, { a: 9, h: 0x98, l: 0x00 });
+  // frame 0 starts with the common custom voice unless the song sets one at once
+  DEFAULT_VOICE.forEach((val, reg) => log.push({ f: 0, chip: 1, reg, val }));
   let stopped = false;
   for (frame = 0; frame < frames; frame++) {
     call(0x8000);
@@ -79,12 +88,19 @@ function approxLoop(log) {
   return period ? { start, period } : null;
 }
 
+// Writes within a frame are spread as the driver spaces them on the machine (its OPLL write routine
+// waits on the system timer, about 25 us, between writes): the chip must see a key-off before the
+// key-on that follows it in the same frame, or a decaying instrument never sounds again.
+const OPLL_GAP = 3, PSG_GAP = 1;   // log units (1/1000 frame, about 16.7 us)
+
 function writeLog(file, log, loopStart, end) {
-  const out = []; let last = 0, loopOff = -1;
+  const out = []; let last = 0, loopOff = -1, frame = -1, sub = 0;
   const u8 = (v) => out.push(v & 255);
   for (const e of log) {
     if (e.f >= end) break;
-    const t = e.f * UNIT;
+    if (e.f !== frame) { frame = e.f; sub = 0; }
+    const t = e.f * UNIT + Math.min(sub, UNIT - 1);
+    sub += e.chip === 1 ? OPLL_GAP : PSG_GAP;
     if (loopOff < 0 && loopStart >= 0 && e.f >= loopStart) loopOff = out.length;
     let d = t - last; last = t;
     do { u8((d & 127) | (d > 127 ? 128 : 0)); d = Math.floor(d / 128); } while (d);
@@ -104,7 +120,7 @@ if (!disks.has(1)) {
   console.log(`msx: no MSX game disk 1 in ${dir} (the MSX music needs the player's own MSX turbo R disks): nothing written`);
   process.exit(0);
 }
-const driver = systemFile(disks.get(1), 0);
+const driver = [[0, 0x8000], [1, 0x9000], [2, 0x9200], [3, 0x9980]].map(([k, at]) => [systemFile(disks.get(1), k), at]);
 const songs = fmSongs(disks);
 ensureDir(`${OUT}/music`);
 const items = [];

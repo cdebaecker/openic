@@ -31,8 +31,8 @@ jobs:
       - name: Godot and its export templates
         run: |
           base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
-          curl -sSfL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_win64.exe.zip"
-          curl -sSfL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          curl -sSfL --retry 6 --retry-delay 20 --retry-all-errors -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_win64.exe.zip"
+          curl -sSfL --retry 6 --retry-delay 20 --retry-all-errors -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
           mkdir -p "$RUNNER_TEMP/godot" && unzip -q godot.zip -d "$RUNNER_TEMP/godot"
           tpl="$APPDATA/Godot/export_templates/${GODOT_VERSION}.stable"
           mkdir -p "$tpl" && unzip -q templates.tpz -d "$RUNNER_TEMP/tpl" && cp -r "$RUNNER_TEMP/tpl/templates/." "$tpl/"
@@ -123,8 +123,8 @@ jobs:
       - name: Godot and its export templates
         run: |
           base=https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable
-          curl -sSfL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
-          curl -sSfL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          curl -sSfL --retry 6 --retry-delay 20 --retry-all-errors -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -sSfL --retry 6 --retry-delay 20 --retry-all-errors -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
           mkdir -p "$RUNNER_TEMP/godot" && unzip -q godot.zip -d "$RUNNER_TEMP/godot"
           tpl="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           mkdir -p "$tpl" && unzip -q templates.tpz -d "$RUNNER_TEMP/tpl" && cp -r "$RUNNER_TEMP/tpl/templates/." "$tpl/"

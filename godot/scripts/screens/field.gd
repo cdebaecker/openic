@@ -58,6 +58,8 @@ var sweep := false               # development: --sweep-map (auto clicks / answe
 var auto := false                # development: --story-route (auto clicks / answers / battle commands)
 var route_answers: Array = []    # development: --story-route's queued VM menu answers
 var route_input := -1            # development: --story-route's input word while it walks the leader
+var _auto_menu := ""             # development: the last unqueued auto-answered menu, and its answer
+var _auto_pick := 0
 var ended := false               # builtin 5(99): the game has ended (the ending replaces the field)
 var _view = FieldView.new()
 var _rect := TextureRect.new()
@@ -138,6 +140,10 @@ func _ready() -> void:
 	if _new_game:
 		# f_7a50e: IC_MAIN's new-game entry, then the field loop loads A00 in new-game mode (no party
 		# yet: A00's scripts build it and play the intro).
+		var route := _route_arg()
+		if route != "":
+			auto = true   # development: the intro's clicks and menus are answered too
+			Engine.time_scale = 8.0
 		_busy = true
 		state.block = FileAccess.get_file_as_bytes(GameData.path("events/newgame.block"))
 		state.block.resize(GameState.BLOCK_SIZE)
@@ -159,16 +165,14 @@ func _ready() -> void:
 			pos.append(Vector2i(field.act[i].x, field.act[i].y))
 		print("New game: free control on %s, party %s, view %s, var4 %d" % [map.id, str(pos), str(field.view),
 			state.get_var16(4)])
+		if route != "":
+			await _run_route(route)
 		return
 	if _block_file != "":
 		await _start_from_block(FileAccess.get_file_as_bytes(_block_file))
 		for arg in OS.get_cmdline_user_args():
 			if arg.begins_with("--story-route="):
-				await StoryRoute.new(self).run(StoryRoute.parse(arg.trim_prefix("--story-route=")))
-				if ended:   # let the ending cutscene play for a while (the field is gone by then)
-					get_tree().create_timer(20.0, true, false, true).timeout.connect(get_tree().quit)
-				else:
-					get_tree().quit()
+				await _run_route(arg.trim_prefix("--story-route="))
 				return
 			if arg.begins_with("--sweep-map="):
 				await _sweep_map(arg.trim_prefix("--sweep-map="))
@@ -793,7 +797,18 @@ func choose(win: Dictionary, n: int, width: int, sel: int) -> int:
 	render()
 	var pick := scripted_choice()
 	if sweep or auto:
-		pick = route_answers.pop_front() if not route_answers.is_empty() else 0
+		if not route_answers.is_empty():
+			pick = route_answers.pop_front()
+			_auto_menu = ""
+		else:
+			# unqueued: the first item, and the next item each time the same menu comes back (topic
+			# menus that refuse "end conversation" until every topic was asked)
+			var key := "%d/%d/%d/%d" % [int(win.get("x", 0)), int(win.get("y", 0)), n, width]
+			_auto_pick = (_auto_pick + 1) % n if key == _auto_menu else 0
+			_auto_menu = key
+			pick = _auto_pick
+		if auto:
+			print("ROUTE menu %d items at %d,%d -> %d" % [n, int(win.get("x", 0)), int(win.get("y", 0)), pick])
 	if pick != -2:
 		for i in 30:
 			await get_tree().process_frame
@@ -942,3 +957,20 @@ static func _x68k_color(w: int) -> Color:
 	var r := (((w >> 6) & 31) << 1) | i
 	var b := (((w >> 1) & 31) << 1) | i
 	return Color8(roundi(r * 255.0 / 63.0), roundi(g * 255.0 / 63.0), roundi(b * 255.0 / 63.0))
+
+
+## Development: the -- --story-route=<steps> argument ("" without one).
+func _route_arg() -> String:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--story-route="):
+			return arg.trim_prefix("--story-route=")
+	return ""
+
+
+## Development: follow a story route (scripts/dev/story_route.gd), then quit.
+func _run_route(spec: String) -> void:
+	await StoryRoute.new(self).run(StoryRoute.parse(spec))
+	if ended:   # let the ending cutscene play for a while (the field is gone by then)
+		get_tree().create_timer(20.0, true, false, true).timeout.connect(get_tree().quit)
+	else:
+		get_tree().quit()

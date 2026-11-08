@@ -152,9 +152,11 @@ func builtin(n: int, args: Array[int], vm) -> int:
 
 func _builtin(n: int, args: Array[int], vm) -> int:
 	match n:
-		0:  # cutscene(n)
+		0:  # cutscene(n) (f_7aff2): f_7b2e6 before and after, which also ends an event picture
+			_close_message_and_picture()
 			await Cutscene.new(self).run(args[0] - 1)
 			_sync_actors_from_sprites()
+			_close_message_and_picture()
 			screen.render()
 		6:  # message(key, table)
 			await _message_by_key(args[0], args[1], vm)
@@ -549,6 +551,14 @@ func continue_message() -> void:
 		return
 	_resume = await engine.show(windows.back(), _msg_bytes, true, _resume, true)
 	resume_pending = false
+
+
+## f_7b2e6: closes the event picture when one is open (f_79a46), then the message windows.
+func _close_message_and_picture() -> void:
+	if picture_mode:
+		close_picture()
+	else:
+		close_windows()
 
 
 func close_picture() -> void:   # f_79a46

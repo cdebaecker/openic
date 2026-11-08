@@ -1,5 +1,6 @@
 extends RefCounted
-## Development: follow a story route unattended (-- --story-route=<steps> or -- --story-route=@<file>).
+## Development: follow a story route unattended (-- --story-route=<steps> or -- --story-route=@<file>,
+## several files as @<file>+@<file>; with -- --new-game the route also answers the intro).
 ## Steps are separated by commas or new lines; '#' starts a comment. Clicks are answered, VM menus
 ## take the queued answers (else the first item), interface menus are cancelled, battles attack.
 ##
@@ -39,6 +40,12 @@ func _init(f) -> void:
 
 
 static func parse(spec: String) -> PackedStringArray:
+	if spec.begins_with("@") and spec.contains("+@"):
+		# several route files, one after the other: @a.txt+@b.txt
+		var all := PackedStringArray()
+		for part in spec.split("+@"):
+			all.append_array(parse(part if part.begins_with("@") else "@" + part))
+		return all
 	var text := spec
 	if spec.begins_with("@"):
 		# a route file: absolute, or relative to the repository (the folder above godot/)
@@ -278,7 +285,8 @@ func _walk_to_actor(n: int) -> void:
 		if not field._busy:
 			var d: int = _plan(n)
 			if d < 0:
-				_fail("no path to actor %d from %s" % [n, str(Vector2i(field.field.act[0].x, field.field.act[0].y))])
+				_fail("no path to actor %d at %s from %s" % [n, str(Vector2i(field.field.act[n].x, field.field.act[n].y)),
+					str(Vector2i(field.field.act[0].x, field.field.act[0].y))])
 				break
 			field.route_input = [1, 8, 2, 4][d]
 		await field.get_tree().process_frame
@@ -316,6 +324,8 @@ func _plan(n: int) -> int:
 					first = prev[k][1]
 					k = prev[k][0]
 				return first
+			if nx < 0 or ny < 0 or nx + 1 >= 2 * map.width or ny >= 2 * map.height:
+				continue   # off the map (attr_at reads 0 there: the search would never end)
 			if f.attr_at(nx, ny) & (4 << (8 * c.z)) or f.attr_at(nx + 1, ny) & (4 << (8 * c.z)):
 				continue
 			var node := Vector3i(nx, ny, _layer_at(f, nx, ny, c.z))

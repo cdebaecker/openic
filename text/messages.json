@@ -211,7 +211,7 @@
   },
   {
    "id": "1e77a7c2",
-   "english": "Meihong \"The Steel Empress and the Thunder Emperor... two of the five remaining Hachibushu are in the Industrial Ward.\""
+   "english": "Meihong \"The Demon Steel Queen and the Thunder Emperor... two of the five remaining Hachibushu are in the Industrial Ward.\""
   },
   {
    "id": "b4f33310",
@@ -219,7 +219,7 @@
   },
   {
    "id": "c071d839",
-   "english": "Meihong \"Even if we catch the Steel Empress, will she tell us where Lee is?\""
+   "english": "Meihong \"Even if we catch the Demon Steel Queen, will she tell us where Lee is?\""
   },
   {
    "id": "45f258c9",
@@ -435,15 +435,15 @@
   },
   {
    "id": "85a5cc50",
-   "english": "Watatsumi \"Travel to the following areas is currently possible.\""
+   "english": "Wadatsumi \"Travel to the following areas is currently possible.\""
   },
   {
    "id": "13e12bf6",
-   "english": "Watatsumi \"A prohibition order is currently in effect.\""
+   "english": "Wadatsumi \"A prohibition order is currently in effect.\""
   },
   {
    "id": "a2dab2ad",
-   "english": "Watatsumi \"Understood. Taking off.\""
+   "english": "Wadatsumi \"Understood. Taking off.\""
   },
   {
    "id": "f008086d",
@@ -831,7 +831,7 @@
   },
   {
    "id": "bf7ada3f",
-   "english": "Vala of Jura"
+   "english": "Vala, Empress of Jura"
   },
   {
    "id": "533cf057",
@@ -859,11 +859,11 @@
   },
   {
    "id": "836055cf",
-   "english": "Steel Empress"
+   "english": "Demon Steel Queen"
   },
   {
    "id": "1c2dab6f",
-   "english": "Ark the Thunder Emperor"
+   "english": "Arc the Thunder Emperor"
   },
   {
    "id": "64efc5d9",
@@ -1271,7 +1271,7 @@
   },
   {
    "id": "f76a41fb",
-   "english": "Airen \"The Hachibushu member in charge of the Industrial Ward is the Steel Empress. One of those Dai of the East discovered after the Collapse.\""
+   "english": "Airen \"The Hachibushu member in charge of the Industrial Ward is the Demon Steel Queen. One of those Dai of the East discovered after the Collapse.\""
   },
   {
    "id": "28c15718",
@@ -1287,19 +1287,19 @@
   },
   {
    "id": "e4ee9f29",
-   "english": "Airen \"It seems Ark the Thunder Emperor has gone to support the Steel Empress in the Industrial Ward.\""
+   "english": "Airen \"It seems Arc the Thunder Emperor has gone to support the Demon Steel Queen in the Industrial Ward.\""
   },
   {
    "id": "93f50d5d",
-   "english": "Airen \"Ark is one of the Hachibushu too, but she has no definite role in SIVA.\""
+   "english": "Airen \"Arc is one of the Hachibushu too, but she has no definite role in SIVA.\""
   },
   {
    "id": "08e63b0d",
-   "english": "Airen \"Like the Steel Empress, she was found by Dai of the East after the Collapse. They say she used to be a groupie of a rock band called 'Boui'.\""
+   "english": "Airen \"Like the Demon Steel Queen, she was found by Dai of the East after the Collapse. They say she used to be a groupie of a rock band called 'Boui'.\""
   },
   {
    "id": "4bd4fced",
-   "english": "Airen \"There's a rumor Ark will be put in charge of rebuilding Haitao, but given her background, I can't see her being right for the job.\""
+   "english": "Airen \"There's a rumor Arc will be put in charge of rebuilding Haitao, but given her background, I can't see her being right for the job.\""
   },
   {
    "id": "4ab060d5",
@@ -3763,7 +3763,7 @@
   },
   {
    "id": "845a293e",
-   "english": "Yama the Moon Lute King \"Sorry for the disturbance, Lord Lee.\""
+   "english": "Yama the Moon Lute Wisdom King \"Sorry for the disturbance, Lord Lee.\""
   },
   {
    "id": "e70c34ce",
@@ -3771,15 +3771,15 @@
   },
   {
    "id": "4e45c58f",
-   "english": "Xiaomei \"Why did you kill her?!\"{0a}Yama the Moon Lute King \"I can hardly leave a failed experiment lying about, can I?\""
+   "english": "Xiaomei \"Why did you kill her?!\"{0a}Yama the Moon Lute Wisdom King \"I can hardly leave a failed experiment lying about, can I?\""
   },
   {
    "id": "cce375bf",
-   "english": "Xiaomei \"She remembered me! She'd calmed down!\"{0a}Yama the Moon Lute King \"What's wrong with doing as I please with my own test subject?\""
+   "english": "Xiaomei \"She remembered me! She'd calmed down!\"{0a}Yama the Moon Lute Wisdom King \"What's wrong with doing as I please with my own test subject?\""
   },
   {
    "id": "84d76259",
-   "english": "Xiaomei \"How is she any different? That girl is human!\"{0a}Yama the Moon Lute King \"Lord Lee, aren't you spoiling her a little too much?\""
+   "english": "Xiaomei \"How is she any different? That girl is human!\"{0a}Yama the Moon Lute Wisdom King \"Lord Lee, aren't you spoiling her a little too much?\""
   },
   {
    "id": "234bf7d8",
@@ -3807,7 +3807,7 @@
   },
   {
    "id": "07077922",
-   "english": "Yama the Moon Lute King \"Please do not forget your duty, Lord Lee.\""
+   "english": "Yama the Moon Lute Wisdom King \"Please do not forget your duty, Lord Lee.\""
   },
   {
    "id": "d65aec54",
@@ -4415,7 +4415,7 @@
   },
   {
    "id": "ce2c036a",
-   "english": "Airen \"As for Ark the Thunder Emperor, it's as if no such person ever existed.\""
+   "english": "Airen \"As for Arc the Thunder Emperor, it's as if no such person ever existed.\""
   },
   {
    "id": "eee6cc51",
@@ -4755,71 +4755,71 @@
   },
   {
    "id": "a9561e3d",
-   "english": "-  Industrial Ward, the Steel Empress's Chamber  -"
+   "english": "-  Industrial Ward, the Demon Steel Queen's Chamber  -"
   },
   {
    "id": "4dbd679c",
-   "english": "Ark the Thunder Emperor \"Hey, princess. You really mean to go through with this?\""
+   "english": "Arc the Thunder Emperor \"Hey, princess. You really mean to go through with this?\""
   },
   {
    "id": "8beee67a",
-   "english": "Steel Empress \"Of course! I couldn't do something like this as a joke.\""
+   "english": "Demon Steel Queen \"Of course! I couldn't do something like this as a joke.\""
   },
   {
    "id": "10d67845",
-   "english": "Steel Empress \"Just as Lord Meshumel says, there's a good chance this place is the next target.\""
+   "english": "Demon Steel Queen \"Just as Lord Meshumel says, there's a good chance this place is the next target.\""
   },
   {
    "id": "ea1e601a",
-   "english": "Ark the Thunder Emperor \"Tch, what a pain. You could just leave the rebels to me.\""
+   "english": "Arc the Thunder Emperor \"Tch, what a pain. You could just leave the rebels to me.\""
   },
   {
    "id": "e1a9b3b8",
-   "english": "Ark the Thunder Emperor \"...And you've got those three, don't you?\""
+   "english": "Arc the Thunder Emperor \"...And you've got those three, don't you?\""
   },
   {
    "id": "9b7b1807",
-   "english": "Steel Empress \"I cannot hide while Kurogane and the others are put in danger.\""
+   "english": "Demon Steel Queen \"I cannot hide while Kurogane and the others are put in danger.\""
   },
   {
    "id": "688c791f",
-   "english": "Steel Empress \"They are my precious children.\""
+   "english": "Demon Steel Queen \"They are my precious children.\""
   },
   {
    "id": "03a7fd8d",
-   "english": "Ark the Thunder Emperor \"I see, I see. The princess is so very kind.\""
+   "english": "Arc the Thunder Emperor \"I see, I see. The princess is so very kind.\""
   },
   {
    "id": "9c453b45",
-   "english": "Steel Empress \"Thank you for the compliment.\""
+   "english": "Demon Steel Queen \"Thank you for the compliment.\""
   },
   {
    "id": "ce2ef666",
-   "english": "Steel Empress \"Now, let us go. Kurogane and the others are waiting.\""
+   "english": "Demon Steel Queen \"Now, let us go. Kurogane and the others are waiting.\""
   },
   {
    "id": "c2f5e7d6",
-   "english": "Ark the Thunder Emperor \"Yeah, yeah.\""
+   "english": "Arc the Thunder Emperor \"Yeah, yeah.\""
   },
   {
    "id": "57b72cf8",
-   "english": "Ark the Thunder Emperor \"Gimme a break, seriously. Why do I have to team up with someone like that?!\""
+   "english": "Arc the Thunder Emperor \"Gimme a break, seriously. Why do I have to team up with someone like that?!\""
   },
   {
    "id": "67813348",
-   "english": "Ark the Thunder Emperor \"Who knows what that Meshumel is thinking!\""
+   "english": "Arc the Thunder Emperor \"Who knows what that Meshumel is thinking!\""
   },
   {
    "id": "d41e598e",
-   "english": "Steel Empress \"Did you say something?\""
+   "english": "Demon Steel Queen \"Did you say something?\""
   },
   {
    "id": "49095657",
-   "english": "Ark the Thunder Emperor \"Nothing!\""
+   "english": "Arc the Thunder Emperor \"Nothing!\""
   },
   {
    "id": "e1c2eb50",
-   "english": "Tianren \"I see, so this is the Watatsumi.\""
+   "english": "Tianren \"I see, so this is the Wadatsumi.\""
   },
   {
    "id": "85137328",
@@ -6315,7 +6315,7 @@
   },
   {
    "id": "f258ddff",
-   "english": "Yama the Moon Lute King \"Dai... I'm afraid.\""
+   "english": "Yama the Moon Lute Wisdom King \"Dai... I'm afraid.\""
   },
   {
    "id": "fae2702f",
@@ -6323,7 +6323,7 @@
   },
   {
    "id": "c8ddc81f",
-   "english": "Yama the Moon Lute King \"But two of the Hachibushu in so short a time...\""
+   "english": "Yama the Moon Lute Wisdom King \"But two of the Hachibushu in so short a time...\""
   },
   {
    "id": "e5358d55",
@@ -6331,11 +6331,11 @@
   },
   {
    "id": "03866bb4",
-   "english": "Yama the Moon Lute King \"How reassuring...\""
+   "english": "Yama the Moon Lute Wisdom King \"How reassuring...\""
   },
   {
    "id": "0d868f72",
-   "english": "Yama the Moon Lute King \"Wear this pendant and think of it as me... It will surely help you.\""
+   "english": "Yama the Moon Lute Wisdom King \"Wear this pendant and think of it as me... It will surely help you.\""
   },
   {
    "id": "bc693721",
@@ -6343,7 +6343,7 @@
   },
   {
    "id": "0f799402",
-   "english": "Yama the Moon Lute King \"Dai.....\""
+   "english": "Yama the Moon Lute Wisdom King \"Dai.....\""
   },
   {
    "id": "6380e6ef",
@@ -6527,7 +6527,7 @@
   },
   {
    "id": "1a2e54d3",
-   "english": "Vala of Jura \"It's fine. What is it?\""
+   "english": "Vala, Empress of Jura \"It's fine. What is it?\""
   },
   {
    "id": "162a8fcc",
@@ -6535,7 +6535,7 @@
   },
   {
    "id": "8ffe9aba",
-   "english": "Vala of Jura \"Oh?... Good. Take her to the Tree Treasure Hall.\"{0a}Man's voice \"Yes, ma'am.\""
+   "english": "Vala, Empress of Jura \"Oh?... Good. Take her to the Tree Treasure Hall.\"{0a}Man's voice \"Yes, ma'am.\""
   },
   {
    "id": "20463b48",
@@ -6543,11 +6543,11 @@
   },
   {
    "id": "cfd8aa50",
-   "english": "Vala of Jura \"Nothing, I was just looking at you.\"{0a}Duran \"I see. Me too, like looking at Vala.\""
+   "english": "Vala, Empress of Jura \"Nothing, I was just looking at you.\"{0a}Duran \"I see. Me too, like looking at Vala.\""
   },
   {
    "id": "d85c3a4e",
-   "english": "Vala of Jura \"Ah, I wish we could stay like this forever.\"{0a}Duran \"Vala...\""
+   "english": "Vala, Empress of Jura \"Ah, I wish we could stay like this forever.\"{0a}Duran \"Vala...\""
   },
   {
    "id": "0513bb54",
@@ -7655,7 +7655,7 @@
   },
   {
    "id": "86d65d5c",
-   "english": "Man \"Sumeragi. He serves the Steel Empress, one of the Hachibushu. He took someone... precious from me.\""
+   "english": "Man \"Sumeragi. He serves the Demon Steel Queen, one of the Hachibushu. He took someone... precious from me.\""
   },
   {
    "id": "3a964c87",
@@ -7711,7 +7711,7 @@
   },
   {
    "id": "2969d076",
-   "english": "Vala of Jura \"Grr, you're good!\"{0a}Vala of Jura \"Duran! You may fall back.\""
+   "english": "Vala, Empress of Jura \"Grr, you're good!\"{0a}Vala, Empress of Jura \"Duran! You may fall back.\""
   },
   {
    "id": "f2704941",
@@ -7719,7 +7719,7 @@
   },
   {
    "id": "88d65d7a",
-   "english": "Vala of Jura \"...Very well. Duran, together...\""
+   "english": "Vala, Empress of Jura \"...Very well. Duran, together...\""
   },
   {
    "id": "d024c8e4",
@@ -7791,11 +7791,11 @@
   },
   {
    "id": "56ce9aeb",
-   "english": "Vala of Jura \"You who ravage the forest. Can't you hear it?\""
+   "english": "Vala, Empress of Jura \"You who ravage the forest. Can't you hear it?\""
   },
   {
    "id": "ea85f783",
-   "english": "Tianren \"Hm?\"{0a}Vala of Jura \"Listen, the forest is weeping.\""
+   "english": "Tianren \"Hm?\"{0a}Vala, Empress of Jura \"Listen, the forest is weeping.\""
   },
   {
    "id": "23c65c2e",
@@ -7803,15 +7803,15 @@
   },
   {
    "id": "31d8a2c0",
-   "english": "Vala of Jura \"You humans break the laws of nature. Think back on what you've done.\""
+   "english": "Vala, Empress of Jura \"You humans break the laws of nature. Think back on what you've done.\""
   },
   {
    "id": "0e9980c7",
-   "english": "Vala of Jura \"Those children only bared their fangs to protect their own territory.\""
+   "english": "Vala, Empress of Jura \"Those children only bared their fangs to protect their own territory.\""
   },
   {
    "id": "ffd6510f",
-   "english": "Vala of Jura \"This is no place for the likes of you!\""
+   "english": "Vala, Empress of Jura \"This is no place for the likes of you!\""
   },
   {
    "id": "c1f00303",
@@ -7823,11 +7823,11 @@
   },
   {
    "id": "f957ae06",
-   "english": "Vala of Jura \"You will die here. Don't worry, I won't leave your sorry corpses lying around.\""
+   "english": "Vala, Empress of Jura \"You will die here. Don't worry, I won't leave your sorry corpses lying around.\""
   },
   {
    "id": "4a53eedc",
-   "english": "Vala of Jura \"My children will clean up nicely, without leaving a single bone. Ahahaha...\""
+   "english": "Vala, Empress of Jura \"My children will clean up nicely, without leaving a single bone. Ahahaha...\""
   },
   {
    "id": "18109d20",
@@ -8339,7 +8339,7 @@
   },
   {
    "id": "cae3a826",
-   "english": "Woman's voice \"I am one of the Hachibushu, Yama the Moon Lute King. I'd have liked to meet you all at least once.\""
+   "english": "Woman's voice \"I am one of the Hachibushu, Yama the Moon Lute Wisdom King. I'd have liked to meet you all at least once.\""
   },
   {
    "id": "7558ccb4",
@@ -8395,7 +8395,7 @@
   },
   {
    "id": "0f6cf556",
-   "english": "They say a female SIVA executive called Ark Lightning is in the Industrial Ward right now."
+   "english": "They say a female SIVA executive called Arc Lightning is in the Industrial Ward right now."
   },
   {
    "id": "e5d3ad18",
@@ -8403,7 +8403,7 @@
   },
   {
    "id": "c8832391",
-   "english": "I knew it - that Ark Lightning was the girl going wild in the front row at Boui's final concert."
+   "english": "I knew it - that Arc Lightning was the girl going wild in the front row at Boui's final concert."
   },
   {
    "id": "6af776ec",
@@ -8427,7 +8427,7 @@
   },
   {
    "id": "d0944a30",
-   "english": "The one in charge of the Industrial Ward is called the Steel Empress. They say she always has three combat robots guarding her."
+   "english": "The one in charge of the Industrial Ward is called the Demon Steel Queen. They say she always has three combat robots guarding her."
   },
   {
    "id": "4784643c",
@@ -8435,7 +8435,7 @@
   },
   {
    "id": "0dfb6de6",
-   "english": "They say the Steel Empress has disappeared. Probably felt responsible for the terrorist attack in the Industrial Ward."
+   "english": "They say the Demon Steel Queen has disappeared. Probably felt responsible for the terrorist attack in the Industrial Ward."
   },
   {
    "id": "2775d035",
@@ -8515,7 +8515,7 @@
   },
   {
    "id": "78ccd59e",
-   "english": "Ark the Thunder Emperor \"Oh, more guests, Raiden.\""
+   "english": "Arc the Thunder Emperor \"Oh, more guests, Raiden.\""
   },
   {
    "id": "779636ac",
@@ -8539,11 +8539,11 @@
   },
   {
    "id": "da159539",
-   "english": "Ark the Thunder Emperor \"Oh, don't worry about that. I made Elfas look pretty much the same.\""
+   "english": "Arc the Thunder Emperor \"Oh, don't worry about that. I made Elfas look pretty much the same.\""
   },
   {
    "id": "8735a513",
-   "english": "Ark the Thunder Emperor \"You'll have a touching reunion in hell. Hahaha.\""
+   "english": "Arc the Thunder Emperor \"You'll have a touching reunion in hell. Hahaha.\""
   },
   {
    "id": "3fa14ec5",
@@ -8563,15 +8563,15 @@
   },
   {
    "id": "71842e33",
-   "english": "Ark the Thunder Emperor \"Bring it on!\""
+   "english": "Arc the Thunder Emperor \"Bring it on!\""
   },
   {
    "id": "9d20abf6",
-   "english": "Ark the Thunder Emperor \"I'll teach your bodies what happens to anyone who underestimates the great Ark!\""
+   "english": "Arc the Thunder Emperor \"I'll teach your bodies what happens to anyone who underestimates the great Arc!\""
   },
   {
    "id": "795236f3",
-   "english": "Ark the Thunder Emperor \"Come on, then!\""
+   "english": "Arc the Thunder Emperor \"Come on, then!\""
   },
   {
    "id": "516873c1",
@@ -8615,7 +8615,7 @@
   },
   {
    "id": "235b1377",
-   "english": "Meihong \"Anyway, let's find the Steel Empress. She's our only lead to Lee.\""
+   "english": "Meihong \"Anyway, let's find the Demon Steel Queen. She's our only lead to Lee.\""
   },
   {
    "id": "6930ff4a",
@@ -8623,11 +8623,11 @@
   },
   {
    "id": "e7dae895",
-   "english": "Ark the Thunder Emperor \"No way! Like hell I'll get killed by the likes of you!!\""
+   "english": "Arc the Thunder Emperor \"No way! Like hell I'll get killed by the likes of you!!\""
   },
   {
    "id": "b59aeb9c",
-   "english": "Ark the Thunder Emperor \"Hahaha! What's that? A bluff?! My turn now!\""
+   "english": "Arc the Thunder Emperor \"Hahaha! What's that? A bluff?! My turn now!\""
   },
   {
    "id": "dfa4512e",
@@ -9143,11 +9143,11 @@
   },
   {
    "id": "0f1a8fdd",
-   "english": "Tianren \"You're the Steel Empress?\""
+   "english": "Tianren \"You're the Demon Steel Queen?\""
   },
   {
    "id": "fc7bee53",
-   "english": "Steel Empress \"How dare you do that to my precious Raiden...\""
+   "english": "Demon Steel Queen \"How dare you do that to my precious Raiden...\""
   },
   {
    "id": "936300a7",
@@ -9155,35 +9155,35 @@
   },
   {
    "id": "b08c3148",
-   "english": "Steel Empress \"Raiden... I'll never, ever forgive you!!\""
+   "english": "Demon Steel Queen \"Raiden... I'll never, ever forgive you!!\""
   },
   {
    "id": "10d8a560",
-   "english": "Steel Empress \"Kurogane! Sumeragi! Please!!\""
+   "english": "Demon Steel Queen \"Kurogane! Sumeragi! Please!!\""
   },
   {
    "id": "29274388",
-   "english": "Steel Empress \"That's enough! Stop, Kurogane! We've lost!\""
+   "english": "Demon Steel Queen \"That's enough! Stop, Kurogane! We've lost!\""
   },
   {
    "id": "60f99de3",
-   "english": "Steel Empress \"Don't leave me alone!\""
+   "english": "Demon Steel Queen \"Don't leave me alone!\""
   },
   {
    "id": "01ac2545",
-   "english": "Steel Empress \"Kurogane! Sumeragi!\""
+   "english": "Demon Steel Queen \"Kurogane! Sumeragi!\""
   },
   {
    "id": "8a5ba543",
-   "english": "Steel Empress \"Kurogane... Sumeragi...\""
+   "english": "Demon Steel Queen \"Kurogane... Sumeragi...\""
   },
   {
    "id": "91862261",
-   "english": "Steel Empress \"Kurogane?!\""
+   "english": "Demon Steel Queen \"Kurogane?!\""
   },
   {
    "id": "bc8dfba7",
-   "english": "Tianren \"What?!\"{0a}Steel Empress \"Sumeragi...\""
+   "english": "Tianren \"What?!\"{0a}Demon Steel Queen \"Sumeragi...\""
   },
   {
    "id": "e587fb1f",
@@ -9195,7 +9195,7 @@
   },
   {
    "id": "bc21d6cc",
-   "english": "Steel Empress \"Kurogane... Sumeragi... Raiden...\""
+   "english": "Demon Steel Queen \"Kurogane... Sumeragi... Raiden...\""
   },
   {
    "id": "14be5b60",
@@ -9207,7 +9207,7 @@
   },
   {
    "id": "1e7f4ce2",
-   "english": "Tianren \"Looks like this Steel Empress has no power of her own.\""
+   "english": "Tianren \"Looks like this Demon Steel Queen has no power of her own.\""
   },
   {
    "id": "771c5335",
@@ -9219,11 +9219,11 @@
   },
   {
    "id": "a863595e",
-   "english": "Steel Empress \"You idiots! Give me back my Kurogane! Bring back Sumeragi, and Raiden!!\""
+   "english": "Demon Steel Queen \"You idiots! Give me back my Kurogane! Bring back Sumeragi, and Raiden!!\""
   },
   {
    "id": "6a018af7",
-   "english": "Steel Empress \"My... my precious friends...!\""
+   "english": "Demon Steel Queen \"My... my precious friends...!\""
   },
   {
    "id": "e9b138db",
@@ -9231,7 +9231,7 @@
   },
   {
    "id": "56b54007",
-   "english": "Steel Empress \"That's not true! They were all protecting me...\""
+   "english": "Demon Steel Queen \"That's not true! They were all protecting me...\""
   },
   {
    "id": "db1da45f",
@@ -9243,7 +9243,7 @@
   },
   {
    "id": "5041e18c",
-   "english": "Steel Empress \"But, but... (sob)... waaah!\""
+   "english": "Demon Steel Queen \"But, but... (sob)... waaah!\""
   },
   {
    "id": "2c505b01",
@@ -9259,7 +9259,7 @@
   },
   {
    "id": "0bb1b930",
-   "english": "Steel Empress \"(sniff)... (hic), (hic)\""
+   "english": "Demon Steel Queen \"(sniff)... (hic), (hic)\""
   },
   {
    "id": "573fdbb2",
@@ -9267,7 +9267,7 @@
   },
   {
    "id": "c752b31f",
-   "english": "Steel Empress \"(sniff)... Aya...\""
+   "english": "Demon Steel Queen \"(sniff)... Aya...\""
   },
   {
    "id": "9567c2c1",
@@ -9299,11 +9299,11 @@
   },
   {
    "id": "f53584d0",
-   "english": "Aya \"(sniff)... (sniff)... You can use... my Watatsumi.\""
+   "english": "Aya \"(sniff)... (sniff)... You can use... my Wadatsumi.\""
   },
   {
    "id": "f7c012a8",
-   "english": "Meihong \"Watatsumi?\""
+   "english": "Meihong \"Wadatsumi?\""
   },
   {
    "id": "3b29cfb9",
@@ -9323,7 +9323,7 @@
   },
   {
    "id": "db7816e9",
-   "english": "Yama the Moon Lute King \"Congratulations.\""
+   "english": "Yama the Moon Lute Wisdom King \"Congratulations.\""
   },
   {
    "id": "eb99764d",
@@ -9331,11 +9331,11 @@
   },
   {
    "id": "73c96260",
-   "english": "Yama the Moon Lute King \"Unexpected information?\""
+   "english": "Yama the Moon Lute Wisdom King \"Unexpected information?\""
   },
   {
    "id": "4cb5182e",
-   "english": "Meshumel of the North \"Want to hear it?\"{0a}Yama the Moon Lute King \"Yes.\""
+   "english": "Meshumel of the North \"Want to hear it?\"{0a}Yama the Moon Lute Wisdom King \"Yes.\""
   },
   {
    "id": "299de558",
@@ -9347,7 +9347,7 @@
   },
   {
    "id": "83106880",
-   "english": "Yama the Moon Lute King \"So he's served his purpose.\""
+   "english": "Yama the Moon Lute Wisdom King \"So he's served his purpose.\""
   },
   {
    "id": "6c6aaba6",
@@ -9367,11 +9367,11 @@
   },
   {
    "id": "367c358b",
-   "english": "Yama the Moon Lute King \"Of course. I've always managed well so far. Haven't I?\""
+   "english": "Yama the Moon Lute Wisdom King \"Of course. I've always managed well so far. Haven't I?\""
   },
   {
    "id": "0a4809e7",
-   "english": "Meshumel of the North \"That you have.\"{0a}Yama the Moon Lute King \"So, what's the information?\""
+   "english": "Meshumel of the North \"That you have.\"{0a}Yama the Moon Lute Wisdom King \"So, what's the information?\""
   },
   {
    "id": "ea59e03b",
@@ -9379,11 +9379,11 @@
   },
   {
    "id": "8637bfa0",
-   "english": "Yama the Moon Lute King \"Heh heh, you're such a spoiled little boy, Meshumel...\""
+   "english": "Yama the Moon Lute Wisdom King \"Heh heh, you're such a spoiled little boy, Meshumel...\""
   },
   {
    "id": "1b51129a",
-   "english": "Meshumel of the North \"Yama...\"{0a}Yama the Moon Lute King \"Heh heh heh...\""
+   "english": "Meshumel of the North \"Yama...\"{0a}Yama the Moon Lute Wisdom King \"Heh heh heh...\""
   },
   {
    "id": "f80ae5e3",
@@ -10287,19 +10287,19 @@
   },
   {
    "id": "c307f7bf",
-   "english": "-  Bath of Yama the Moon Lute King  -"
+   "english": "-  Bath of Yama the Moon Lute Wisdom King  -"
   },
   {
    "id": "7445d249",
-   "english": "Yama the Moon Lute King \"Foolish men...\""
+   "english": "Yama the Moon Lute Wisdom King \"Foolish men...\""
   },
   {
    "id": "75570dd3",
-   "english": "Yama the Moon Lute King \"Dai. Meshumel. ...I'll love you forever.\""
+   "english": "Yama the Moon Lute Wisdom King \"Dai. Meshumel. ...I'll love you forever.\""
   },
   {
    "id": "9a52d4d9",
-   "english": "Yama the Moon Lute King \"Heh heh heh...\""
+   "english": "Yama the Moon Lute Wisdom King \"Heh heh heh...\""
   },
   {
    "id": "5e825f28",
@@ -10307,7 +10307,7 @@
   },
   {
    "id": "edf99a48",
-   "english": "Yama the Moon Lute King \"Why, my lord Demon King. In a place like this...\""
+   "english": "Yama the Moon Lute Wisdom King \"Why, my lord Demon King. In a place like this...\""
   },
   {
    "id": "3f0a70ae",
@@ -10315,7 +10315,7 @@
   },
   {
    "id": "74d5f899",
-   "english": "Yama the Moon Lute King \"How wicked of you, my king.\""
+   "english": "Yama the Moon Lute Wisdom King \"How wicked of you, my king.\""
   },
   {
    "id": "bcdd3150",
@@ -10323,7 +10323,7 @@
   },
   {
    "id": "a0ec378e",
-   "english": "Yama the Moon Lute King \"On that point, I have a good plan...\""
+   "english": "Yama the Moon Lute Wisdom King \"On that point, I have a good plan...\""
   },
   {
    "id": "0e17333f",
@@ -10331,11 +10331,11 @@
   },
   {
    "id": "e37d0cc1",
-   "english": "Yama the Moon Lute King \"Thank you, my lord.\""
+   "english": "Yama the Moon Lute Wisdom King \"Thank you, my lord.\""
   },
   {
    "id": "010954c5",
-   "english": "Yama the Moon Lute King \"My lord Demon King...\""
+   "english": "Yama the Moon Lute Wisdom King \"My lord Demon King...\""
   },
   {
    "id": "fd9064c5",
@@ -10779,15 +10779,15 @@
   },
   {
    "id": "cff370f2",
-   "english": "Moon Lute King \"My lord Demon King! They've come this far! Now is the time to show your power!!\""
+   "english": "Moon Lute Wisdom King \"My lord Demon King! They've come this far! Now is the time to show your power!!\""
   },
   {
    "id": "24409dd9",
-   "english": "Master \"This is unseemly, Yama!\"{0a}Moon Lute King \"My king!\""
+   "english": "Master \"This is unseemly, Yama!\"{0a}Moon Lute Wisdom King \"My king!\""
   },
   {
    "id": "258d29ce",
-   "english": "Moon Lute King \"My king...\""
+   "english": "Moon Lute Wisdom King \"My king...\""
   },
   {
    "id": "5acc218f",
@@ -10815,7 +10815,7 @@
   },
   {
    "id": "8a913d6e",
-   "english": "Moon Lute King \"You are too kind, my lord.\""
+   "english": "Moon Lute Wisdom King \"You are too kind, my lord.\""
   },
   {
    "id": "c8ecd861",
@@ -10823,15 +10823,15 @@
   },
   {
    "id": "dc9f1eaf",
-   "english": "Moon Lute King \"A-a special power?!\""
+   "english": "Moon Lute Wisdom King \"A-a special power?!\""
   },
   {
    "id": "b53c2a3e",
-   "english": "Moon Lute King \"N-no... it can't be!!\""
+   "english": "Moon Lute Wisdom King \"N-no... it can't be!!\""
   },
   {
    "id": "a1bc568d",
-   "english": "Moon Lute King \"Kyaaaaah!!\""
+   "english": "Moon Lute Wisdom King \"Kyaaaaah!!\""
   },
   {
    "id": "5e4e3384",

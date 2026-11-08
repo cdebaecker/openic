@@ -441,7 +441,8 @@ func _say(tmpl: PackedByteArray, args: Dictionary = {}) -> void:
 		return
 	if OS.get_cmdline_user_args().has("--battle-log"):
 		print("BATTLE: ", GameText.decode(bytes))
-	if _lines >= MESSAGE.size.y:
+	# a wrapped English line takes several rows: clear first when it would run below the window
+	if _lines + bytes.count(0x0a) + 1 > MESSAGE.size.y:
 		await _redraws(4)
 		await _clear_messages()
 	ui.print_at(_msg, 0, _lines, bytes)
@@ -476,7 +477,8 @@ func _expand(tmpl: PackedByteArray, a: Dictionary) -> PackedByteArray:
 		for n in 3:
 			text = text.replace("#%d" % (n + 1), str(nums[n])).replace("*%d" % (n + 1), str(nums[n]).lpad(6))
 			text = text.replace("$%d" % (n + 1), GameText.name_of(GameText.decode(slots[n])))
-		return TextCodec.from_text(text.replace("$$", "$"))
+		# word-wrapped to the window (its printer breaks at the last column, mid-word)
+		return TextCodec.from_text(TextCodec.wrap(text.replace("$$", "$"), MESSAGE.size.x - 2))
 	var out := PackedByteArray()
 	var p := 0
 	while p < tmpl.size() and tmpl[p] != 0:

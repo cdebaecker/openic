@@ -21,6 +21,7 @@ const FRAME_RATE := 55.458
 # Window rectangles (columns / rows from (64, 48)): $9C30E, $9C316, $9C31E; menu $9C1A4.
 const WINDOWS := [Rect2i(10, 19, 56, 4), Rect2i(18, 9, 40, 2), Rect2i(10, 1, 56, 4)]
 const MENU_WINDOW := Vector2i(38, 6)
+const MENU_WIDTH := 20
 
 var screen                    # the field screen (field.gd): render(), map, field, layer, input
 var state                     # GameState
@@ -368,7 +369,7 @@ func chest(j: int) -> void:
 	if en != "":
 		# English: the template with the item's English name ("Got Cure Pill.")
 		var text := en.replace("$1", GameText.name_of(GameText.decode(name)))
-		msg = TextCodec.from_text(TextCodec.wrap(text, MessageEngine.ENGLISH_WIDTH))
+		msg = TextCodec.from_text(TextCodec.wrap(text, mini(MessageEngine.ENGLISH_WIDTH, int(win["w"]))))
 	else:
 		inserts[0] = name
 	msg.append(0)
@@ -480,7 +481,20 @@ func _menu(items: Array, cursor: int) -> int:
 		texts.append(t)
 		width = maxi(width, b.size())
 	width += 2
-	var win := {"k": 9, "x": MENU_WINDOW.x, "y": MENU_WINDOW.y, "w": 20, "h": items.size(), "cx": 0, "cy": 0}
+	var win := {"k": 9, "x": MENU_WINDOW.x, "y": MENU_WINDOW.y, "w": MENU_WIDTH, "h": items.size(), "cx": 0, "cy": 0}
+	if GameText.translated():
+		# English / French items can be wider than the original's 20 columns: the window grows to
+		# the left (its right edge stays), and the highlight covers the whole item
+		var cols := 0
+		for t in texts:
+			var n := 0
+			for ch in t:
+				n += 1 if ch.unicode_at(0) < 0x100 else 2
+			cols = maxi(cols, n)
+		if cols + 2 > MENU_WIDTH:
+			win["w"] = cols + 2
+			win["x"] = maxi(2, MENU_WINDOW.x + MENU_WIDTH - win["w"])
+		width = maxi(width, cols + 2)
 	windows.append(win)
 	for i in texts.size():
 		var cx := 1

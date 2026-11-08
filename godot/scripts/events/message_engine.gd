@@ -9,7 +9,8 @@ extends RefCounted
 ##
 ## English: when a page starts, its Japanese bytes are looked up in the translation table by id
 ## (as the web build's patcher does at $723B0) and the page is replaced by the English, wrapped
-## to ENGLISH_WIDTH columns; the following pages keep their own lookup.
+## to ENGLISH_WIDTH columns (or the window's width when it is narrower); the following pages keep
+## their own lookup.
 
 const TextCodec := preload("res://scripts/events/text_codec.gd")
 
@@ -44,7 +45,7 @@ static func cell_pos(win: Dictionary, cx: int, cy: int) -> Vector2i:
 ## each page is looked up in the translation table when it starts, as the web build's hook does.
 func show(win: Dictionary, bytes: PackedByteArray, open := true, at := 0, cont := false) -> int:
 	while true:
-		var t := _translate(bytes, at)
+		var t := _translate(bytes, at, mini(ENGLISH_WIDTH, int(win["w"])))
 		var r: int = await _show(win, t[0], open, 0, false)
 		if r < 0:
 			return -1
@@ -61,7 +62,7 @@ func show(win: Dictionary, bytes: PackedByteArray, open := true, at := 0, cont :
 
 
 ## [bytes to lay out from 0, length of the replaced page in them, its original length]
-func _translate(bytes: PackedByteArray, at: int) -> Array:
+func _translate(bytes: PackedByteArray, at: int, width := ENGLISH_WIDTH) -> Array:
 	var rest := bytes.slice(at)
 	var pre := TextCodec.prefix_length(rest)
 	var body := rest.slice(pre)
@@ -71,7 +72,7 @@ func _translate(bytes: PackedByteArray, at: int) -> Array:
 	var english := GameText.translation_for(TextCodec.message_id(body.slice(0, TextCodec.message_at(body, 0).size())))
 	if english == "":
 		return [rest, rest.size() + 1, rest.size() + 1]
-	var en := TextCodec.from_text(TextCodec.wrap(english, ENGLISH_WIDTH))
+	var en := TextCodec.from_text(TextCodec.wrap(english, width))
 	var out := rest.slice(0, pre)
 	out.append_array(en)
 	out.append_array(body.slice(page))

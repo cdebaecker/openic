@@ -96,7 +96,39 @@ func setup(args: Dictionary) -> void:
 		_with_events = args.get("events", false)
 
 
+var _leak_check := OS.get_cmdline_user_args().has("--text-leak-check")   # development
+var _drawn_boxes: Array = []   # development: the window frames of the last render, in screen pixels
+var _leak_frame := 0
+
+
+## Development (-- --text-leak-check): print every frame where text is on screen outside the frames
+## of the windows drawn (field windows only: battles and the interface windows are not checked).
+func _check_leaks() -> void:
+	_leak_frame += 1
+	if _battle != null or not ui_boxes.is_empty() or map == null:
+		return
+	var out := []
+	for pos: Vector2i in layer._glyphs:
+		if layer._glyphs[pos][1] == 0:
+			continue
+		var inside := false
+		for r: Rect2i in _drawn_boxes:
+			if r.has_point(pos):
+				inside = true
+		if not inside:
+			out.append([pos, layer._glyphs[pos][0]])
+	if not out.is_empty():
+		out.sort()
+		var txt := ""
+		for o in out.slice(0, 40):
+			txt += o[1]
+		print("TEXTLEAK f%d map %s busy %s windows %s boxes %s n %d first %s text '%s'" % [_leak_frame, map.id, _busy,
+			str(events.windows.map(func(w): return [w["k"], w["x"], w["y"], w["w"], w["h"]])), str(_drawn_boxes), out.size(), str(out[0][0]), txt])
+
+
 func _ready() -> void:
+	if _leak_check:
+		get_tree().process_frame.connect(_check_leaks)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Color.BLACK
@@ -274,6 +306,14 @@ func render() -> void:
 	_panel["lamp"] = _lamp
 	_update_names()
 	_view.render(map, field, events.sprites, events.windows, FieldEvents.frame_tiles, _panel, ui_boxes)
+	if _leak_check:
+		_drawn_boxes = []
+		for w in events.windows:
+			var r := Rect2i()
+			for t: Vector3i in FieldEvents.frame_tiles(w):
+				var c := Rect2i(64 + 16 * t.x, 48 + 16 * t.y, 16, 16)
+				r = c if r.size == Vector2i.ZERO else r.merge(c)
+			_drawn_boxes.append(r)
 
 
 ## English mode: the party panel's names are tiles of ASDF.CHR (kanji / katakana, f_74918), so

@@ -72,10 +72,15 @@ func has_mt32() -> bool:
 	return not _mt32.is_empty()
 
 
-## True when the game data has the MSX version's FM music (chip logs: it needs the extension).
-func has_msx() -> bool:
+## True when the game data has the MSX version's FM music (whether or not it can be played).
+func has_msx_data() -> bool:
 	_load_index()
-	return not _msx.is_empty() and can_synthesize()
+	return not _msx.is_empty()
+
+
+## True when the MSX music can play: it exists only as chip logs, so it needs the extension.
+func has_msx() -> bool:
+	return has_msx_data() and can_synthesize()
 
 
 ## The music devices this game data and build can play, in the order Options cycles them.
@@ -133,7 +138,7 @@ func _music_info_for(track: String, d: String) -> Dictionary:
 	_load_index()
 	if d == "mt32" and _mt32.has(track):
 		return _mt32[track]
-	if d == "msx" and _msx.has(track) and can_synthesize():
+	if d == "msx" and has_msx() and _msx.has(track):
 		return _msx[track]   # songs the MSX disks lack (12, 19) stay the X68000's
 	return _index.get(track, {})
 

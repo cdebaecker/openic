@@ -149,6 +149,9 @@ func _opt_value(id: String) -> String:
 			if Settings.music_device == "msx" and Audio.has_msx():
 				return _t("FM (MSX turbo R)", "FM音源（MSX turbo R）", "FM (MSX turbo R)")
 			if Audio.devices().size() == 1:
+				if Audio.has_msx_data():
+					return _t("FM (the MSX music needs live synthesis)", "FM音源（MSX版にはリアルタイム合成が必要）",
+						"FM (la musique MSX demande la synthèse en direct)")
 				return _t("FM (no other music data)", "FM音源（他の音源データなし）", "FM (pas d'autres données)")
 			return _t("FM (X68000)", "FM音源（X68000）", "FM (X68000)")
 		"synth":

@@ -48,6 +48,7 @@ private:
 	std::vector<uint8_t> data;
 	uint32_t log_rate = 48000, loop_start = NO_LOOP, end = 0;
 	size_t events = 0, events_end = 0, loop_offset = 0;
+	double loop_event_t = 0;   // log time of the first loop event, read on the first pass
 	uint8_t start_ppi = 0;
 	struct Blob { size_t offset, size; };
 	std::vector<Blob> blobs;

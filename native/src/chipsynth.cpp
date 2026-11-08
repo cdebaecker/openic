@@ -38,7 +38,8 @@ struct ChipLogPlayer::Msx : ymfm::ymfm_interface {
 	}
 };
 
-ChipLogPlayer::ChipLogPlayer() : opm(std::make_unique<Opm>()), msx(std::make_unique<Msx>()) {}
+// the chips are created by load(), for the log's format
+ChipLogPlayer::ChipLogPlayer() = default;
 ChipLogPlayer::~ChipLogPlayer() = default;
 
 static uint32_t rd32(const uint8_t *b) { return b[0] | b[1] << 8 | b[2] << 16 | uint32_t(b[3]) << 24; }
@@ -54,6 +55,8 @@ bool ChipLogPlayer::load(const uint8_t *src, size_t size) {
 		uint32_t loop_off = rd32(b + 16), n = rd32(b + 20);
 		if (24 + size_t(n) > size || loop_off > n || log_rate == 0) { data.clear(); done = true; return false; }
 		events = 24; events_end = 24 + n; loop_offset = 24 + loop_off; start_ppi = 0;
+		if (loop_start != NO_LOOP && loop_start >= end) loop_start = NO_LOOP;   // an empty loop body
+		if (!msx) msx = std::make_unique<Msx>();
 		restart();
 		return true;
 	}
@@ -78,16 +81,18 @@ bool ChipLogPlayer::load(const uint8_t *src, size_t size) {
 	events = q;
 	events_end = q + n;
 	loop_offset = q + loop_off;
+	if (loop_start != NO_LOOP && loop_start >= end) loop_start = NO_LOOP;   // an empty loop body
+	if (!opm) opm = std::make_unique<Opm>();
 	restart();
 	return true;
 }
 
 void ChipLogPlayer::restart() {
-	opm->chip.reset();
-	msx->opll.reset(); msx->psg.reset();
+	if (opm) opm->chip.reset();
+	if (msx) { msx->opll.reset(); msx->psg.reset(); }
 	msx_opll_phase = msx_psg_phase = 0;
 	msx_opll[0] = msx_opll[1] = msx_psg[0] = msx_psg[1] = 0;
-	p = events; t = 0; now = 0; played = 0; loop_count = 0;
+	p = events; t = 0; now = 0; played = 0; loop_count = 0; loop_event_t = loop_start;
 	done = data.empty();
 	clock8 = 1; ppi = start_ppi;
 	ad_playing = false; ad_data = nullptr; ad_pos = ad_len = 0; ad_nibs = ad_nib_i = 0;
@@ -96,10 +101,14 @@ void ChipLogPlayer::restart() {
 	next_t = done ? 0 : read_time();
 }
 
+// The next event's time. Deltas are from the previous event, so the first loop event's delta is
+// from the last event before the loop: its time is kept on the first pass, for every later pass.
 double ChipLogPlayer::read_time() {
 	if (p >= events_end) return INFINITY;
+	bool at_loop = p == loop_offset;
 	uint32_t d = 0; int s = 0; uint8_t c;
 	do { c = data[p++]; d |= uint32_t(c & 127) << s; s += 7; } while ((c & 128) && p < events_end && s < 32);
+	if (at_loop && loop_count == 0) loop_event_t = t + d;
 	return t + d;
 }
 
@@ -107,6 +116,7 @@ void ChipLogPlayer::apply() {
 	const uint8_t *b = data.data();
 	uint8_t c = b[p++];
 	if (msx_log) {   // $01 r v: YM2413, $02 r v: YM2149
+		if (p + 2 > events_end) { p = events_end; return; }   // a truncated log
 		uint8_t r = b[p++], v = b[p++];
 		if (c == 1) { msx->opll.write_address(r); msx->opll.write_data(v); }
 		else if (c == 2) { msx->psg.write_address(r); msx->psg.write_data(v); }
@@ -218,8 +228,9 @@ int ChipLogPlayer::render(float *out, int frames) {
 			if (has_loop() && loop_enabled) {
 				now -= end - loop_start;
 				p = loop_offset; t = loop_start;
-				next_t = read_time();
 				loop_count++;
+				next_t = read_time();
+				if (next_t != INFINITY) next_t = loop_event_t;
 			} else {
 				done = true;
 				break;

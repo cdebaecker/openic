@@ -22,15 +22,15 @@ const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] :
 const FPS = 59.9227;               // NTSC VDP interrupt (MSX turbo R, 60 Hz mode)
 const UNIT = 1000;                 // log time units per frame: rate = FPS * UNIT
 
-// Run one song for `frames` ticks; returns [{f, chip, reg, val}] and whether the song stopped.
 // The custom FM voice most songs set: the OPLL keeps the last one set, so a song that uses
 // instrument 0 before setting its own plays with the voice the previous songs left
 const DEFAULT_VOICE = [0x51, 0x61, 0x17, 0x07, 0x50, 0xf1, 0x5c, 0xdc];
 
-// driver: disk 1 system files 0-3, put where the game's loader (file 4) puts them in the sound
-// segment: the driver at 8000h, file 1 (PSG envelopes, voices) at 9000h, the effect and jingle
-// tables at 9200h and 9980h.
-export function runSong(driver, song, frames) {
+// Start one song. driver: disk 1 system files 0-3, put where the game's loader (file 4) puts them
+// in the sound segment: the driver at 8000h, file 1 (PSG envelopes, voices) at 9000h, the effect
+// and jingle tables at 9200h and 9980h. Returns { log: [{f, chip, reg, val}], run(frames) }:
+// run() ticks on up to `frames` in total and tells whether the song stopped.
+export function startSong(driver, song) {
   const mem = new Uint8Array(0x10000);
   for (const [data, at] of driver) mem.set(data.subarray(0, Math.min(data.length, 0x10000 - at)), at);
   mem.set(song.subarray(0, Math.min(song.length, 0x10000 - 0x9800)), 0x9800);
@@ -56,12 +56,17 @@ export function runSong(driver, song, frames) {
   call(0x8003, { a: 9, h: 0x98, l: 0x00 });
   // frame 0 starts with the common custom voice unless the song sets one at once
   DEFAULT_VOICE.forEach((val, reg) => log.push({ f: 0, chip: 1, reg, val }));
-  let stopped = false;
-  for (frame = 0; frame < frames; frame++) {
-    call(0x8000);
-    if (frame % 60 === 59 && !call(0x8003, { a: 6 })) { stopped = true; break; }
-  }
-  return { log, stopped, frames: frame };
+  const s = { log, frames: 0, stopped: false };
+  s.run = (frames) => {
+    while (!s.stopped && s.frames < frames) {
+      frame = s.frames;
+      call(0x8000);
+      if (frame % 60 === 59 && !call(0x8003, { a: 6 })) s.stopped = true;   // frames: the stop frame
+      else s.frames++;
+    }
+    return s.stopped;
+  };
+  return s;
 }
 
 const token = (e) => (e.chip << 16) | (e.reg << 8) | e.val;
@@ -129,9 +134,10 @@ for (const n of [...songs.keys()].sort((a, b) => a - b)) {
   if (n > 35) continue;                         // 36, 37: one-sector stubs no map plays
   const copies = songs.get(n);
   const src = copies.find((c) => c.disk !== 1) ?? copies[0];   // disk 1 holds the opening's versions
-  let r = runSong(driver, src.data, Math.round(600 * FPS));
+  const r = startSong(driver, src.data);
+  r.run(Math.round(600 * FPS));
   let L = r.stopped ? null : findLoop(r.log), approx = false;
-  if (!r.stopped && !L) { r = runSong(driver, src.data, Math.round(1500 * FPS)); L = r.stopped ? null : findLoop(r.log); }
+  if (!r.stopped && !L) { r.run(Math.round(1500 * FPS)); L = r.stopped ? null : findLoop(r.log); }   // long loops
   let loopStart = -1, end;
   if (L) {
     const S = Math.round(L.start), P = Math.round(L.period);

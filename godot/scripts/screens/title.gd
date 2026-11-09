@@ -36,9 +36,16 @@ const MODE_HELP := {
 	"mode_quick": ["フィールドではいつでもF5でセーブ、F9でロード", "Also F5 saves and F9 loads anywhere in the field",
 		"F5 sauvegarde et F9 recharge aussi n'importe où sur le terrain"],
 }
-const FRAME_COLOR := Color(0.85, 0.65, 0.25)
-## The heading over the menu (OpenIC: "Open Illusion City")
-const HEADING := "Open Illusion City"
+## The look of the OpenIllusionCity website (Helly Studios, its X68000 theme): its logo and window
+## frame (ui/, drawn for the site, nothing from the game) and the game's palette
+const LOGO := preload("res://ui/openic-logo.png")
+const FRAME := preload("res://ui/frame.png")
+const BLACK := Color("#040404")
+const WHITE := Color("#f7f7f7")
+const CREAM := Color("#f7d796")
+const SKY := Color("#75b6f7")
+const BLUE := Color("#3575b6")
+const BRONZE := Color("#b67535")
 const ROW_H := 20
 
 var _main: Array = ITEMS.filter(func(it: Array) -> bool: return OS.has_feature("editor") or not it[2] in DEV_ACTIONS)
@@ -53,24 +60,40 @@ var _panel := Panel.new()
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var bg := ColorRect.new()
-	bg.color = Color.BLACK
+	# the site's hero: black, warming to dark bronze at the bottom
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.7, 1.0])
+	gradient.colors = PackedColorArray([BLACK, BLACK, Color("#1a120a")])
+	var shade := GradientTexture2D.new()
+	shade.gradient = gradient
+	shade.fill_from = Vector2(0, 0)
+	shade.fill_to = Vector2(0, 1)
+	var bg := TextureRect.new()
+	bg.texture = shade
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 
 	_heading()
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color.BLACK
-	style.border_color = FRAME_COLOR
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(2)
+	# the site's window frame: a 6-pixel gold, bronze and checkered border
+	var style := StyleBoxTexture.new()
+	style.texture = FRAME
+	style.set_texture_margin_all(6)
+	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
 	_panel.add_theme_stylebox_override("panel", style)
 	_panel.size = Vector2(380, _main.size() * ROW_H + 28)
 	_panel.position = Vector2((768 - _panel.size.x) / 2, 160)
 	add_child(_panel)
+	var inside := ColorRect.new()
+	inside.color = BLACK
+	inside.position = Vector2(6, 6)
+	inside.size = _panel.size - Vector2(12, 12)
+	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(inside)
 
-	_cursor.color = Color(0.25, 0.45, 0.9, 0.45)
+	_cursor.color = BLUE
 	_cursor.size = Vector2(_panel.size.x - 24, ROW_H)
 	_cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_panel.add_child(_cursor)
@@ -79,6 +102,7 @@ func _ready() -> void:
 		l.position = Vector2(24, 14 + i * ROW_H)
 		l.size = Vector2(_panel.size.x - 36, ROW_H)
 		l.mouse_filter = Control.MOUSE_FILTER_PASS
+		l.add_theme_color_override("font_color", WHITE)
 		l.mouse_entered.connect(_select.bind(i))
 		_panel.add_child(l)
 		_rows.append(l)
@@ -86,46 +110,40 @@ func _ready() -> void:
 	_status.position = Vector2(0, 420)
 	_status.size = Vector2(768, 24)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	_status.add_theme_color_override("font_color", CREAM)
 	add_child(_status)
 
 	var lang := Label.new()
 	lang.position = Vector2(0, 480)
 	lang.size = Vector2(760, 20)
 	lang.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	lang.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
+	lang.add_theme_color_override("font_color", BRONZE)
 	lang.text = "L: English / Français / 日本語"
 	add_child(lang)
 	_refresh()
 
 
-## The name over the menu: 幻影都市 in amber, the English name in large letters with a shadow, an
-## amber rule. Text only, in the game font (pixel-exact at multiples of 16).
+## The site's hero over the menu: the platform line in sky blue, the striped OPEN ILLUSION CITY
+## logo at twice its size, the Japanese title in cream.
 func _heading() -> void:
-	_heading_label("幻影都市", 32, FRAME_COLOR, 24)
-	var name_label := _heading_label(HEADING, 48, Color(0.95, 0.92, 0.85), 62)
-	name_label.add_theme_color_override("font_shadow_color", Color(0.55, 0.38, 0.1))
-	name_label.add_theme_constant_override("shadow_offset_x", 3)
-	name_label.add_theme_constant_override("shadow_offset_y", 3)
-	var w := GameText.font.get_string_size(HEADING, HORIZONTAL_ALIGNMENT_LEFT, -1, 48).x + 48
-	for i in 2:
-		var rule := ColorRect.new()
-		rule.color = FRAME_COLOR if i == 0 else Color(0.45, 0.32, 0.1)
-		rule.size = Vector2(w - 24 * i, 2)
-		rule.position = Vector2(roundf((768 - rule.size.x) / 2), 128 + 5 * i)
-		add_child(rule)
+	_heading_label("SHARP X68000 · 1991 · MICROCABIN", SKY, 30)
+	var logo := TextureRect.new()
+	logo.texture = LOGO
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.size = LOGO.get_size() * 2
+	logo.position = Vector2(roundf((768 - logo.size.x) / 2), 58)
+	add_child(logo)
+	_heading_label("幻影都市 · Genei Toshi", CREAM, 118)
 
 
-func _heading_label(text: String, size: int, color: Color, y: int) -> Label:
+func _heading_label(text: String, color: Color, y: int) -> void:
 	var l := Label.new()
 	l.text = text
 	l.position = Vector2(0, y)
-	l.size = Vector2(768, size + 8)
+	l.size = Vector2(768, 20)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	add_child(l)
-	return l
 
 
 func _refresh() -> void:

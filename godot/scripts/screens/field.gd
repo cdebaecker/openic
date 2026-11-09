@@ -297,7 +297,7 @@ func render() -> void:
 		_smooth_set(1.0)
 	if _battle != null:
 		_battle.render()
-		_update_names()
+		_update_names(_battle.panel_party())
 		return
 	if map == null:
 		return
@@ -317,11 +317,12 @@ func render() -> void:
 
 
 ## English mode: the party panel's names are tiles of ASDF.CHR (kanji / katakana, f_74918), so
-## the English names are drawn over them (the name box of each shown slot).
-func _update_names() -> void:
+## the English names are drawn over them (the name box of each shown slot). In a battle, the
+## battle's own panel (its party, not the field's last panel).
+func _update_names(battle_party: Variant = null) -> void:
 	var names: Array = []
 	if GameText.translated() and commands != null and commands.screens != null:
-		var party: Array = _panel.get("party", [])
+		var party: Array = battle_party if battle_party is Array else _panel.get("party", [])
 		for slot in party.size():
 			var id := int(party[slot]["id"])
 			if id >= 0 and id <= 7:

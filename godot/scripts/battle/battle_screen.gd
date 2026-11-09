@@ -145,6 +145,14 @@ func render() -> void:
 	view.render(list, panel, marker, tiles)
 
 
+## The party ids of the battle's panel, for the English names drawn over it.
+func panel_party() -> Array:
+	var party: Array = []
+	for slot in int(bs.get("n_party", 0)):
+		party.append({"id": SYS.party(state)[slot]})
+	return party
+
+
 func palette_words() -> Array:
 	return view.palette_words()
 

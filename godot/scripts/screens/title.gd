@@ -38,8 +38,8 @@ const MODE_HELP := {
 }
 ## The look of the OpenIllusionCity website (Helly Studios, its X68000 theme): its logo and window
 ## frame (ui/, drawn for the site, nothing from the game) and the game's palette
-const LOGO := "res://ui/openic-logo.png"
-const FRAME := "res://ui/frame.png"
+const LOGO := "res://ui/openic-logo.rawpng"
+const FRAME := "res://ui/frame.rawpng"
 const BLACK := Color("#040404")
 const WHITE := Color("#f7f7f7")
 const CREAM := Color("#f7d796")
@@ -136,12 +136,13 @@ func _heading() -> void:
 	_heading_label("幻影都市 · Genei Toshi", CREAM, 118)
 
 
-## The imported texture (exported builds, the editor), else the PNG itself (a checkout run before
-## Godot imported it)
+## The PNG itself, decoded here: the release's export template can't decode Godot's imported,
+## WebP-compressed textures, so these are .rawpng files, which Godot doesn't import, exported as
+## they are (export_presets' include_filter)
 func _texture(path: String) -> Texture2D:
-	if ResourceLoader.exists(path):
-		return load(path)
-	return ImageTexture.create_from_image(Image.load_from_file(ProjectSettings.globalize_path(path)))
+	var img := Image.new()
+	img.load_png_from_buffer(FileAccess.get_file_as_bytes(path))
+	return ImageTexture.create_from_image(img)
 
 
 func _heading_label(text: String, color: Color, y: int) -> void:

@@ -37,6 +37,8 @@ const MODE_HELP := {
 		"F5 sauvegarde et F9 recharge aussi n'importe où sur le terrain"],
 }
 const FRAME_COLOR := Color(0.85, 0.65, 0.25)
+## The heading over the menu (OpenIC: "Open Illusion City")
+const HEADING := "Open Illusion City"
 const ROW_H := 20
 
 var _main: Array = ITEMS.filter(func(it: Array) -> bool: return OS.has_feature("editor") or not it[2] in DEV_ACTIONS)
@@ -55,6 +57,8 @@ func _ready() -> void:
 	bg.color = Color.BLACK
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
+
+	_heading()
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color.BLACK
@@ -93,6 +97,35 @@ func _ready() -> void:
 	lang.text = "L: English / Français / 日本語"
 	add_child(lang)
 	_refresh()
+
+
+## The name over the menu: 幻影都市 in amber, the English name in large letters with a shadow, an
+## amber rule. Text only, in the game font (pixel-exact at multiples of 16).
+func _heading() -> void:
+	_heading_label("幻影都市", 32, FRAME_COLOR, 24)
+	var name_label := _heading_label(HEADING, 48, Color(0.95, 0.92, 0.85), 62)
+	name_label.add_theme_color_override("font_shadow_color", Color(0.55, 0.38, 0.1))
+	name_label.add_theme_constant_override("shadow_offset_x", 3)
+	name_label.add_theme_constant_override("shadow_offset_y", 3)
+	var w := GameText.font.get_string_size(HEADING, HORIZONTAL_ALIGNMENT_LEFT, -1, 48).x + 48
+	for i in 2:
+		var rule := ColorRect.new()
+		rule.color = FRAME_COLOR if i == 0 else Color(0.45, 0.32, 0.1)
+		rule.size = Vector2(w - 24 * i, 2)
+		rule.position = Vector2(roundf((768 - rule.size.x) / 2), 128 + 5 * i)
+		add_child(rule)
+
+
+func _heading_label(text: String, size: int, color: Color, y: int) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.position = Vector2(0, y)
+	l.size = Vector2(768, size + 8)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", color)
+	add_child(l)
+	return l
 
 
 func _refresh() -> void:

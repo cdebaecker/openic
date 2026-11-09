@@ -38,8 +38,8 @@ const MODE_HELP := {
 }
 ## The look of the OpenIllusionCity website (Helly Studios, its X68000 theme): its logo and window
 ## frame (ui/, drawn for the site, nothing from the game) and the game's palette
-const LOGO := preload("res://ui/openic-logo.png")
-const FRAME := preload("res://ui/frame.png")
+const LOGO := "res://ui/openic-logo.png"
+const FRAME := "res://ui/frame.png"
 const BLACK := Color("#040404")
 const WHITE := Color("#f7f7f7")
 const CREAM := Color("#f7d796")
@@ -78,7 +78,7 @@ func _ready() -> void:
 
 	# the site's window frame: a 6-pixel gold, bronze and checkered border
 	var style := StyleBoxTexture.new()
-	style.texture = FRAME
+	style.texture = _texture(FRAME)
 	style.set_texture_margin_all(6)
 	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
 	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
@@ -128,12 +128,20 @@ func _ready() -> void:
 func _heading() -> void:
 	_heading_label("SHARP X68000 · 1991 · MICROCABIN", SKY, 30)
 	var logo := TextureRect.new()
-	logo.texture = LOGO
+	logo.texture = _texture(LOGO)
 	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	logo.size = LOGO.get_size() * 2
+	logo.size = logo.texture.get_size() * 2
 	logo.position = Vector2(roundf((768 - logo.size.x) / 2), 58)
 	add_child(logo)
 	_heading_label("幻影都市 · Genei Toshi", CREAM, 118)
+
+
+## The imported texture (exported builds, the editor), else the PNG itself (a checkout run before
+## Godot imported it)
+func _texture(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path)
+	return ImageTexture.create_from_image(Image.load_from_file(ProjectSettings.globalize_path(path)))
 
 
 func _heading_label(text: String, color: Color, y: int) -> void:

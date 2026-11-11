@@ -3,7 +3,7 @@
 An unofficial fan port of **幻影都市 / Illusion City** (MicroCabin, 1991, Sharp X68000) to
 [Godot 4](https://godotengine.org/), playable in English, French or the original Japanese.
 
-Illusion City is a cyberpunk role-playing game set in a Hong Kong ruined by the "Demonfall".
+Illusion City is a cyberpunk role-playing game set in a Hong Kong ruined by "the Collapse", a disaster that destroyed the old city in a single night.
 OpenIC runs the game on a modern computer, with the original's pictures, maps, music and story, plus a few optional comforts:
 quick saves, a faster game speed, and fixes for bugs in the original.
 

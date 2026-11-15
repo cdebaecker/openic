@@ -7,7 +7,9 @@ extends Node
 ## Music and sound effects are not scaled.
 
 signal changed
+signal display_changed
 
+const UPSCALERS := ["sharp", "smooth", "xbr", "crt"]
 const PATH := "user://settings.cfg"
 const SystemsModel := preload("res://scripts/systems/systems_model.gd")
 const SCALES := [1, 2, 3, 4]
@@ -42,6 +44,8 @@ const EXTRA_MOUSE := {"confirm": MOUSE_BUTTON_LEFT, "cancel": MOUSE_BUTTON_RIGHT
 var fullscreen := false
 var window_scale := 2
 var pixel_perfect := false
+## How the 768x512 screen is enlarged to the window (shaders/upscale.gdshader, Settings.UPSCALERS)
+var upscaler := "sharp"
 var music_volume := 80      # 0-100
 var sfx_volume := 80
 ## Music: "fm" = the X68000's own FM + ADPCM, "mt32" = the game's Roland MT-32 version
@@ -122,6 +126,7 @@ func apply() -> void:
 
 
 func apply_display() -> void:
+	display_changed.emit()
 	if DisplayServer.get_name() == "headless" or OS.has_feature("web"):
 		return
 	var win := get_tree().root
@@ -213,6 +218,8 @@ func load_settings() -> void:
 	fullscreen = bool(cf.get_value("display", "fullscreen", fullscreen))
 	window_scale = clampi(int(cf.get_value("display", "scale", window_scale)), 1, 4)
 	pixel_perfect = bool(cf.get_value("display", "pixel_perfect", pixel_perfect))
+	var up := str(cf.get_value("display", "upscaler", upscaler))
+	upscaler = up if up in UPSCALERS else "sharp"
 	music_volume = clampi(int(cf.get_value("audio", "music", music_volume)), 0, 100)
 	sfx_volume = clampi(int(cf.get_value("audio", "sfx", sfx_volume)), 0, 100)
 	var lang := str(cf.get_value("game", "language", GameText.language))
@@ -237,6 +244,7 @@ func save_settings() -> void:
 	cf.set_value("display", "fullscreen", fullscreen)
 	cf.set_value("display", "scale", window_scale)
 	cf.set_value("display", "pixel_perfect", pixel_perfect)
+	cf.set_value("display", "upscaler", upscaler)
 	cf.set_value("audio", "music", music_volume)
 	cf.set_value("audio", "sfx", sfx_volume)
 	cf.set_value("game", "language", GameText.language)

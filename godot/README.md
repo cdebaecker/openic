@@ -105,7 +105,9 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    in the ending; English subtitles for the text the opening draws in its pictures,
    `data/text/opening_subtitles.json`). Options (title > Options, `scripts/screens/options.gd`,
    saved by the `Settings` autoload in `user://settings.cfg`): fullscreen (F11), window size,
-   pixel-perfect scaling, music / effects volume, music device (FM or MT-32, when the game data
+   pixel-perfect scaling, upscaling (the screens draw into a 768x512 sub-viewport that
+   `shaders/upscale.gdshader` enlarges: sharp pixels, smooth, xBR, CRT scanlines;
+   `-- --upscaler=<name>` for one run), music / effects volume, music device (FM or MT-32, when the game data
    has the MT-32 renders), language, smooth movement, game and battle
    speed (`Engine.time_scale`; hold Tab / RB to fast-forward), the battle bug fixes, key and
    gamepad bindings, and importing the original's saves from X68000 disk images (XDF, HDM, DIM,

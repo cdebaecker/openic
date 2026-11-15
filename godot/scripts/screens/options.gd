@@ -86,6 +86,7 @@ func _build_rows() -> void:
 		{"kind": "opt", "id": "fullscreen", "label": ["Fullscreen (F11)", "フルスクリーン（F11）", "Plein écran (F11)"]},
 		{"kind": "opt", "id": "scale", "label": ["Window size", "ウインドウの大きさ", "Taille de la fenêtre"]},
 		{"kind": "opt", "id": "pixel", "label": ["Pixel-perfect scaling", "整数倍で拡大", "Agrandissement au pixel près"]},
+		{"kind": "opt", "id": "upscaler", "label": ["Upscaling", "拡大の方法", "Mise à l'échelle"]},
 		{"kind": "header", "id": "", "label": ["Sound", "音", "Son"]},
 		{"kind": "opt", "id": "music", "label": ["Music volume", "音楽の音量", "Volume de la musique"]},
 		{"kind": "opt", "id": "device", "label": ["Music played on", "音源", "Musique jouée sur"]},
@@ -141,6 +142,15 @@ func _opt_value(id: String) -> String:
 				512 * Settings.window_scale]
 		"pixel":
 			return _on_off(Settings.pixel_perfect)
+		"upscaler":
+			match Settings.upscaler:
+				"smooth":
+					return _t("Smooth", "なめらか", "Lissé")
+				"xbr":
+					return _t("xBR (rounded edges)", "xBR（輪郭をなめらかに）", "xBR (contours arrondis)")
+				"crt":
+					return _t("CRT (scanlines)", "CRT（走査線）", "CRT (lignes de balayage)")
+			return _t("Sharp pixels", "ドットそのまま", "Pixels nets")
 		"music":
 			return "%d %%" % Settings.music_volume
 		"device":
@@ -335,6 +345,8 @@ func _change_opt(id: String, d: int) -> void:
 			Settings.window_scale = int(_cycle(Settings.SCALES, Settings.window_scale, d))
 		"pixel":
 			Settings.pixel_perfect = not Settings.pixel_perfect
+		"upscaler":
+			Settings.upscaler = str(_cycle(Settings.UPSCALERS, Settings.upscaler, d))
 		"music":
 			Settings.music_volume = clampi(Settings.music_volume + 10 * d, 0, 100)
 		"device":

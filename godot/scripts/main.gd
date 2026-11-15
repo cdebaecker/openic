@@ -27,10 +27,34 @@ const TESTS := {
 	"--message-test=": "message_test", "--field-render-test=": "field_render_test",
 }
 
+const UpscaleShader := preload("res://shaders/upscale.gdshader")
+
 var _screen: Node = null
+## The screens draw into a 768x512 viewport, shown at the window's size through the upscaling
+## shader (Settings.upscaler). The root keeps the input and forwards it.
+var _vp := SubViewport.new()
+var _view := TextureRect.new()
 
 
 func _ready() -> void:
+	_vp.size = Vector2i(768, 512)
+	_vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	_vp.gui_embed_subwindows = true
+	_vp.handle_input_locally = false
+	add_child(_vp)
+	_view.texture = _vp.get_texture()
+	_view.size = Vector2(768, 512)
+	_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_view.material = ShaderMaterial.new()
+	_view.material.shader = UpscaleShader
+	_view.material.set_shader_parameter("screen", _vp.get_texture())
+	add_child(_view)
+	Settings.display_changed.connect(_apply_upscaler)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--upscaler="):
+			# Development: an upscaler for this run only (screenshots)
+			Settings.upscaler = arg.trim_prefix("--upscaler=")
+	_apply_upscaler()
 	var Autopilot := preload("res://scripts/dev/autopilot.gd")
 	if Autopilot.requested() != "":
 		add_child(Autopilot.new())
@@ -84,4 +108,13 @@ func show_screen(screen_name: String, args := {}) -> void:
 		screen.setup(args)
 	screen.finished.connect(show_screen)
 	_screen = screen
-	add_child(screen)
+	_vp.add_child(screen)
+
+
+func _apply_upscaler() -> void:
+	_view.material.set_shader_parameter("mode", maxi(Settings.UPSCALERS.find(Settings.upscaler), 0))
+
+
+func _input(event: InputEvent) -> void:
+	# the window and the screens share the 768x512 coordinates
+	_vp.push_input(event, true)

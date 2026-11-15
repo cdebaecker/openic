@@ -10,6 +10,7 @@ extends Node
 var _events: Array = []
 var _frame := 0
 var _releases := {}
+var _pointer := Vector2.ZERO   # viewport pixels
 
 
 static func requested() -> String:
@@ -46,10 +47,10 @@ func _process(_delta: float) -> void:
 			_send(k, true)
 			_releases[k] = _frame + int(e.get("hold", 2))
 		if e.has("move"):
-			get_viewport().warp_mouse(Vector2(e["move"][0], e["move"][1]))
+			_move(Vector2(e["move"][0], e["move"][1]))
 		if e.has("click"):
 			var b := "mouse:%d" % int(e.get("button", 1))
-			get_viewport().warp_mouse(Vector2(e["click"][0], e["click"][1]))
+			_move(Vector2(e["click"][0], e["click"][1]))
 			_send(b, true)
 			_releases[b] = _frame + int(e.get("hold", 2))
 		if e.has("shot"):
@@ -58,6 +59,22 @@ func _process(_delta: float) -> void:
 			print("Autopilot: frame %d -> %s" % [_frame, e["shot"]])
 		if e.get("quit", false):
 			get_tree().quit()
+
+
+## The pointer moved by a motion event (the screens draw in a sub-viewport that only learns the
+## position from events), not only by warping the system's cursor.
+func _move(p: Vector2) -> void:
+	_pointer = p
+	get_viewport().warp_mouse(p)
+	var ev := InputEventMouseMotion.new()
+	ev.position = _window_pos()
+	ev.global_position = ev.position
+	Input.parse_input_event(ev)
+
+
+## Input.parse_input_event takes window pixels; the stretch scales the viewport's.
+func _window_pos() -> Vector2:
+	return get_viewport().get_final_transform() * _pointer
 
 
 func _send(action: String, pressed: bool) -> void:
@@ -72,7 +89,7 @@ func _send(action: String, pressed: bool) -> void:
 		var mev := InputEventMouseButton.new()
 		mev.button_index = action.trim_prefix("mouse:").to_int() as MouseButton
 		mev.pressed = pressed
-		mev.position = get_viewport().get_mouse_position()
+		mev.position = _window_pos()
 		mev.global_position = mev.position
 		Input.parse_input_event(mev)
 		return

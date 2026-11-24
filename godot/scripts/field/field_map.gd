@@ -22,7 +22,16 @@ var sub_cells := PackedByteArray()
 var vr_meta := PackedInt32Array()   # 256 metatiles x 4 (TL, TR, BL, BR): tile | bit 8 << 8
 var sub_meta := PackedInt32Array()
 var sub_size := Vector2i.ZERO        # the overlay layer's own size in metatiles
-var sub_origin := Vector2i.ZERO      # scroll of the overlay layer in tiles (builtin 11)
+## The overlay's origin ($9C8C0 / $9C8C2): the overlay tile shown at the window's top-left, moved by
+## the view through its scroll mode (FieldLogic.scroll_sub) and by builtin 11
+var sub_origin := Vector2i.ZERO
+var sub_scroll := {}                 # its header bytes 29-31 (f_73d0e)
+## The second sub layer (the sub map file's second layer: $9C8C4 / $9C8C6, f_744b4), under the
+## overlay, with the overlay's tileset; builtin 11 scrolls it
+var sub2_cells := PackedByteArray()
+var sub2_size := Vector2i.ZERO
+var sub2_origin := Vector2i.ZERO
+var sub2_scroll := {}
 var atlases: Array[Image] = []      # 0 = vr_chr (main layer), 1 = sub_chr (overlay); R8, 16 x 4096
 var masks: Array[Image] = []        # LA8, alpha = opaque
 ## Tile animation (f_742e8 / f_749aa; docs/cutscenes-field.md section 3), per layer (0 vr, 1 sub):
@@ -73,6 +82,11 @@ func _load(m: Dictionary) -> bool:
 		var sub: Dictionary = GameData.json("data/" + m["subMap"]["json"])
 		sub_cells = _cells(sub["layers"][0])
 		sub_size = Vector2i(int(sub["layers"][0]["width"]), int(sub["layers"][0]["height"]))
+		sub_scroll = sub["layers"][0].get("scroll", {"b29": 0, "b30": 1, "b31": 1})
+		if sub["layers"].size() > 1:
+			sub2_cells = _cells(sub["layers"][1])
+			sub2_size = Vector2i(int(sub["layers"][1]["width"]), int(sub["layers"][1]["height"]))
+			sub2_scroll = sub["layers"][1].get("scroll", {"b29": 0, "b30": 1, "b31": 1})
 		sub_meta = _metatiles(sub["metatiles"])
 	var vr_chr: Dictionary = GameData.json("data/" + m["vrChr"]["json"])
 	_add_tileset(vr_chr, "data/" + str(m["vrChr"]["json"]).get_basename())
@@ -216,6 +230,9 @@ func tile_at(cells: PackedByteArray, meta: PackedInt32Array, tx: int, ty: int) -
 	if cells == sub_cells and sub_size != Vector2i.ZERO:
 		w = sub_size.x
 		h = sub_size.y
+	elif cells == sub2_cells and sub2_size != Vector2i.ZERO:
+		w = sub2_size.x
+		h = sub2_size.y
 	if tx < 0 or ty < 0 or tx >= w * 2 or ty >= h * 2 or cells.is_empty():
 		return -1
 	var ci := (ty >> 1) * w + (tx >> 1)

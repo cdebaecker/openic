@@ -118,6 +118,7 @@ static func load_actors(prog: Dictionary, field, sprites: Array, party: Array, f
 				"bits": raw[ex + 1] if ex + 1 < raw.size() else 0}
 			a.x = rec["x"]
 			a.y = rec["y"]
+			a.home = Vector2i(a.x, a.y)
 			a.facing = rec["bits"] & 15
 			set_id = sets[rec["set"]] if rec["set"] < 16 else 0xff
 			a.flags = (rec["bits"] >> 4) & 1
@@ -156,6 +157,29 @@ static func load_actors(prog: Dictionary, field, sprites: Array, party: Array, f
 		advance(s)
 		a.dir = s["dir"]
 		a.step = s["step"]   # one record in the original: the walk logic's step is the sprite's
+
+
+## f_76bc4: a map actor taken out by a contact battle (flags bit 6, not active) counts its timer
+## (+7, $30 from the battle) down; at 0, once its EVT home position is outside the view (x < Vx,
+## y < Vy, x >= Vx + 28 or y >= Vy + 22), it is put back there and is active again (bits 6 and 7
+## toggled), its sprite rebuilt (f_7800e).
+static func respawn(field, s: Dictionary, i: int) -> void:
+	var a = field.act[i]
+	if a.timer:
+		a.timer = (a.timer - 1) & 0xff
+		return
+	var v: Vector2i = field.view
+	var h: Vector2i = a.home
+	if h.x >= v.x and h.y >= v.y and h.x < v.x + 28 and h.y < v.y + 22:
+		return
+	a.x = h.x
+	a.y = h.y
+	a.flags ^= 0xc0
+	s["x"] = a.x
+	s["y"] = a.y
+	s["layer"] = a.flags & 1
+	s["visible"] = 0x80 if (a.flags & 0x80) and s["set"] != null else 0
+	a.visible = s["visible"]
 
 
 ## f_76980 for a stationary map actor, once per field tick: the animation timer.
@@ -205,6 +229,8 @@ static func behave(field, s: Dictionary, i: int, timers: Dictionary, rand: Calla
 		if (beh & 1) and field.near(i, at.call(6), at.call(7)):
 			var lead = field.act[0]
 			d3 = field.dir_toward(lead.x - a.x, lead.y - a.y)
+			if field.repel:
+				d3 = (d3 + 4) & 7   # f_76d38 ($76D90): the repel turns the approach around
 		for off: int in [0, 1, -1, 2, -2]:
 			var r: int = rand.call(255)
 			if (r & 15) <= 1:

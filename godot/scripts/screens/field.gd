@@ -95,11 +95,13 @@ var _battle = null              # the battle shown, or null
 func setup(args: Dictionary) -> void:
 	_new_game = args.get("new_game", false)
 	_block_file = args.get("block", "")
+	_load_menu = args.get("load_menu", false)
 	if args.has("map"):
 		_start = args
 		_with_events = args.get("events", false)
 
 
+var _load_menu := false   # "Continue" on the title: the load menu first (start mode 0)
 var _leak_check := OS.get_cmdline_user_args().has("--text-leak-check")   # development
 var _drawn_boxes: Array = []   # development: the window frames of the last render, in screen pixels
 var _leak_frame := 0
@@ -177,6 +179,9 @@ func _ready() -> void:
 		commands = UiCommands.new(self, load(SYSTEMS_MODEL))
 		if not commands.available():
 			commands = null
+	if _load_menu and commands != null:
+		await _boot_load_menu()
+		return
 	if _new_game:
 		# f_7a50e: IC_MAIN's new-game entry, then the field loop loads A00 in new-game mode (no party
 		# yet: A00's scripts build it and play the intro).
@@ -265,13 +270,17 @@ func _apply_hd() -> void:
 
 func _enter_map(facing: int) -> void:
 	HdArt.clear_cache()
+	state.rt["actors_dirty"] = 0   # the map setup rebuilds the party's sprites (f_73090)
+	# a map load stops auto-walk ($A06E6 in mouse mode, $6647A; its direction $A06EA, $6654E)
+	field.auto_walk = 0
+	field.auto_bits = 0
 	var pal := PackedColorArray()
 	for w in map.palette_words:
 		pal.append(_x68k_color(w))
 	_set_palette(pal)
 	var music: Variant = map.info.get("music")
-	if music != null and _music_by_source.has(music["file"]):
-		Audio.play_music(_music_by_source[music["file"]])
+	if music != null:
+		play_music_file(str(music["file"]))
 	var party := []
 	var ids := state.party_ids()
 	for i in field.n:
@@ -328,7 +337,18 @@ func render() -> void:
 		_update_names(_battle.panel_party())
 		return
 	if map == null:
+		if _load_menu:
+			# the boot load menu: the frame and the menu's windows, no map yet
+			_view.screen.clear_to_frame()
+			_view._draw_windows(events.windows, FieldEvents.frame_tiles, ui_boxes)
+			_view.screen.flush()
 		return
+	# f_73668 -> f_73934: a redraw without a camera call since the last one scrolls the
+	# auto-scrolling overlay (not while the screen is faded out)
+	if field != null:
+		if not field.camera_ran and _fade > 0.0:
+			field.scroll_sub(Vector2i.ZERO, 0)
+		field.camera_ran = false
 	if not _busy:
 		_panel = _panel_values()   # redrawn when control is back with the player, not during scripts
 	_panel["lamp"] = _lamp
@@ -439,6 +459,12 @@ func _process(delta: float) -> void:
 	var pressed := left and not _left_was
 	_left_was = left
 	_smooth_snapshot()
+	if state.block.size() > 0x3b9:
+		_party_tick()
+		field.repel = state.be16(0x3b8)
+		field.avoid_switch = state.be16(0x3a0)
+		field.talk_switch = state.be16(0x3a2)
+		field.mouse_mode = state.be16(0x3a6)
 	var evs: Array = field.tick(_input_bits(), m)
 	state.rt["last_trigger"] = field.last_trigger   # one variable in the original ($9EEEA)
 	events.run_map_animation()
@@ -449,51 +475,93 @@ func _process(delta: float) -> void:
 		if (int(s["visible"]) & 0x80) and s["set"] != null and (field.act[i].flags & 0x80):
 			if Actors.behave(field, s, i, _timers, events._rand.mod) and contact < 0 and _with_events_active():
 				contact = i
+		elif field.act[i].flags & 0x40:
+			Actors.respawn(field, s, i)
 	events.sync_party_sprites(_view.party_sets)
 	_smooth_set(0.0)
 	render()
-	# the command panel (field loop $666EA): tested after everyone moved, on a click only; the
-	# pointer merely over the panel stops nothing
+	# The rest of the tick in the field loop's order ($666C4-$667BE): the command menu (panel click
+	# $666EA, after everyone moved, or the keys), the pending trigger (f_79d4c), then the contact
+	# state $9EF20 (talk 1 / chest 2 / battle 3; an enemy walking into the party, f_76980, sets
+	# it last). A map change ends the tick. The pointer merely over the panel stops nothing.
+	var loaded = map
 	var button := panel_button(int(m["x"]), int(m["y"]))
-	if commands != null and pressed and button >= 0 and button < 6:
-		await _run_command(button)
-		return
-	if contact >= 0:
-		# a type-4 actor walked into the party (f_76980: $9EF20 = 3)
-		_busy = true
-		await battle(0, contact)
-		await _after_script()
-		_busy = false
-		return
+	var menu: bool = commands != null and field.mouse_mode != 0 and pressed and button >= 0 and button < 6
+	var key_menu := false
 	for ev in evs:
 		if ev["kind"] == "button" and commands != null and _with_events_active():
-			_busy = true
-			await commands.command_menu()
-			await _after_script()
-			_busy = false
-			_left_was = true
-			return
+			key_menu = true
+	var mx := int(m["x"])
+	var my := int(m["y"])
+	if field.mouse_mode != 0 and pressed and mx > 0x163 and mx <= 0x18b and my > 0xac and my <= 0xc6:
+		# the panel's VR switch ($667BE): SYSTEM > VR透過 (+$3A4) toggles, its lamp follows (the
+		# extra sprite pass it enables in f_73668 is not decoded)
+		state.set_be16(0x3a4, state.be16(0x3a4) ^ 1)
+		render()
+	if menu:
+		await _run_command(button)
+	elif key_menu:
+		_busy = true
+		await commands.command_menu()
+		await _after_script()
+		_busy = false
+		_left_was = true
+	if map != loaded:
+		return
+	for ev in evs:
 		if ev["kind"] == "trigger":
 			await _on_trigger(ev)
-			return
-		if ev["kind"] == "actor" and int(ev["state"]) == 3 and _with_events_active():
-			# contact with an enemy actor (type 4): f_6abca(0)
-			_busy = true
-			await battle(0, int(ev["actor"]))
+			break
+	if map != loaded or not _with_events_active():
+		return
+	var touch: Dictionary = {}
+	for ev in evs:
+		if ev["kind"] in ["actor", "talk"]:
+			touch = ev
+	if contact >= 0:
+		touch = {"kind": "actor", "actor": contact, "state": 3}
+	if touch.is_empty():
+		return
+	_busy = true
+	match int(touch["state"]):
+		3:   # contact with an enemy actor (type 4): f_6abca(0)
+			await battle(0, int(touch["actor"]))
 			await _after_script()
-			_busy = false
-			return
-		if ev["kind"] == "actor" and int(ev["state"]) == 2 and _with_events_active():
-			_busy = true
-			await events.chest(int(ev["actor"]))
-			_busy = false
-			return
-		if ev["kind"] == "talk" and _with_events_active():
-			_busy = true
-			await events.on_talk(int(ev["actor"]))
+		2:
+			await events.chest(int(touch["actor"]))
+		1:
+			await events.on_talk(int(touch["actor"]))
 			await _after_script()
-			_busy = false
-			return
+	_busy = false
+
+
+## f_6f83e, every field tick (from f_75a9e): for each active party member (f_6f57c), equipment
+## effects 65 (+37 bit 4: MP -1), 63 (bit 6: MP +1 up to the maximum) and 64 (bit 5: HP -5, not
+## below 0), the key items $2D (MP -1) and $2E (HP -5) held; then the repel counts down.
+func _party_tick() -> void:
+	var party: Array = state.party_ids()
+	for slot in 3:
+		if not (field.act[slot].flags & 0x80) or slot >= party.size():
+			continue
+		var c: int = party[slot]
+		if c < 0 or c > 7:
+			continue
+		var o := GameState.OFF_CHARS + GameState.CHAR_SIZE * c
+		var bits: int = state.block[o + 37]
+		var mp := func(d: int) -> void: state.set_le16(o + 10, clampi(state.le16(o + 10) + d, 0, 0xffff))
+		var hp_down := func() -> void: state.set_le16(o + 14, maxi(state.le16(o + 14) - 5, 0))
+		if bits & 0x10 and state.le16(o + 10):
+			mp.call(-1)
+		if bits & 0x40 and state.le16(o + 8) > state.le16(o + 10):
+			mp.call(1)
+		if bits & 0x20:
+			hp_down.call()
+		if state.item_count(0x2d) > 0 and state.le16(o + 10):
+			mp.call(-1)
+		if state.item_count(0x2e) > 0:
+			hp_down.call()
+	if state.be16(0x3b8):
+		state.set_be16(0x3b8, state.be16(0x3b8) - 1)
 
 
 ## Start from a saved game block (954 bytes, the save file's content): its map, the party's actor
@@ -508,6 +576,38 @@ func _start_from_block(bytes: PackedByteArray) -> void:
 		commands.sys.load_file(state, state.block.duplicate(), {})
 	else:
 		state.rt["next_map"] = state.map_id()
+	await _reload_from_state()
+	_busy = false
+
+
+## Start mode 0 (ICITY68 $6639E-$663AA): the load menu over the frame, again until a game is loaded
+## (Quick, game disk 1, user disk, then the slots; the port's quick save file stands for Quick when
+## quick saves are on). Cancelling it goes back to the title.
+func _boot_load_menu() -> void:
+	_busy = true
+	_with_events = true
+	state.block = FileAccess.get_file_as_bytes(GameData.path("events/newgame.block"))
+	state.block.resize(GameState.BLOCK_SIZE)
+	if Settings.quick_saves and FileAccess.file_exists(UiCommands.QUICK_FILE):
+		var keep := state.block.duplicate()
+		commands.sys.load_file(state, FileAccess.get_file_as_bytes(UiCommands.QUICK_FILE), {})
+		commands.sys.checkpoint(state, null)
+		var backup: Variant = state.rt.get("backup")
+		state.block = keep
+		state.rt["backup"] = backup
+		state.rt["checkpoint"] = 1
+	# the frame in the new game's first map's palette
+	var first = FieldMap.load_map("A00")
+	if first != null:
+		var pal := PackedColorArray()
+		for w in first.palette_words:
+			pal.append(_x68k_color(w))
+		_set_palette(pal)
+	render()
+	if not await commands.save_menu(false):
+		_busy = false
+		finished.emit("title", {})
+		return
 	await _reload_from_state()
 	_busy = false
 
@@ -535,8 +635,10 @@ func _reload_from_state() -> void:
 		var h: int = state.block[o + 14]
 		party.append({"x": GameState._s16(state.le16(o)), "y": GameState._s16(state.le16(o + 2)),
 			"facing": state.block[o + 4] & 3, "h": h if h > 0 else (1 if i == 0 else 2)})
-	var view := Vector2i(state.be16(GameState.OFF_VIEW), state.be16(GameState.OFF_VIEW + 2))   # BE words
-	field = FieldLogic.new(map, party, view)
+	# the map setup (f_73090 -> f_731a8): view and overlay origin 0, then the camera follows the
+	# leader (mode 1), the overlay with it
+	field = FieldLogic.new(map, party, Vector2i.ZERO)
+	field.camera(1)
 	state.rt["last_trigger"] = -1
 	state.rt["pending_trigger"] = -1
 	_enter_map(int(party[0]["facing"]))
@@ -547,6 +649,10 @@ func _reload_from_state() -> void:
 
 ## A battle (battle_screen.gd): mode 0 contact with actor, 1 builtin 5 ordinary (group), 2 event.
 func battle(mode: int, actor: int) -> String:
+	# a contact battle stops auto-walk ($66946)
+	if mode == 0 and field != null:
+		field.auto_walk = 0
+		field.auto_bits = 0
 	return await BattleScreen.new(self).run(mode, actor)
 
 
@@ -602,8 +708,18 @@ func leave_battle() -> void:
 
 ## Music by its source file (e.g. GROUP00/000046.DAT).
 func play_music_file(file: String) -> void:
+	var track := music_track(file)
+	if track != "":
+		Audio.play_music(track)
+
+
+## The track of a music file. The FM driver (f_69B44) loads GROUP00/0000nn.DAT by the number
+## whatever directory the table names: numbers 34 and 35 are GROUP01/000061 / 62 in ICITY.FIL
+## table 7 (tools/export/audio/songs.mjs).
+func music_track(file: String) -> String:
 	if _music_by_source.has(file):
-		Audio.play_music(_music_by_source[file])
+		return _music_by_source[file]
+	return _music_by_source.get("GROUP00/" + file.get_file(), "")
 
 
 ## A game was loaded by the save menu: reload when the command / script has ended.
@@ -668,6 +784,8 @@ func party_actor_bytes() -> PackedByteArray:
 	state.block[GameState.OFF_MAP_ID + 3] = 0
 	state.set_be16(GameState.OFF_VIEW, field.view.x)
 	state.set_be16(GameState.OFF_VIEW + 2, field.view.y)
+	state.set_be16(GameState.OFF_VIEW + 4, map.sub_origin.x & 0xffff)
+	state.set_be16(GameState.OFF_VIEW + 6, map.sub_origin.y & 0xffff)
 	var b := state.block.slice(GameState.OFF_PARTY_POS, GameState.OFF_PARTY_POS + 60)
 	for i in mini(field.n, 3):
 		var a = field.act[i]
@@ -770,7 +888,8 @@ func _on_trigger(ev: Dictionary) -> void:
 			return
 	var dest: Variant = ev.get("warp", ev.get("dest") if not _with_events_active() else null)
 	if dest != null and str(dest) != "" and FieldMap.map_ids().find(str(dest)) >= 0:
-		await warp_to(str(dest), int(ev.get("dest_trigger", -1)), field.act[0].facing)
+		# a direct door: the facing the trigger set ($9EEE8)
+		await warp_to(str(dest), int(ev.get("dest_trigger", -1)), field.arrival_facing)
 	render()
 	_busy = false
 
@@ -955,9 +1074,7 @@ func scripted_choice_pending() -> bool:
 func play_music_index(i: int, remember := true) -> void:
 	if remember:
 		_music_index = i
-	var file: String = _music_tables.get(i, "")
-	if _music_by_source.has(file):
-		Audio.play_music(_music_by_source[file])
+	play_music_file(_music_tables.get(i, ""))
 
 
 ## The field's music again after the BGM menu ($A06EC).

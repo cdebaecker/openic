@@ -82,6 +82,10 @@ func _ready() -> void:
 			# Development: start on a screen (title, options, ...)
 			show_screen(arg.trim_prefix("--screen="))
 			return
+		if arg == "--load-menu":
+			# Development: the title's "Continue" (the load menu first)
+			show_screen("field", {"load_menu": true})
+			return
 		if arg == "--new-game":
 			# Development: the title's "Start from the beginning"
 			show_screen("field", {"new_game": true})

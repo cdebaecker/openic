@@ -16,6 +16,9 @@ const MessageEngine := preload("res://scripts/events/message_engine.gd")
 const TextCodec := preload("res://scripts/events/text_codec.gd")
 const SYS := preload("res://scripts/systems/systems_model.gd")
 const CRand := preload("res://scripts/systems/c_rand.gd")
+## yesNo's answers when the game data has no ui/strings.json entry for them: "ｙｅｓ" / "ｎｏ　"
+const YES := [0x82, 0x99, 0x82, 0x85, 0x82, 0x93]
+const NO := [0x82, 0x8e, 0x82, 0x8f, 0x81, 0x40]
 
 const FRAME_RATE := 55.458
 # Window rectangles (columns / rows from (64, 48)): $9C30E, $9C316, $9C31E; menu $9C1A4.
@@ -129,15 +132,26 @@ func on_trigger(i: int) -> void:
 		await run_entry(entries["triggers"][i]["entry"])
 
 
-## The leader walked into a talk actor (f_79e68): the last trigger's entry (the talk prologue when
-## none is active), then the actor's own entry.
+## The leader walked into a talk actor (f_79e68): auto-walk stops; an actor without a talk entry
+## does nothing; else it turns to face the leader (leader's direction + 2) unless stationary, the
+## field is redrawn, then the last trigger's entry runs (the talk prologue when none is active),
+## then the actor's own entry.
 func on_talk(actor: int) -> void:
 	talks += 1
+	field.auto_walk = 0
+	field.auto_bits = 0
+	var talk: int = int(entries["actors"][actor - 3]["talk"]) if actor >= 3 and actor - 3 < entries["actors"].size() else 0
+	if talk == 0:
+		return
+	if not (field.act[actor].flags & 4):
+		var spr: Dictionary = sprites[actor]
+		Actors.set_action(spr, int(spr["action"]), (int(sprites[0]["dir"]) + 2) & 3)
+		Actors.advance(spr)
+	screen.render()
 	var lt: int = state.rt["last_trigger"]
 	var pre: int = entries["triggers"][lt]["entry"] if lt >= 0 and lt < entries["triggers"].size() else entries["talk_pre"]
 	await run_entry(pre)
-	if actor >= 3 and actor - 3 < entries["actors"].size():
-		await run_entry(entries["actors"][actor - 3]["talk"])
+	await run_entry(talk)
 
 
 # --- VM host -----------------------------------------------------------------------------------------
@@ -153,8 +167,12 @@ func builtin(n: int, args: Array[int], vm) -> int:
 
 func _builtin(n: int, args: Array[int], vm) -> int:
 	match n:
-		0:  # cutscene(n) (f_7aff2): f_7b2e6 before and after, which also ends an event picture
+		0:  # cutscene(n) (f_7aff2): f_7b2e6 before and after, which also ends an event picture;
+			# auto-walk loses its direction ($A06EA)
+			field.auto_bits = 0
 			_close_message_and_picture()
+			if state.rt["actors_dirty"]:
+				_rebuild_party_sets()
 			await Cutscene.new(self).run(args[0] - 1)
 			_sync_actors_from_sprites()
 			_close_message_and_picture()
@@ -182,8 +200,10 @@ func _builtin(n: int, args: Array[int], vm) -> int:
 				items.append(TextCodec.message_at(vm.prog["code"], a))
 			var r: int = await _menu(items, state.get_var16(0) - 1)
 			return (0 if r < 0 else r) + 1
-		25:  # yesNo(text) -> 1 for the first choice
-			var r: int = await _menu([TextCodec.message_at(vm.prog["code"], args[0])], 0)
+		25:  # yesNo(text) -> 1 for the first choice. f_7bb00: a 3-line menu, the text as its title
+			# and the two answers of $9C1B0 / $9C1B4 ($7AFE4 "yes", $7AFEB "no", full-width)
+			var r: int = await _menu([TextCodec.message_at(vm.prog["code"], args[0]), _ui_string(0x7afe4, PackedByteArray(YES)),
+				_ui_string(0x7afeb, PackedByteArray(NO))], 0, 1)
 			return 1 if r == 0 else 0
 		30:  # random: f_88de0 = the C library rand() % 257 (0..256)
 			return _rand.mod(257)
@@ -194,6 +214,13 @@ func _builtin(n: int, args: Array[int], vm) -> int:
 			var actor := args[4] - 1
 			if args[0] >= 2 and args[0] <= 3 and args[1] >= 1 and args[1] <= 2 and actor >= 3 and actor < 32:
 				_swap_actors(slot, actor)
+			# f_7b904 ops 3 / 4: actor slot - 1 stays behind / follows again (flags bit 3, "don't
+			# follow", which the walking logic honours)
+			if (args[1] == 3 or args[1] == 4) and args[0] >= 2 and args[0] <= 3:
+				if args[1] == 3:
+					field.act[slot].flags |= 8
+				else:
+					field.act[slot].flags &= ~8
 			field.n = clampi(party_size, 1, 3)
 			screen.render()
 		34:  # actorVisible(actor, on)
@@ -246,17 +273,30 @@ func _builtin(n: int, args: Array[int], vm) -> int:
 				screen._battle.combatant_visible(args[0], args[1] != 0)
 		37:  # combatantHealth(n) during a battle
 			return screen._battle.combatant_health(args[0]) if screen._battle != null else 0
-		11:  # scrollLayer(layer, dx, dy, speed, step): the overlay scrolls to origin - (dx, dy), one
-			# step (1 -> 2 tiles) per redraw every `speed` vsyncs (f_7c528); the port has one overlay
-			var target := Vector2i(-GameState._s16(args[1]), -GameState._s16(args[2]))
-			var st: int = 2 if args[4] <= 1 else args[4]
-			while map.sub_origin != target:
-				var o: Vector2i = map.sub_origin
+		11:  # scrollLayer(layer, dx, dy, speed, step) (f_7c528): sub layer 1 ($9C8C0) or 2 ($9C8C4)
+			# moves toward its origin - (dx, dy), `step` tiles a redraw (1 -> 2), a redraw every `speed`
+			# vsyncs, until it is there (f_79726); its scroll counters are cleared before and after
+			var second: bool = args[0] != 1
+			var origin: Vector2i = map.sub2_origin if second else map.sub_origin
+			var target: Vector2i = origin - Vector2i(GameState._s16(args[1]), GameState._s16(args[2]))
+			var st: int = 2 if args[4] == 1 else args[4]
+			while true:
+				if second:
+					field.sub2_count = Vector2i.ZERO
+				else:
+					field.sub_count = Vector2i.ZERO
+				var o: Vector2i = map.sub2_origin if second else map.sub_origin
+				var moved := o != target
 				o.x += clampi(target.x - o.x, -st, st)
 				o.y += clampi(target.y - o.y, -st, st)
-				map.sub_origin = o
+				if second:
+					map.sub2_origin = o
+				else:
+					map.sub_origin = o
 				screen.render()
 				await delay(maxi(1, args[3]))
+				if not moved:
+					break
 		13:  # diskCheck(n): the port has no disks to ask for (returns 0); the block's disk word
 			# ($9C796, block +2: saved, and copied into the return point by builtin 22) becomes what
 			# the original's prompt leaves there (f_7c10c -> f_678ec with the disk of table $9C1F8[n]:
@@ -472,7 +512,17 @@ static func frame_tiles(w0: Dictionary) -> Array:
 
 # --- choice menus (f_81f8e) ----------------------------------------------------------------------
 
-func _menu(items: Array, cursor: int) -> int:
+## A string of the ICITY68 image (ui/strings.json), or `fallback` (game data exported before it).
+func _ui_string(addr: int, fallback: PackedByteArray) -> PackedByteArray:
+	if screen.commands != null:
+		var b: PackedByteArray = screen.commands.screens.cstr(addr)
+		if not b.is_empty():
+			return b
+	return fallback
+
+
+## f_81f8e: the items from `first` on are the choices, those before it a title (yesNo).
+func _menu(items: Array, cursor: int, first := 0) -> int:
 	close_windows()
 	var width := 4
 	var texts: Array[String] = []
@@ -501,8 +551,9 @@ func _menu(items: Array, cursor: int) -> int:
 		for ch in texts[i]:
 			screen.layer.put(MessageEngine.cell_pos(win, cx, i), ch, 7)
 			cx += 1 if ch.unicode_at(0) < 0x100 else 2
-	var sel: int = clampi(cursor, 0, items.size() - 1)
-	var result: int = await screen.choose(win, items.size(), width, sel)
+	var choices := {"x": win["x"], "y": int(win["y"]) + first}
+	var sel: int = clampi(cursor, 0, items.size() - 1 - first)
+	var result: int = await screen.choose(choices, items.size() - first, width, sel)
 	close_windows()
 	return result
 
@@ -690,6 +741,21 @@ func _swap_actors(i: int, j: int) -> void:
 	sprites[j] = t2
 	a.flags |= 0x80
 	a.h = 2 if i > 0 else 1
+
+## The party changed (builtin 33, $A2584): f_7aff2 -> f_73090 reloads the party's sprite sets by
+## character (f_6858e) before the cutscene; until then a new member could show a slot's default.
+func _rebuild_party_sets() -> void:
+	state.rt["actors_dirty"] = 0
+	var ids: Array = state.party_ids()
+	for i in mini(ids.size(), 3):
+		var s: Dictionary = sprites[i]
+		var set = Actors.sprite_set(int(ids[i]))
+		if set != null and set != s["set"]:
+			s["set"] = set
+			s["set_id"] = int(ids[i])
+			Actors.set_action(s, int(s["action"]), int(s["dir"]))
+			Actors.advance(s)
+
 
 ## After a cutscene the actor records follow the sprites (done by Cutscene.run); outside cutscenes
 ## the party sprites follow the walking logic.

@@ -42,6 +42,8 @@ class Actor:
 	var visible := 0
 	var dir := 0
 	var type := -1
+	var home := Vector2i.ZERO   # a map actor's EVT position ($A04DC + 8 (i - 1)), where it respawns
+	var timer := 0              # +7: the respawn countdown (f_76bc4)
 
 
 var map  # FieldMap
@@ -61,6 +63,19 @@ var seq_len := 4
 var events: Array = []
 var input_after_mouse := 0
 var arrival := Vector2i.ZERO
+## The sub layer's scroll (f_73d0e): its counters $9C8C8 / $9C8CA (the origin is map.sub_origin)
+## and whether the camera ran since the last redraw ($9D2A0)
+var sub_count := Vector2i.ZERO
+var sub2_count := Vector2i.ZERO   # the second sub layer's ($9C8CC / $9C8CE)
+var camera_ran := false
+## f_73d0e's auto-scroll directions 0-7 (up, up-right, right ... up-left)
+const SCROLL_DIRS := [Vector2i(0, -1), Vector2i(1, -1), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1),
+	Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-1, -1)]
+## SYSTEM switches (block +$3A0 自動回避, +$3A2 会話; mouse_mode is +$3A6), set by the field screen
+var avoid_switch := 1
+var talk_switch := 1
+var repel := 0                 # $9CB4C (block +$3B8): the repel's steps left (set by the field screen)
+var arrival_facing := 0       # $9EEE8: the facing at the destination of the trigger fired
 
 var _dir := NONE
 var _slide_used := NONE
@@ -104,6 +119,8 @@ func _init(field_map, party: Array, start_view: Vector2i) -> void:
 
 func set_map(field_map) -> void:
 	map = field_map
+	sub_count = Vector2i.ZERO   # f_731a8
+	sub2_count = Vector2i.ZERO
 	w2 = map.width * 2   # $9EF30 / $9C8D2
 	h2 = map.height * 2
 
@@ -211,6 +228,8 @@ func _try_leader(d: int) -> int:  # f_76602(0, d)
 	var t := act[j].type
 	_restore(0, p)
 	if t == 0 or t == 2:
+		if not talk_switch:
+			return 2   # SYSTEM > 会話 off ($7671C): bumping into the actor does nothing
 		events.append({"kind": "talk", "actor": j, "state": 1})
 		return 0
 	if t == 3:
@@ -321,6 +340,16 @@ func check_triggers(mode: int) -> int:
 		if i != last_trigger:
 			pending = i
 			arrival = Vector2i(lead.x - tx, lead.y - ty)
+			# $9EEE8, the facing at the destination: the move direction / 2; a diagonal is
+			# horizontal when the trigger is taller than wide, else vertical; no move: the facing
+			if _dir == NONE:
+				arrival_facing = lead.facing
+			elif _dir & 1 == 0:
+				arrival_facing = _dir >> 1
+			elif int(t["w"]) < int(t["h"]):
+				arrival_facing = ((_dir & 5) + 1) >> 1
+			else:
+				arrival_facing = ((_dir + 1) & 4) >> 1
 		lead.w = 2
 		return 1
 	if mode:
@@ -566,8 +595,8 @@ func tick(input_bits: int, mouse: Variant = null) -> Array:
 			_ef38 = (slide[i] + _dir) & 7
 			if _try_leader(_ef38) == 0:
 				break
-			if pending != -1:
-				break
+			if pending != -1 or not avoid_switch:
+				break   # the other directions only with SYSTEM > 自動回避 on ($763D4)
 			i += 1
 		_slide_used = slide[i]
 		if i == 4:
@@ -602,25 +631,137 @@ func tick(input_bits: int, mouse: Variant = null) -> Array:
 
 
 func camera(mode: int) -> void:  # f_73a34(mode, leader x, leader y)
+	camera_at(mode, act[0].x, act[0].y)
+
+
+## f_73a34(mode, x, y): the view follows (x, y) with the mode's margins, clamped to the map. The
+## view's change (8 + delta: $9F264 / $9F262) and the direction code $9F266 drive the sub layer's
+## scroll (f_73d0e), which runs after every camera call, moved or not.
+func camera_at(mode: int, tx: int, ty: int) -> void:
 	var m := [13, 10, 12, 8]
 	if mode == 1:
 		m = [11, 11, 10, 10]
 	elif mode == 2:
 		m = [0, 0, 0, 0]
-	var lead := act[0]
-	var rx := lead.x - view.x
+	var f := Vector2i.ZERO   # $9F264 / $9F262 - 8
+	var dirc := 0            # $9F266
+	var moved := false
+	var rx := tx - view.x
 	if rx > m[0]:
 		view.x += rx - m[0]
+		f.x += rx - m[0]
+		moved = true
+		dirc += 2
 	if rx < m[1]:
 		view.x -= m[1] - rx
-	var ry := lead.y - view.y
+		f.x -= m[1] - rx
+		moved = true
+		dirc += 6
+	var ry := ty - view.y
 	if ry > m[2]:
 		view.y += ry - m[2]
+		f.y += ry - m[2]
+		moved = true
+		dirc += 4
+		if dirc > 4:
+			dirc >>= 1
 	if ry < m[3]:
 		view.y -= m[3] - ry
-	view.y = maxi(view.y, min_view.y)
+		f.y -= m[3] - ry
+		moved = true
+		if dirc:
+			dirc += 1
+	if view.y < min_view.y:
+		f.y += min_view.y - view.y
+		view.y = min_view.y
 	if view.y + WINDOW.y > h2:
+		f.y -= view.y - (h2 - WINDOW.y)
 		view.y = h2 - WINDOW.y
-	view.x = maxi(view.x, min_view.x)
+	if view.x < min_view.x:
+		f.x += min_view.x - view.x
+		view.x = min_view.x
 	if view.x + WINDOW.x > w2:
+		f.x -= view.x - (w2 - WINDOW.x)
 		view.x = w2 - WINDOW.x
+	if moved:
+		# no horizontal change: the diagonal codes lose their horizontal part ($73C40 table)
+		if f.x == 0 and dirc % 4 != 0:
+			dirc = {1: 0, 3: 4, 5: 4, 7: 0}.get(dirc, dirc)
+		if f.y == 0 and dirc % 4 != 2:
+			dirc = 2 if dirc <= 3 else 6
+	scroll_sub(f, dirc)
+	camera_ran = true
+
+
+## f_73d0e for the sub layer (field: wrapping mode, window 24 x 18 tiles). The layer's header byte
+## 29 bit 3 = auto-scroll in direction bits 0-2 by byte 31 each call; otherwise the counters move
+## with the view. Whenever the counters leave 0 .. byte 30 on the axes the direction code needs,
+## the origin moves by byte 31 per byte 30 crossed (parallax: step / threshold of the view's speed);
+## auto-scrolling origins wrap with the period (layer size - window), and a layer one screen
+## (+6 tiles) wide or one screen high is pinned to 0 on that axis.
+func scroll_sub(f: Vector2i, dirc: int) -> void:
+	if map == null:
+		return
+	if map.sub_size != Vector2i.ZERO:
+		var r := _scroll_layer(map.sub_size, map.sub_scroll, map.sub_origin, sub_count, f, dirc)
+		map.sub_origin = r[0]
+		sub_count = r[1]
+	if map.sub2_size != Vector2i.ZERO:
+		var r := _scroll_layer(map.sub2_size, map.sub2_scroll, map.sub2_origin, sub2_count, f, dirc)
+		map.sub2_origin = r[0]
+		sub2_count = r[1]
+
+
+## One layer of f_73d0e: [origin, counters] after the call.
+static func _scroll_layer(layer_size: Vector2i, sc: Dictionary, o: Vector2i, count: Vector2i, f: Vector2i,
+		dirc: int) -> Array:
+	var b29 := int(sc.get("b29", 0))
+	var thr := int(sc.get("b30", 1))
+	var step := int(sc.get("b31", 1))
+	var auto := (b29 & 8) != 0
+	var d := dirc
+	if auto:
+		d = b29 & 7
+		count += SCROLL_DIRS[d] * step
+	else:
+		count += f
+	var over := 0
+	if count.x < 0 or count.x >= thr:
+		over |= 0xf0
+	if count.y < 0 or count.y >= thr:
+		over |= 0x0f
+	var need := 0xff if (d & 1) else (0xf0 if d % 4 == 2 else 0x0f)
+	var size: Vector2i = layer_size * 2
+	if (need & over) == need:
+		if thr == 0:
+			return [o, Vector2i.ZERO]
+		if size.x > WINDOW.x:
+			while count.x < 0:
+				o.x -= step
+				count.x += thr
+			while count.x >= thr:
+				o.x += step
+				count.x -= thr
+		if size.y > WINDOW.y:
+			while count.y < 0:
+				o.y -= step
+				count.y += thr
+			while count.y >= thr:
+				o.y += step
+				count.y -= thr
+	if auto:
+		var period := size - WINDOW
+		for k in 2:
+			var last := 0xb1e0
+			while o[k] > period[k] and o[k] != last:
+				last = o[k]
+				o[k] -= period[k]
+			last = 0xb1e0
+			while o[k] < 0 and o[k] != last:
+				last = o[k]
+				o[k] += period[k]
+	if layer_size.x == (WINDOW.x + 6) >> 1:
+		o.x = 0
+	if layer_size.y == WINDOW.y >> 1:
+		o.y = 0
+	return [o, count]

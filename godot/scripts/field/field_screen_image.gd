@@ -72,15 +72,28 @@ func draw_map(map, ox: int, oy: int) -> void:
 			if t_mode == map.DRAW_OPAQUE:
 				_blit(map.atlases[0], null, Rect2i(0, (t & 255) * map.TILE, map.TILE, map.TILE), pos)
 				continue
-			var s: int = map.shown(map.tile_at(map.sub_cells, map.sub_meta, ox + tx + so.x, oy + ty + so.y), 1)
+			var s: int = map.shown(map.tile_at(map.sub_cells, map.sub_meta, tx + so.x, ty + so.y), 1)
 			var s_mode: int = map.draw_mode(map.sub_attr_words, s)
 			var rect := Rect2i(0, (s & 255) * map.TILE, map.TILE, map.TILE)
 			if s_mode == map.DRAW_OPAQUE:
 				_blit(map.atlases[1], null, rect, pos)
 			else:
-				var blank := Rect2i(pos, Vector2i(map.TILE, map.TILE)).intersection(WINDOW)
-				image.fill_rect(blank, Color8(0, 0, 0))
-				_hd_index(blank)
+				# the second sub layer under the overlay (same tileset), else blank (colour 0)
+				var u: int = -1
+				var u_mode: int = map.DRAW_NONE
+				if map.sub2_size != Vector2i.ZERO:
+					var so2: Vector2i = map.sub2_origin
+					u = map.shown(map.tile_at(map.sub2_cells, map.sub_meta, tx + so2.x, ty + so2.y), 1)
+					u_mode = map.draw_mode(map.sub_attr_words, u)
+				var urect := Rect2i(0, (u & 255) * map.TILE, map.TILE, map.TILE)
+				if u_mode == map.DRAW_OPAQUE:
+					_blit(map.atlases[1], null, urect, pos)
+				else:
+					var blank := Rect2i(pos, Vector2i(map.TILE, map.TILE)).intersection(WINDOW)
+					image.fill_rect(blank, Color8(0, 0, 0))
+					_hd_index(blank)
+					if u_mode == map.DRAW_MASKED:
+						_blit(map.atlases[1], map.masks[1], urect, pos)
 				if s_mode == map.DRAW_MASKED:
 					_blit(map.atlases[1], map.masks[1], rect, pos)
 			if t_mode == map.DRAW_MASKED:

@@ -41,6 +41,21 @@ func _replay(t: Dictionary) -> Array:
 	field.auto_walk = f0["autoWalk"]
 	field.mouse_mode = f0["mouseMode"]
 	_set_npcs(field, f0.get("npcs", []))
+	# the overlay's origin ($9C8C0): from the start, then moved by the camera (FieldLogic.scroll_sub)
+	# and compared with the original's at each page flip of a tick
+	if f0.has("subView"):
+		map.sub_origin = Vector2i(f0["subView"][0], f0["subView"][1])
+	# (a flip at a tick's frame shows the state before that tick: the tick is checked against the
+	# next tick's flip)
+	var sub_at := {}
+	var flip_sub := {}
+	for fl: Dictionary in t.get("flips", []):
+		if fl.has("subView"):
+			flip_sub[int(fl["frame"])] = fl["subView"]
+	var ticks: Array = t["ticks"]
+	for j in ticks.size() - 1:
+		if map.sub_size != Vector2i.ZERO and flip_sub.has(int(ticks[j + 1]["frame"])):   # (maps with an overlay)
+			sub_at[int(ticks[j]["frame"])] = flip_sub[int(ticks[j + 1]["frame"])]
 	var ok := 0
 	var count := 0
 	var first := ""
@@ -63,6 +78,9 @@ func _replay(t: Dictionary) -> Array:
 			want.append([int(p["x"]), int(p["y"]), int(p["facing"]), int(p["step"]), int(p["layer"])])
 		got.append([field.view.x, field.view.y, field.input_after_mouse])
 		want.append([int(k["view"][0]), int(k["view"][1]), int(k["inputAfterMouse"])])
+		if sub_at.has(int(k["frame"])):
+			got.append([map.sub_origin.x, map.sub_origin.y])
+			want.append([int(sub_at[int(k["frame"])][0]), int(sub_at[int(k["frame"])][1])])
 		count += 1
 		if str(got) == str(want):
 			ok += 1
@@ -78,6 +96,8 @@ func _replay(t: Dictionary) -> Array:
 				a.step = p["step"]
 				a.layer = p["layer"]
 		field.view = Vector2i(k["view"][0], k["view"][1])
+		if sub_at.has(int(k["frame"])):
+			map.sub_origin = Vector2i(sub_at[int(k["frame"])][0], sub_at[int(k["frame"])][1])
 		for c in k.get("cellChanges", []):
 			map.vr_cells[int(c[1]) * map.width + int(c[0])] = int(c[2])
 	return [ok, count, first]

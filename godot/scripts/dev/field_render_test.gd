@@ -193,6 +193,8 @@ func _best_split(renders: Array) -> Array:
 ## [count, rgb, count per row].
 func _render_diff(map, field, fl: Dictionary, palette: PackedByteArray, want: PackedByteArray) -> Array:
 	field.view = Vector2i(fl["view"][0], fl["view"][1])
+	if fl.has("subView"):
+		map.sub_origin = Vector2i(fl["subView"][0], fl["subView"][1])   # the overlay's origin $9C8C0
 	var sprites := []
 	for sp: Dictionary in fl["sprites"]:
 		var sprite_set = _sprite_set(sp["set"])

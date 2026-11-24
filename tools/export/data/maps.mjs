@@ -33,7 +33,8 @@ export function parseLayer(b) {
     const col = data.subarray(off, off + n); off += n;
     const rows = [];
     for (let y = 0; y < h.height; y++) { const r = new Array(h.width); for (let x = 0; x < h.width; x++) r[x] = col[x * h.height + y]; rows.push(r); }
-    layers.push({ width: h.width, height: h.height, cells: rows });
+    // header bytes 29-31: the scroll of a sub layer (f_73d0e: bit 3 auto-scroll, bits 0-2 direction, 30 threshold, 31 step)
+    layers.push({ width: h.width, height: h.height, cells: rows, scroll: { b29: h.tail[9], b30: h.tail[10], b31: h.tail[11] } });
   }
   const metatiles = [];
   for (let i = 0; i < mtSize / 8; i++) {

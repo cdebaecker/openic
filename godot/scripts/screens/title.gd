@@ -236,9 +236,8 @@ func _choose(action: String) -> void:
 		"map_viewer":
 			finished.emit("map_viewer", {"map": "A00", "origin": Vector2i(72, 42)})
 		"continue":
-			# the newest save (ISV*.DAT in user://saves); SYSTEM > Load in the game chooses any
-			var path: String = UiCommands.latest_save()
-			if path == "":
+			# as the original's start mode 0: the load menu (the field screen's, ICITY68 f_67468)
+			if UiCommands.latest_save() == "":
 				_status.text = "No saved game yet (save with the save points in the game)."
 			else:
-				finished.emit("field", {"block": path})
+				finished.emit("field", {"load_menu": true})

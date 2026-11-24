@@ -20,6 +20,7 @@ var music_volume_db := 0.0:
 var sfx_volume_db := 0.0
 
 var _music := AudioStreamPlayer.new()
+var _fade: Tween = null      # the music volume fade running, if any
 var _sfx: Array[AudioStreamPlayer] = []
 var _next_sfx := 0
 var _index := {}
@@ -151,6 +152,10 @@ func track_info(track: String) -> Dictionary:
 func play_music(track: String, fade_in := 0.0) -> void:
 	if track == current and _music.playing:
 		return
+	# a fade-out still running would turn the new track down and stop it
+	if _fade != null and _fade.is_valid():
+		_fade.kill()
+	_fade = null
 	var info := _music_info(track)
 	if info.is_empty():
 		push_warning("Audio: unknown track %s" % track)
@@ -165,7 +170,8 @@ func play_music(track: String, fade_in := 0.0) -> void:
 	_music.volume_db = -40.0 if fade_in > 0.0 else music_volume_db
 	_music.play()
 	if fade_in > 0.0:
-		create_tween().tween_property(_music, "volume_db", music_volume_db, fade_in)
+		_fade = create_tween()
+		_fade.tween_property(_music, "volume_db", music_volume_db, fade_in)
 
 
 ## The track's chip log as an AudioStreamChipLog, or null (no extension, no log, live_synth off).
@@ -189,9 +195,11 @@ func stop_music(fade_out := 0.0) -> void:
 	if fade_out <= 0.0:
 		_music.stop()
 		return
-	var t := create_tween()
-	t.tween_property(_music, "volume_db", -40.0, fade_out)
-	t.tween_callback(_music.stop)
+	if _fade != null and _fade.is_valid():
+		_fade.kill()
+	_fade = create_tween()
+	_fade.tween_property(_music, "volume_db", -40.0, fade_out)
+	_fade.tween_callback(_music.stop)
 
 
 func play_sfx(track: String) -> void:

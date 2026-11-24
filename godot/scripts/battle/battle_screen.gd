@@ -1033,6 +1033,7 @@ func _apply_actors() -> void:
 	for i in range(3, 32):
 		if 20 * i + 5 < b.size() and not (b[20 * i + 5] & 0x80) and (field.field.act[i].flags & 0x80):
 			field.field.act[i].flags = b[20 * i + 5]
+			field.field.act[i].timer = b[20 * i + 7]   # the respawn countdown ($30)
 			field.events.sprites[i]["visible"] = 0
 
 

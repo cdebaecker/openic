@@ -43,12 +43,13 @@ The **web** build is deferred until the desktop game is stable: the preset expor
 data-loading path exists (a file picker for `gamedata.zip` on the missing-data screen, kept in
 the browser's storage), but it is not maintained or tested beyond that for now.
 
-Controls: mouse, cursor keys, Enter/Space (confirm), Esc/right click (cancel), gamepad A/B.
+Controls: mouse, cursor keys, Enter/Space (confirm), Esc/right click (cancel), gamepad A/B. On the
+field Esc switches auto-walk on, as in the original (there is no key back to the title).
 In cutscenes, hold confirm to fast-forward and press cancel to skip. The title menu's Language
 entry (or L) switches between English, French and Japanese. "Start from the beginning" first asks how to save: the original's way (save points only) or
 quick saves anywhere, where in the field F5 / LB quick saves and F9 / L3 quick loads (whenever
 the player has control; one slot, `user://saves/quick/QUICK.DAT`, in the original's save format;
-"Continue" on the title also picks it up when it is the newest save). Options can change it later.
+"Continue" on the title opens the original's load menu, where Quick loads it). Options can change it later.
 All text, the port's own screens included, is drawn with the game font (`fonts/`, 16-dot).
 
 ## Layout
@@ -82,6 +83,7 @@ reference implementation):
   differences are the narration, shown in English.
 
 Field development options: `-- --field-start=A00@142,7` starts on a map with the party at a tile;
+`-- --load-menu` opens the title's "Continue" (the load menu);
 `-- --load-block=<file>` starts from a saved 954-byte block (an ISV file, or a block taken from an
 emulator state), `-- --service=<n>` then opens builtin 35's service n (1 inn, 2-4 shops); the
 title menu has the field (from the first free control of a new game) and a map viewer.
@@ -161,7 +163,8 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    (`-- --ui-test=<golden.json>`, from `tools/systems-ui/golden.mjs`). Text goes through the
    interface glossary as in the web build. Saves are the original's `ISV0-7.DAT` files (954
    bytes) in `user://saves/disk0` (game disk 1) and `user://saves/user` (user disk), so saves
-   from the original load as they are; "Continue from save" on the title loads the newest one.
+   from the original load as they are; "Continue from save" on the title opens the load menu, as
+   the original's start mode 0 does.
    The movement and message speeds act as in the original (minimum vsyncs per field tick,
    message end delay).
 6. **Battle** — playable, with known gaps. The battle logic (`scripts/battle/battle_model.gd`,

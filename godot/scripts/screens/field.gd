@@ -438,11 +438,6 @@ func _process(delta: float) -> void:
 	var left := (int(m["buttons"]) & 1) != 0
 	var pressed := left and not _left_was
 	_left_was = left
-	var button := panel_button(int(m["x"]), int(m["y"]))
-	if commands != null and button >= 0:
-		if pressed and button < 6:
-			await _run_command(button)
-		return
 	_smooth_snapshot()
 	var evs: Array = field.tick(_input_bits(), m)
 	state.rt["last_trigger"] = field.last_trigger   # one variable in the original ($9EEEA)
@@ -457,6 +452,12 @@ func _process(delta: float) -> void:
 	events.sync_party_sprites(_view.party_sets)
 	_smooth_set(0.0)
 	render()
+	# the command panel (field loop $666EA): tested after everyone moved, on a click only; the
+	# pointer merely over the panel stops nothing
+	var button := panel_button(int(m["x"]), int(m["y"]))
+	if commands != null and pressed and button >= 0 and button < 6:
+		await _run_command(button)
+		return
 	if contact >= 0:
 		# a type-4 actor walked into the party (f_76980: $9EF20 = 3)
 		_busy = true
@@ -779,6 +780,13 @@ func _after_script() -> bool:
 	if _reload_pending:
 		await _reload_from_state()
 		return true
+	if state.rt.get("warp_longjmp", 0):
+		# the return spell (systems_model.gd _return_spell, f_85602): longjmp $A06BA to the field
+		# loop, which loads the return point
+		state.rt["warp_longjmp"] = 0
+		state.rt["warp_pending"] = 0
+		await warp_to(state.rt["next_map"], state.rt["pending_trigger"], state.rt["facing"])
+		return true
 	if not state.rt["warp_pending"]:
 		render()
 		var main_warp: bool = state.rt.get("main_warp", 0) != 0
@@ -814,10 +822,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			quick_load()
 		return
-	if not _busy and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		get_viewport().set_input_as_handled()
-		Audio.stop_music(0.5)
-		finished.emit("title", {})
 
 
 # --- input ---------------------------------------------------------------------------------------
@@ -834,6 +838,9 @@ func _input_bits() -> int:
 		if Input.is_action_pressed(action):
 			b |= k
 		k <<= 1
+	# ESC (f_8822e bit $8000): on the field it switches auto-walk on, as in the original
+	if Input.is_physical_key_pressed(KEY_ESCAPE):
+		b |= 0x8000
 	return b
 
 

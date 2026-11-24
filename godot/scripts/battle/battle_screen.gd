@@ -11,6 +11,9 @@ extends RefCounted
 ##   battle (actor = event group).
 
 const BM := preload("res://scripts/battle/battle_model.gd")
+## What the specials' handlers allow (battle_model.gd _run_command): claws one target, 光身裂気
+## all, the robot's machine gun all (10 rounds), cannon one, ＭＢＨ all
+const SPECIAL_ALLOWED := {7: 0x40, 8: 0x80, 9: 0x80, 10: 0x40, 11: 0x80}
 const BD := preload("res://scripts/battle/battle_data.gd")
 const BattleView := preload("res://scripts/battle/battle_view.gd")
 const SpriteSet := preload("res://scripts/battle/battle_sprite_set.gd")
@@ -182,29 +185,42 @@ func command(b: Dictionary, idx: int, attempt: int) -> Dictionary:
 			continue
 		var cmd: int = codes[pick]
 		var choice := {"cmd": cmd, "spell": 0, "item": 0, "target": 0}
-		if cmd == 4:     # magic
+		# the candidates and what may be chosen (all / single) as the model's handlers take them
+		# (battle_model.gd _run_command; f_70a96's allowed word $A1B44: bit 7 all, bit 6 single)
+		var t := 0
+		if cmd == 4 or cmd == 13:   # magic; 薬仙術 (カイ): the same list, no seal check, no cost
 			var sp: int = await _spell_list(c)
 			if sp <= 0:
 				continue
 			choice["spell"] = sp
-			var t: int = await _target(b, idx, _spell_side(sp), _spell_all(sp))
-			if t < 0:
-				continue
-			choice["target"] = t
+			var flags := _spell_flags(sp)
+			t = await _target(b, _flag_cands(b, idx, flags), flags, int(b["last_magic_target"]))
 		elif cmd == 5:   # item
-			var it: int = await _item_list()
+			var it: int = await _item_list(c)
 			if it <= 0:
 				continue
 			choice["item"] = it
-			var t: int = await _target(b, idx, 0, false)
-			if t < 0:
-				continue
-			choice["target"] = t
-		elif cmd in [1, 7, 8, 10, 11, 13]:   # attacks / specials on an enemy
-			var t: int = await _target(b, idx, 1, false)
-			if t < 0:
-				continue
-			choice["target"] = t
+			var flags: int = data["raw"][BM._t4(data, it) + 5]
+			t = await _target(b, _flag_cands(b, idx, flags), flags, int(b["last_magic_target"]))
+		elif cmd == 1:   # weapon attack: a weapon's burst rounds allow "all", single rounds (or none) one
+			var w := BM._cb(state, c, 23)
+			if not w:
+				return choice   # refused by the model (without a weapon, silently)
+			var d := BM._weapon_data(data, w)
+			var burst: int = data["raw"][d + 6]
+			var single: int = data["raw"][d + 7]
+			t = await _target(b, _front_cands(b), (0x80 if burst else 0) | (0x40 if single or not burst else 0),
+				BM.br_get(b, idx, BM.R.LAST))
+		elif cmd in SPECIAL_ALLOWED:   # claws, 光身裂気, the robot's guns
+			t = await _target(b, _front_cands(b), SPECIAL_ALLOWED[cmd], BM.br_get(b, idx, BM.R.LAST))
+		else:
+			return choice
+		if t == -2:
+			field.events.sound(UiToolkit.BUZZER)   # nothing to target
+			continue
+		if t < 0:
+			continue
+		choice["target"] = t
 		return choice
 	return {}
 
@@ -648,48 +664,83 @@ func _spell_list(c: int) -> int:
 	return ids[k] if k >= 0 and k < ids.size() else 0
 
 
-## Items in the message window: 1 column x 7 rows.
-func _item_list() -> int:
+## Items in the message window: 1 column x 7 rows, colour 7 = usable in battle. f_868e2: an
+## item without battle flag bit 5 (weapons, armour, key items, empty rows), or a knife (58-60) for
+## anyone but characters 1 and 2, buzzes and the list stays.
+func _item_list(c: int) -> int:
 	if field.commands == null:
 		return 0
 	var e: Array = field.commands.screens.item_entries(3)
+	for k in (e[0] as Array).size():
+		(e[0][k] as PackedByteArray)[1] = 7 if _battle_item(int(e[1][k]["code"])) else 0
 	await _clear_messages()
-	var r: Dictionary = await ui.run_list(_msg, 0, -1, 0, 1, 7, e[0])
+	var at := -1
+	var top := 0
+	var code := 0
+	while true:
+		var r: Dictionary = await ui.run_list(_msg, 0, at, top, 1, 7, e[0])
+		var k: int = r["index"]
+		if k < 0:
+			break
+		at = k
+		top = int(r.get("top", 0))
+		code = int(e[1][k]["code"])
+		if (code & 0xff) >= 0x3a and (code & 0xff) <= 0x3c and c != 1 and c != 2:
+			field.events.sound(UiToolkit.BUZZER)
+		elif _battle_item(code):
+			break
+		else:
+			field.events.sound(UiToolkit.BUZZER)
+		code = 0
 	await _clear_messages()
-	var k: int = r["index"]
-	if k < 0:
-		return 0
-	return int(e[1][k]["code"])
+	return code
+
+
+func _battle_item(code: int) -> bool:
+	return (code >> 8) <= 1 and (code & 0xff) != 0 and (data["raw"][BM._t4(data, code & 0xff) + 5] & 0x20) != 0
 
 
 func _spell_flags(sp: int) -> int:
 	return data["raw"][data["off"][9] + 10 * sp + 7]
 
 
-func _spell_side(sp: int) -> int:
-	return 0 if _spell_flags(sp) & 8 == 0 else 1
+## f_71594: the living, shown enemies of the front row (any row in event battles; never group 8's
+## record 4), as the model's attack handlers take them.
+func _front_cands(b: Dictionary) -> Array:
+	var l: Array = []
+	BM._count_row(b, 3, 5, 7, l)
+	return l
 
 
-func _spell_all(sp: int) -> bool:
-	return (_spell_flags(sp) & 0x80) != 0
+## f_70002 (spells, items): flags bit 3 = the enemies (any row), bit 1 = the caster, else the party.
+func _flag_cands(b: Dictionary, idx: int, flags: int) -> Array:
+	if flags & 8:
+		return BM._list_alive(b, 3, 5)
+	if flags & 2:
+		return [idx]
+	return BM._list_alive(b, 0, 3)
 
 
-## f_70a96: side 1 = the enemies in the front row, 0 = the party. Keys left/right cycle, up = all
-## (when allowed), confirm; mouse: the combatant's box. Returns the target word or -1.
-func _target(b: Dictionary, _idx: int, side: int, all_ok: bool) -> int:
-	var cands: Array = []
-	if side == 1:
-		for i in range(3, 8):
-			if (BM.br_get(b, i, 3) & 0x80) and not (BM.br_get(b, i, 3) & 0x10) and BM.br_get(b, i, BM.R.ROW) == 7:
-				cands.append(i)
-	else:
-		for i in int(b["n_party"]):
-			if BM.br_get(b, i, 3) & 0x80:
-				cands.append(i)
+## f_70e18's rules, in its order: without allowed bit 7 one target, then without bit 6 all.
+static func _allowed_all(all: bool, allowed: int) -> bool:
+	if not (allowed & 0x80):
+		all = false
+	if not (allowed & 0x40):
+		all = true
+	return all
+
+
+## f_70a96: the target cursor over `cands`, starting on `initial` (the record's last target, or the
+## last magic target; bit 7 = all). `allowed`: bit 7 = "all" may be chosen, bit 6 = one target;
+## without bit 7 the choice is one target, without bit 6 all of them. Keys left/right cycle, up =
+## all, down = one, confirm; mouse: the combatant's box. Returns the target word, -1 (cancel) or
+## -2 (no candidates).
+func _target(b: Dictionary, cands: Array, allowed: int, initial: int) -> int:
 	if cands.is_empty():
-		return -1
-	var k := 0
-	var all := false
+		return -2
+	var k: int = maxi(cands.find(initial & 0x7f), 0)
+	var all: bool = (initial & 0x80) != 0
+	all = _allowed_all(all, allowed)
 	var frames := 0
 	ui.reset_input()
 	var last := ui.pointer()
@@ -716,15 +767,16 @@ func _target(b: Dictionary, _idx: int, side: int, all_ok: bool) -> int:
 		elif ui.pressed("ui_right"):
 			k = (k + 1) % cands.size()
 			all = false
-		elif ui.pressed("ui_up") and all_ok:
+		elif ui.pressed("ui_up"):
 			all = true
 		elif ui.pressed("ui_down"):
 			all = false
 		elif ui.pressed("confirm") or ui.clicked(MOUSE_BUTTON_LEFT):
-			result = (0x80 | cands[k]) if all else cands[k]
+			result = (0x80 | cands[k]) if _allowed_all(all, allowed) else cands[k]
 			break
 		elif ui.pressed("cancel") or ui.clicked(MOUSE_BUTTON_RIGHT):
 			break
+		all = _allowed_all(all, allowed)
 	marker = []
 	return result
 

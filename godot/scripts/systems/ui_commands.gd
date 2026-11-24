@@ -140,6 +140,8 @@ func _magic() -> void:
 				_buzz()
 				continue
 			await _cast(slot, spell)
+			if host.state.rt.get("warp_longjmp", 0):
+				return
 			ui.clear(head)
 			ui.print_lines(head, screens.magic_header(slot))
 			host.render()
@@ -199,7 +201,7 @@ func _cast(slot: int, spell: int) -> void:
 				await _message(w, screens.cstr(0x80e7b))
 				ui.close()
 			"warp":
-				host.state.rt["return_spell"] = 1
+				pass   # f_85602 longjmps to the field loop: the menus close, the field loads the map
 			"done":
 				var w := _status_window(-1)
 				await ui.wait_click()
@@ -366,9 +368,11 @@ func _equip() -> void:
 			var ee: Array = screens.equip_entries(c, row)
 			var r: Dictionary = await ui.run_list(lw, 0, -1, 0, 1, 6, ee[0])
 			var k: int = r["index"]
-			if k >= 0 and k < (ee[1] as Array).size():
-				var res: String = sys.equip(host.state, slot, row, int(ee[1][k]["index"]))
-				if res != "equipped":
+			# an empty row of the list is item 0: body armour and accessories come off (f_7f596)
+			if k >= 0:
+				var idx: int = int(ee[1][k]["index"]) if k < (ee[1] as Array).size() else 0
+				var res: String = sys.equip(host.state, slot, row, idx)
+				if res == "full" or res == "clash" or res == "refused":
 					_buzz()
 				host.render()
 			ui.close()

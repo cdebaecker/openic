@@ -28,6 +28,7 @@ static func load_set(set_name: String) -> RefCounted:
 			s.mask = img.duplicate()
 			img.convert(Image.FORMAT_R8)
 			s.sheet = img
+			preload("res://scripts/hd/hd_art.gd").register(img, "battle/sprites/" + image_name.trim_suffix(".idx.png"))
 	_cache[set_name] = s
 	return s
 

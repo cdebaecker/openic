@@ -19,6 +19,8 @@ const Actors := preload("res://scripts/events/actors.gd")
 const DialogueLayer := preload("res://scripts/events/dialogue_layer.gd")
 const NameFont := preload("res://scripts/field/name_font.gd")
 const IndexedShader := preload("res://shaders/indexed.gdshader")
+const HdArt := preload("res://scripts/hd/hd_art.gd")
+const HdLayer := preload("res://scripts/hd/hd_layer.gd")
 const UiCommands := preload("res://scripts/systems/ui_commands.gd")
 const BattleScreen := preload("res://scripts/battle/battle_screen.gd")
 const SYSTEMS_MODEL := "res://scripts/systems/systems_model.gd"
@@ -64,6 +66,8 @@ var ended := false               # builtin 5(99): the game has ended (the ending
 var _view = FieldView.new()
 var _rect := TextureRect.new()
 var _material := ShaderMaterial.new()
+var _hd := HdLayer.new()         # HD art under the index screen (Settings.upscaler "hd")
+var _fade := 1.0                 # brightness for fades (_set_fade)
 var _highlight := ColorRect.new()
 var _clock := 0.0
 var _busy := false
@@ -140,6 +144,10 @@ func _ready() -> void:
 	_rect.size = Vector2(768, 512)
 	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_rect)
+	_hd.screen = _view.screen.texture
+	_rect.add_child(_hd)
+	Settings.display_changed.connect(_apply_hd)
+	_apply_hd()
 	_names.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_names.size = Vector2(768, 512)
 	_names.draw.connect(_draw_names)
@@ -236,11 +244,31 @@ func _ready() -> void:
 		_busy = false
 
 
+func _set_palette(pal: PackedColorArray) -> void:
+	_material.set_shader_parameter("palette", pal)
+	_hd.set_palette(pal)
+
+
+## HD art on or off (Settings.upscaler "hd" and the pictures built): the HD layer under the index
+## screen (the field's or the battle's), which is then drawn half transparent over it.
+func _apply_hd() -> void:
+	var on := Settings.upscaler == "hd" and HdArt.built()
+	_view.screen.hd_layer = _hd if on and _battle == null else null
+	if _battle != null:
+		_battle.view.hd_layer = _hd if on else null
+	_hd.screen = _battle.view.texture if _battle != null else _view.screen.texture
+	_hd.visible = on
+	_material.set_shader_parameter("opacity", 0.5 if on else 1.0)
+	if is_inside_tree() and map != null:
+		render()
+
+
 func _enter_map(facing: int) -> void:
+	HdArt.clear_cache()
 	var pal := PackedColorArray()
 	for w in map.palette_words:
 		pal.append(_x68k_color(w))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 	var music: Variant = map.info.get("music")
 	if music != null and _music_by_source.has(music["file"]):
 		Audio.play_music(_music_by_source[music["file"]])
@@ -377,11 +405,12 @@ func show_picture(n: int) -> void:
 	if img.load_png_from_buffer(FileAccess.get_file_as_bytes(GameData.path("gep/" + str(info["idx"])))) != OK:
 		return
 	img.convert(Image.FORMAT_R8)
+	HdArt.register(img, "gep/" + str(info["idx"]).trim_suffix(".idx.png"))
 	_view.picture = img
 	var pal := PackedColorArray()
 	for w in info["palette"]:
 		pal.append(_x68k_color(str(w).hex_to_int()))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 	render()
 
 
@@ -390,7 +419,7 @@ func hide_picture() -> void:
 	var pal := PackedColorArray()
 	for w in map.palette_words:
 		pal.append(_x68k_color(w))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 	render()
 
 
@@ -541,10 +570,11 @@ func enter_battle(b) -> void:
 	_battle = b
 	Settings.in_battle = true
 	_rect.texture = b.view.texture
+	_apply_hd()
 	var pal := PackedColorArray()
 	for w in b.palette_words():
 		pal.append(_x68k_color(int(w)))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 	render()
 
 
@@ -554,17 +584,18 @@ func flash_palette(word: int) -> void:
 	var pal := PackedColorArray()
 	for w in map.palette_words:
 		pal.append(_x68k_color(word if word >= 0 else w))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 
 
 func leave_battle() -> void:
 	_battle = null
 	Settings.in_battle = false
 	_rect.texture = _view.screen.texture
+	_apply_hd()
 	var pal := PackedColorArray()
 	for w in map.palette_words:
 		pal.append(_x68k_color(w))
-	_material.set_shader_parameter("palette", pal)
+	_set_palette(pal)
 	render()
 
 
@@ -652,8 +683,16 @@ func party_actor_bytes() -> PackedByteArray:
 ## Fade the screen to black (out) or back.
 func fade(out: bool) -> void:
 	var tween := create_tween()
-	tween.tween_property(_rect, "modulate", Color.BLACK if out else Color.WHITE, FADE)
+	tween.tween_method(_set_fade, _fade, 0.0 if out else 1.0, FADE)
 	await tween.finished
+
+
+## The screen's brightness for fades (1 = normal), through the shaders: a node's modulate does not
+## reach a shader that sets COLOR.
+func _set_fade(level: float) -> void:
+	_fade = level
+	_material.set_shader_parameter("brightness", level)
+	_hd.material.set_shader_parameter("brightness", level)
 
 
 ## Development: load a map and run its scripts unattended: enter + always, then every trigger
@@ -928,12 +967,12 @@ func warp_to(dest: String, dest_trigger: int, facing: int, scripts := true) -> v
 	var from: String = map.id if map != null else ""
 	var arrival: Vector2i = field.arrival if field != null else Vector2i.ZERO
 	var tween := create_tween()
-	tween.tween_property(_rect, "modulate", Color.BLACK, FADE)
+	tween.tween_method(_set_fade, _fade, 0.0, FADE)
 	await tween.finished
 	layer.clear()
 	var m = FieldMap.load_map(dest)
 	if m == null:
-		_rect.modulate = Color.WHITE
+		_set_fade(1.0)
 		return
 	map = m
 	if field == null:
@@ -957,7 +996,7 @@ func warp_to(dest: String, dest_trigger: int, facing: int, scripts := true) -> v
 	field.camera(1)
 	_enter_map(facing & 3)
 	tween = create_tween()
-	tween.tween_property(_rect, "modulate", Color.WHITE, FADE)
+	tween.tween_method(_set_fade, _fade, 1.0, FADE)
 	await tween.finished
 	if _with_events_active() and scripts:
 		await events.on_map_loaded()

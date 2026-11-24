@@ -4,6 +4,8 @@
 //   1 smooth: sharp bilinear (nearest inside a pixel, blended only across pixel edges)
 //   2 xBR: the xBR level 1 rules (Hyllian): pixel-art edges rounded into diagonals
 //   3 CRT: scanlines and a light aperture mask, as a 31 kHz monitor
+//   4 HD: the screen drawn at 2x with HD art (scripts/hd/hd_art.gd), filtered to the window's
+//     size (bilinear, four taps when it is made smaller)
 shader_type canvas_item;
 render_mode unshaded;
 
@@ -97,7 +99,8 @@ vec3 crt(vec2 t, vec2 scale, vec2 frag) {
 void fragment() {
 	vec2 size = vec2(src_size());
 	vec2 t = UV * size;
-	vec2 scale = max(1.0 / max(fwidth(t), vec2(1e-4)), vec2(1.0));
+	vec2 raw = 1.0 / max(fwidth(t), vec2(1e-4));   // output pixels per source pixel
+	vec2 scale = max(raw, vec2(1.0));
 	vec3 c;
 	if (mode == 1) {
 		c = bilinear(sharp(t, scale));
@@ -105,6 +108,14 @@ void fragment() {
 		c = xbr(t);
 	} else if (mode == 3) {
 		c = crt(t, scale, FRAGCOORD.xy);
+	} else if (mode == 4) {
+		if (raw.x >= 1.0) {
+			c = bilinear(t);
+		} else {
+			vec2 q = 0.25 / raw;
+			c = 0.25 * (bilinear(t + vec2(-q.x, -q.y)) + bilinear(t + vec2(q.x, -q.y))
+				+ bilinear(t + vec2(-q.x, q.y)) + bilinear(t + vec2(q.x, q.y)));
+		}
 	} else {
 		c = px(ivec2(floor(t)));
 	}

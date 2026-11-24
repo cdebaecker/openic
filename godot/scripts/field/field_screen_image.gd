@@ -3,6 +3,8 @@ extends RefCounted
 ## text layer) holding the frame, the map window and the characters, shown through the text
 ## palette (shaders/indexed.gdshader).
 
+const HdArt := preload("res://scripts/hd/hd_art.gd")
+
 const W := 768
 const H := 512
 const WINDOW := Rect2i(176, 80, 384, 288)   # map window: 24 x 18 tiles of 16x16
@@ -14,6 +16,10 @@ var frame: Image = null
 ## Smooth movement (option): pixel offset of the map window's tiles between two ticks; 0 draws
 ## exactly what the original draws.
 var shift := Vector2i.ZERO
+## HD art (scripts/hd/hd_layer.gd): when set, the blits are also recorded for it and handed over
+## at flush.
+var hd_layer: Control = null
+var _hd_ops: Array = []
 
 
 func _init() -> void:
@@ -23,10 +29,30 @@ func _init() -> void:
 		push_error("Field: no frame image (frame/field.idx.png)")
 		frame = Image.create_empty(W, H, false, Image.FORMAT_R8)
 	frame.convert(Image.FORMAT_R8)
+	HdArt.register(frame, "frame/field")
 
 
 func clear_to_frame() -> void:
+	_hd_ops.clear()
 	image.blit_rect(frame, Rect2i(0, 0, W, H), Vector2i.ZERO)
+	_hd(frame, Rect2i(0, 0, W, H), Vector2i.ZERO, false)
+
+
+## Record a blit for the HD layer: src's part `from` to `pos` (whole or by its mask).
+func _hd(src: Image, from: Rect2i, pos: Vector2i, masked: bool) -> void:
+	if hd_layer == null:
+		return
+	var tex := HdArt.texture(HdArt.key_of(src))
+	if tex == null:
+		_hd_index(Rect2i(pos, from.size))
+	else:
+		_hd_ops.append([tex, from, pos, 0.75 if masked else 1.0])
+
+
+## Record a part of the screen that the HD layer draws from the index screen as it is at flush.
+func _hd_index(rect: Rect2i) -> void:
+	if hd_layer != null:
+		_hd_ops.append([null, rect, rect.position, 0.5])
 
 
 ## Draw the map window with its top-left tile at (ox, oy), as f_74744 / f_74918 compose it: the
@@ -52,7 +78,9 @@ func draw_map(map, ox: int, oy: int) -> void:
 			if s_mode == map.DRAW_OPAQUE:
 				_blit(map.atlases[1], null, rect, pos)
 			else:
-				image.fill_rect(Rect2i(pos, Vector2i(map.TILE, map.TILE)).intersection(WINDOW), Color8(0, 0, 0))
+				var blank := Rect2i(pos, Vector2i(map.TILE, map.TILE)).intersection(WINDOW)
+				image.fill_rect(blank, Color8(0, 0, 0))
+				_hd_index(blank)
 				if s_mode == map.DRAW_MASKED:
 					_blit(map.atlases[1], map.masks[1], rect, pos)
 			if t_mode == map.DRAW_MASKED:
@@ -69,6 +97,13 @@ func _blit(src: Image, mask: Variant, rect: Rect2i, pos: Vector2i) -> void:
 		image.blit_rect(src, from, dst.position)
 	else:
 		image.blit_rect_mask(src, mask, from, dst.position)
+	_hd(src, from, dst.position, mask != null)
+
+
+## A masked blit anywhere on the screen (window frames).
+func blit_masked(src: Image, mask: Image, from: Rect2i, pos: Vector2i) -> void:
+	image.blit_rect_mask(src, mask, from, pos)
+	_hd(src, from, pos, true)
 
 
 ## Draw one frame of a sprite set with its anchor at the top-left of the actor's tile row,
@@ -82,6 +117,7 @@ func draw_sprite(sprites, frame: int, anchor: Vector2i) -> void:
 			continue
 		var from := Rect2i(src.position + dst.position - (anchor + part["offset"]), dst.size)
 		image.blit_rect_mask(sprites.sheet, sprites.mask, from, dst.position)
+		_hd(sprites.sheet, from, dst.position, true)
 
 
 ## Screen position of map tile (tx, ty) for view origin (vx, vy).
@@ -106,11 +142,14 @@ func redraw_tile_masked(map, tx: int, ty: int, vx: int, vy: int) -> void:
 ## Draw an opaque 16x16 tile from a sheet of tiles side by side (tile k at x = 16k).
 func draw_tile(sheet: Image, k: int, pos: Vector2i) -> void:
 	image.blit_rect(sheet, Rect2i(16 * k, 0, 16, 16), pos)
+	_hd(sheet, Rect2i(16 * k, 0, 16, 16), pos, false)
 
 
 ## Event picture mode: everything but the panel tiles is blank (text palette entry 0).
 func clear_blank() -> void:
+	_hd_ops.clear()
 	image.fill(Color8(0, 0, 0))
+	_hd_index(Rect2i(0, 0, W, H))
 
 
 ## An event picture (160x80 stored, lines doubled) at (512, 176).
@@ -118,11 +157,14 @@ func draw_picture(pic: Image) -> void:
 	var doubled := pic.duplicate() as Image
 	doubled.resize(pic.get_width(), pic.get_height() * 2, Image.INTERPOLATE_NEAREST)
 	image.blit_rect(doubled, Rect2i(Vector2i.ZERO, doubled.get_size()), Vector2i(512, 176))
+	# (the HD picture is made from the doubled lines)
+	_hd(pic, Rect2i(Vector2i.ZERO, doubled.get_size()), Vector2i(512, 176), false)
 
 
 ## A highlight box (f_824ca): 16 lines from pos, width bytes; planes 0, 2 and 3 of each written
 ## byte replaced (lines 0-1 and 14-15 $0F $FF.. $F0, lines 2-13 $30 .. $0C), plane 1 kept.
 func draw_box(pos: Vector2i, width: int) -> void:
+	_hd_index(Rect2i(pos, Vector2i(8 * width, 16)).intersection(Rect2i(0, 0, W, H)))
 	for y in 16:
 		for k in width:
 			var byte := -1
@@ -145,3 +187,5 @@ func draw_box(pos: Vector2i, width: int) -> void:
 
 func flush() -> void:
 	texture.update(image)
+	if hd_layer != null:
+		hd_layer.set_ops(_hd_ops)

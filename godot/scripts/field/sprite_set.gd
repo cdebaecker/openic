@@ -27,6 +27,7 @@ func _load(rel: String) -> bool:
 	mask = img.duplicate() as Image
 	sheet = img
 	sheet.convert(Image.FORMAT_R8)
+	preload("res://scripts/hd/hd_art.gd").register(sheet, "cg9/" + rel)
 	for a in data["actions"]:
 		_action_seq[int(a["dir"]) << 8 | int(a["action"])] = int(a["sequence"])
 	return true

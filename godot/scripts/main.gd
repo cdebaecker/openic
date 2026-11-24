@@ -28,6 +28,7 @@ const TESTS := {
 }
 
 const UpscaleShader := preload("res://shaders/upscale.gdshader")
+const HdArt := preload("res://scripts/hd/hd_art.gd")
 
 var _screen: Node = null
 ## The screens draw into a 768x512 viewport, shown at the window's size through the upscaling
@@ -37,12 +38,18 @@ var _view := TextureRect.new()
 
 
 func _ready() -> void:
+	if "--hd-build" in OS.get_cmdline_user_args():
+		# the helper process building the HD art (scripts/hd/hd_art.gd start_build)
+		add_child(preload("res://scripts/hd/hd_build.gd").new())
+		return
 	_vp.size = Vector2i(768, 512)
 	_vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	_vp.gui_embed_subwindows = true
 	_vp.handle_input_locally = false
 	add_child(_vp)
 	_view.texture = _vp.get_texture()
+	_view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE   # the viewport is 2x with HD art
+	_view.stretch_mode = TextureRect.STRETCH_SCALE
 	_view.size = Vector2(768, 512)
 	_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_view.material = ShaderMaterial.new()
@@ -111,10 +118,22 @@ func show_screen(screen_name: String, args := {}) -> void:
 	_vp.add_child(screen)
 
 
+## HD art (scripts/hd/hd_art.gd) draws at 2x: the viewport is then 1536x1024 showing the same
+## 768x512 screen, and the shader only smooths it to the window's size.
 func _apply_upscaler() -> void:
-	_view.material.set_shader_parameter("mode", maxi(Settings.UPSCALERS.find(Settings.upscaler), 0))
+	var hd := Settings.upscaler == "hd"
+	var size := Vector2i(768, 512) * (HdArt.SCALE if hd and HdArt.built() else 1)
+	if _vp.size != size:
+		_vp.size = size
+		_vp.size_2d_override = Vector2i(768, 512) if size.x > 768 else Vector2i.ZERO
+		_vp.size_2d_override_stretch = size.x > 768
+	# without the pictures (not built yet) the HD choice shows the screen smoothed
+	_view.material.set_shader_parameter("mode", 1 if hd and size.x == 768 else
+		maxi(Settings.UPSCALERS.find(Settings.upscaler), 0))
 
 
 func _input(event: InputEvent) -> void:
+	if not _vp.is_inside_tree():
+		return   # (the HD art helper process has no screens)
 	# the window and the screens share the 768x512 coordinates
 	_vp.push_input(event, true)

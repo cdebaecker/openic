@@ -8,6 +8,7 @@ extends Control
 signal finished(next: String, args: Dictionary)
 
 const SaveImport := preload("res://scripts/systems/save_import.gd")
+const HdArt := preload("res://scripts/hd/hd_art.gd")
 const FRAME_COLOR := Color(0.85, 0.65, 0.25)
 const HEADER_COLOR := Color(0.85, 0.65, 0.25)
 const ROW_H := 16          # the game font's line (GameText.font at 16)
@@ -31,6 +32,7 @@ var _cursor := ColorRect.new()
 var _panel := Panel.new()
 var _hint := Label.new()
 var _status := ""            # the last import's result
+var _hd_shown := ""          # the HD art build's state as last shown
 
 
 func _ready() -> void:
@@ -150,6 +152,8 @@ func _opt_value(id: String) -> String:
 					return _t("xBR (rounded edges)", "xBR（輪郭をなめらかに）", "xBR (contours arrondis)")
 				"crt":
 					return _t("CRT (scanlines)", "CRT（走査線）", "CRT (lignes de balayage)")
+				"hd":
+					return _hd_value()
 			return _t("Sharp pixels", "ドットそのまま", "Pixels nets")
 		"music":
 			return "%d %%" % Settings.music_volume
@@ -183,6 +187,29 @@ func _opt_value(id: String) -> String:
 		"battle_speed":
 			return "× %s" % str(Settings.battle_speed)
 	return ""
+
+
+## The HD art choice (scripts/hd/hd_art.gd): ready, being made (with its progress) or failed.
+func _hd_value() -> String:
+	if HdArt.built():
+		return _t("HD anime + pixels", "HDアニメ＋ドット", "HD anime + pixels")
+	var p := HdArt.progress()
+	if p.has("fraction"):
+		return _t("HD anime: making it… %d %%", "HDアニメ：作成中… %d%%", "HD anime : création… %d %%") 			% floori(100.0 * float(p["fraction"]))
+	if p.get("error", "") == "gpu":
+		return _t("HD anime (needs Vulkan / D3D12)", "HDアニメ（Vulkan／D3D12が必要）", "HD anime (Vulkan / D3D12 requis)")
+	return _t("HD anime (stopped: choose again)", "HDアニメ（中断：もう一度選択）", "HD anime (arrêté : rechoisir)")
+
+
+func _process(_delta: float) -> void:
+	if Settings.upscaler != "hd":
+		return
+	var state := "built" if HdArt.built() else str(HdArt.progress())
+	if state != _hd_shown:
+		_hd_shown = state
+		if HdArt.progress().has("done") or HdArt.built():
+			Settings.apply_display()
+		_refresh()
 
 
 func _refresh() -> void:
@@ -346,7 +373,13 @@ func _change_opt(id: String, d: int) -> void:
 		"pixel":
 			Settings.pixel_perfect = not Settings.pixel_perfect
 		"upscaler":
-			Settings.upscaler = str(_cycle(Settings.UPSCALERS, Settings.upscaler, d))
+			var list := Settings.UPSCALERS.duplicate()
+			if OS.has_feature("web"):
+				list.erase("hd")   # (the pictures are made by a helper process)
+			Settings.upscaler = str(_cycle(list, Settings.upscaler, d))
+			# HD art: the pictures are made once, here, from the player's game data
+			if Settings.upscaler == "hd" and not HdArt.built() and not HdArt.building():
+				HdArt.start_build()
 		"music":
 			Settings.music_volume = clampi(Settings.music_volume + 10 * d, 0, 100)
 		"device":

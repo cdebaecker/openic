@@ -9,7 +9,7 @@ extends Node
 signal changed
 signal display_changed
 
-const UPSCALERS := ["sharp", "smooth", "xbr", "crt"]
+const UPSCALERS := ["sharp", "smooth", "xbr", "crt", "hd"]
 const PATH := "user://settings.cfg"
 const SystemsModel := preload("res://scripts/systems/systems_model.gd")
 const SCALES := [1, 2, 3, 4]

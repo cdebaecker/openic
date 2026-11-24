@@ -5,6 +5,8 @@ extends RefCounted
 ## sprites by layer and y, each part's mask cleared and its colours ORed (a sprite with blink
 ## bit 0 is drawn without the mask clear: a ghost image); the battle panel and marker tiles.
 
+const HdArt := preload("res://scripts/hd/hd_art.gd")
+
 const W := 768
 const H := 512
 const ARENA := Rect2i(192, 64, 352, 224)
@@ -30,17 +32,24 @@ var anim_recs: Array = []           # tile animation: 24 records of 16 bytes ($C
 var anim_ptr := {}                  # tile -> [record, slot] (f_742e8)
 var _bg_image: Image = null         # the composed arena background and the state it shows
 var _bg_key := ""
+## HD art (scripts/hd/hd_layer.gd): when set, the blits are also recorded for it (as in
+## scripts/field/field_screen_image.gd) and handed over at the end of render
+var hd_layer: Control = null
+var _hd_ops: Array = []
+var _bg_ops: Array = []             # the arena background's, relative to the arena
 
 
 func _init() -> void:
 	frame = _load_r8("frame/battle.idx.png")
 	if frame == null:
 		frame = Image.create_empty(W, H, false, Image.FORMAT_R8)
+	HdArt.register(frame, "frame/battle")
 	var t := _load_rgba("ui/asdf.idx.png")
 	if t != null:
 		ui_mask = t.duplicate()
 		t.convert(Image.FORMAT_R8)
 		ui_tiles = t
+		HdArt.register(ui_tiles, "ui/asdf")
 
 
 ## The battle background of a map (battle/index.json backgrounds[].maps); false if none.
@@ -54,6 +63,7 @@ func load_background(map_id: String) -> bool:
 			sub1 = Vector2i.ZERO
 			tiles_mask = _load_rgba("battle/backgrounds/%s.tiles.idx.png" % b["name"])
 			tiles = _load_r8("battle/backgrounds/%s.tiles.idx.png" % b["name"])
+			HdArt.register(tiles, "battle/backgrounds/%s.tiles" % b["name"])
 			_init_cells()
 			_init_tile_anim()
 			_bg_key = ""
@@ -188,7 +198,9 @@ func palette_words() -> Array:
 ## (f_6e140); marker: [Vector2i arena tile] of the target marker; tiles: [[ASDF tile, pos]] drawn
 ## opaque (selector pointer).
 func render(sprites: Array, panel: Array = [], marker: Array = [], tiles: Array = []) -> void:
+	_hd_ops.clear()
 	image.blit_rect(frame, Rect2i(0, 0, W, H), Vector2i.ZERO)
+	_hd(frame, Rect2i(0, 0, W, H), Vector2i.ZERO, false)
 	draw_arena(sprites)
 	for slot in panel.size():
 		var c: Dictionary = panel[slot]
@@ -204,6 +216,25 @@ func render(sprites: Array, panel: Array = [], marker: Array = [], tiles: Array 
 		_draw_tile_masked(84, Vector2i(64 + 16 * (m.x + 9), 48 + 16 * (m.y - 4)))
 		_draw_tile_masked(89, Vector2i(64 + 16 * (m.x + 9), 48 + 16 * (m.y - 3)))
 	texture.update(image)
+	if hd_layer != null:
+		hd_layer.set_ops(_hd_ops)
+
+
+## Record a blit for the HD layer: src's part `from` to `pos` (whole or by its mask).
+func _hd(src: Image, from: Rect2i, pos: Vector2i, masked: bool) -> void:
+	if hd_layer == null:
+		return
+	var tex := HdArt.texture(HdArt.key_of(src))
+	if tex == null:
+		_hd_index(Rect2i(pos, from.size))
+	else:
+		_hd_ops.append([tex, from, pos, 0.75 if masked else 1.0])
+
+
+## Record a part of the screen the HD layer draws from the index screen as it is at the end.
+func _hd_index(rect: Rect2i) -> void:
+	if hd_layer != null:
+		_hd_ops.append([null, rect, rect.position, 0.5])
 
 
 ## The arena: background, then the sprites in draw order.
@@ -221,12 +252,17 @@ func draw_marker_tile(tile: int, pos: Vector2i) -> void:
 func _draw_background() -> void:
 	if tiles == null:
 		image.fill_rect(ARENA, Color8(0, 0, 0))
+		_hd_index(ARENA)
 		return
 	var key := "%s %s %s" % [origin0, origin1, str(anim_recs)]
 	if key != _bg_key:
 		_bg_key = key
 		_compose_background()
 	image.blit_rect(_bg_image, Rect2i(Vector2i.ZERO, ARENA.size), ARENA.position)
+	if hd_layer != null:
+		_hd_index(ARENA)   # (cells no layer covers)
+		for op: Array in _bg_ops:
+			_hd_ops.append([op[0], op[1], op[2] + ARENA.position, op[3]])
 
 
 ## f_7450c / f_745ba / f_747f0 / f_74918 (tools/battle-ui/arena.mjs renderBackground): per cell the
@@ -234,6 +270,8 @@ func _draw_background() -> void:
 ## through its mask, else opaque; remap[tile] (tile animation).
 func _compose_background() -> void:
 	_bg_image = Image.create_empty(ARENA.size.x, ARENA.size.y, false, Image.FORMAT_R8)
+	_bg_ops.clear()
+	var tex := HdArt.texture(HdArt.key_of(tiles))
 	for ty in ARENA.size.y / 16:
 		for tx in ARENA.size.x / 16:
 			var dst := Vector2i(16 * tx, 16 * ty)
@@ -251,6 +289,8 @@ func _compose_background() -> void:
 					_bg_image.blit_rect_mask(tiles, tiles_mask, src, dst)
 				else:
 					_bg_image.blit_rect(tiles, src, dst)
+				if tex != null:
+					_bg_ops.append([tex, src, dst, 0.75 if a & 0x80 else 1.0])
 
 
 func _remap(t: int) -> int:
@@ -302,7 +342,9 @@ func _draw_frame(sset, f: int, x: int, y: int, ghost: bool) -> void:
 		var clip_src := Rect2i(src.position + (vis.position - dst), vis.size)
 		if not ghost:
 			image.blit_rect_mask(sset.sheet, sset.mask, clip_src, vis.position)
+			_hd(sset.sheet, clip_src, vis.position, true)
 		else:
+			_hd_index(vis)
 			for yy in clip_src.size.y:
 				for xx in clip_src.size.x:
 					var c := roundi(sset.sheet.get_pixel(clip_src.position.x + xx, clip_src.position.y + yy).r * 255.0)
@@ -315,11 +357,13 @@ func _draw_frame(sset, f: int, x: int, y: int, ghost: bool) -> void:
 func _draw_tile(k: int, pos: Vector2i) -> void:
 	if ui_tiles != null:
 		image.blit_rect(ui_tiles, Rect2i(16 * k, 0, 16, 16), pos)
+		_hd(ui_tiles, Rect2i(16 * k, 0, 16, 16), pos, false)
 
 
 func _draw_tile_masked(k: int, pos: Vector2i) -> void:
 	if ui_tiles != null:
 		image.blit_rect_mask(ui_tiles, ui_mask, Rect2i(16 * k, 0, 16, 16), pos)
+		_hd(ui_tiles, Rect2i(16 * k, 0, 16, 16), pos, true)
 
 
 ## f_6e140: 3 digit tiles right-aligned, 50 + d (40 + d for the value 0), blank 0, clamped to 999.

@@ -5,6 +5,7 @@ extends RefCounted
 
 const ScreenImage := preload("res://scripts/field/field_screen_image.gd")
 const SpriteSet := preload("res://scripts/field/sprite_set.gd")
+const HdArt := preload("res://scripts/hd/hd_art.gd")
 
 # Party sprite sets (field_chr): Tianren, Meihong, Houmei.
 const PARTY_SETS := ["GROUP00/000000", "GROUP00/000002", "GROUP00/000015"]
@@ -36,6 +37,7 @@ func _load_window_tiles() -> void:
 	window_mask = img.duplicate() as Image
 	window_tiles = img
 	window_tiles.convert(Image.FORMAT_R8)
+	HdArt.register(window_tiles, "frame/window")
 
 
 ## The field as f_73668 draws it: map window, sprites (from the sprite records, by layer then y),
@@ -119,7 +121,7 @@ func _draw_windows(windows: Array, frame_tiles: Callable, boxes: Array = []) -> 
 	for w in windows:
 		for t: Vector3i in frame_tiles.call(w):
 			var pos := Vector2i(64 + 16 * t.x, 48 + 16 * t.y)
-			screen.image.blit_rect_mask(window_tiles, window_mask, Rect2i(16 * t.z, 0, 16, 16), pos)
+			screen.blit_masked(window_tiles, window_mask, Rect2i(16 * t.z, 0, 16, 16), pos)
 		for b: Dictionary in boxes:
 			if b["win"] == w and b.get("on", true):
 				screen.draw_box(Vector2i(b["x"], b["y"]), b["w"])
@@ -137,6 +139,7 @@ func _draw_panel(panel: Dictionary) -> void:
 			return
 		img.convert(Image.FORMAT_R8)
 		ui_tiles = img
+		HdArt.register(ui_tiles, "ui/asdf")
 	var party: Array = panel.get("party", [])
 	for slot in party.size():
 		var c: Dictionary = party[slot]

@@ -106,12 +106,25 @@ jumps the cutscene player to timeline frames. Run under `xvfb-run` with
    `data/text/opening_subtitles.json`). Options (title > Options, `scripts/screens/options.gd`,
    saved by the `Settings` autoload in `user://settings.cfg`): fullscreen (F11), window size,
    pixel-perfect scaling, upscaling (the screens draw into a 768x512 sub-viewport that
-   `shaders/upscale.gdshader` enlarges: sharp pixels, smooth, xBR, CRT scanlines;
+   `shaders/upscale.gdshader` enlarges: sharp pixels, smooth, xBR, CRT scanlines, HD anime;
    `-- --upscaler=<name>` for one run), music / effects volume, music device (FM or MT-32, when the game data
    has the MT-32 renders), language, smooth movement, game and battle
    speed (`Engine.time_scale`; hold Tab / RB to fast-forward), the battle bug fixes, key and
    gamepad bindings, and importing the original's saves from X68000 disk images (XDF, HDM, DIM,
    D88; `scripts/systems/disk_image.gd`, `save_import.gd`; a file dropped on the window works too).
+   **HD anime** (`scripts/hd/`): the game's pictures upscaled by Real-ESRGAN's anime model and
+   drawn mixed half and half with the original pixels. Nothing upscaled is shipped: choosing it
+   the first time makes the pictures from the player's own game data, once, in a helper process
+   (the game started again with `--rendering-method forward_plus -- --hd-build`, since the game's
+   Compatibility renderer has no compute shaders; a few minutes on a recent GPU) into
+   `user://hd` (about 0.2 GB). The model runs as compute shaders (`esrgan.gd`, weights in
+   `hd/anime6b.bin` from `tools/hd/export_model.py`, BSD-3-Clause, `hd/LICENSE-Real-ESRGAN.txt`;
+   checked against PyTorch). Each picture is stored at 2x as mixes of two palette entries (the
+   index's and the one around it nearest to the upscaled colour), so the palette set in the game (maps,
+   fades, flashes, cutscene palettes) applies to it as to the pixels. The screen then draws at 1536x1024: the field and battle screens replay their blits
+   with the HD pictures (`hd_layer.gd`, `shaders/hd_art.gdshader`), the cutscenes keep 2x HD
+   pages beside the index pages (`scripts/cutscene/vram.gd`). Map and panel tiles are upscaled
+   each as if repeated around itself; sprites with their hidden pixels filled from their edges.
 3. **Maps** — done, with known gaps: the field screen draws the frame, the map window (main layer,
    overlay, foreground tiles over the overlay and the sprites) and the party; movement, sliding,
    pushing, followers, mouse/pad input, camera and triggers follow `docs/field.md` and reproduce

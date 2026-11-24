@@ -75,11 +75,13 @@ func _load(m: Dictionary) -> bool:
 		sub_size = Vector2i(int(sub["layers"][0]["width"]), int(sub["layers"][0]["height"]))
 		sub_meta = _metatiles(sub["metatiles"])
 	var vr_chr: Dictionary = GameData.json("data/" + m["vrChr"]["json"])
-	_add_tileset(vr_chr)
+	_add_tileset(vr_chr, "data/" + str(m["vrChr"]["json"]).get_basename())
 	var sub_chr: Dictionary = vr_chr
+	var sub_key := "data/" + str(m["vrChr"]["json"]).get_basename()
 	if m.get("subChr") != null:
 		sub_chr = GameData.json("data/" + m["subChr"]["json"])
-	_add_tileset(sub_chr)
+		sub_key = "data/" + str(m["subChr"]["json"]).get_basename()
+	_add_tileset(sub_chr, sub_key)
 	_load_tile_anim(0, vr_chr)
 	# the sub layer animates only with its own tileset (its table at $C300 is empty otherwise)
 	_load_tile_anim(1, sub_chr if m.get("subChr") != null else {})
@@ -113,7 +115,8 @@ static func _metatiles(list: Array) -> PackedInt32Array:
 	return out
 
 
-func _add_tileset(ts: Dictionary) -> void:
+## (hd_key: the tileset's HD picture, scripts/hd/hd_art.gd)
+func _add_tileset(ts: Dictionary, hd_key: String) -> void:
 	var tiles := Marshalls.base64_to_raw(ts["tilesB64"])
 	var mask_bits := Marshalls.base64_to_raw(ts["masksB64"])
 	var n := tiles.size() / 128
@@ -126,6 +129,7 @@ func _add_tileset(ts: Dictionary) -> void:
 		la[i * 2 + 1] = 255 if mask_bits[i] else 0
 	var mask := Image.create_from_data(16, n * 8, false, Image.FORMAT_LA8, la)
 	mask.resize(16, n * TILE, Image.INTERPOLATE_NEAREST)
+	preload("res://scripts/hd/hd_art.gd").register(img, hd_key)
 	atlases.append(img)
 	masks.append(mask)
 

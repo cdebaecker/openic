@@ -12,6 +12,7 @@ signal finished(next: String, args: Dictionary)
 const Vram := preload("res://scripts/cutscene/vram.gd")
 const TextPlane := preload("res://scripts/cutscene/text_plane.gd")
 const GraphicShader := preload("res://shaders/x68k_graphic.gdshader")
+const HdArt := preload("res://scripts/hd/hd_art.gd")
 
 const FAST_FORWARD := 8.0
 const NARRATION_COL := 13
@@ -75,6 +76,8 @@ func _ready() -> void:
 	add_child(_screen)
 	add_child(_text)
 	_add_subtitle_label()
+	if Settings.upscaler == "hd" and HdArt.built():
+		_vram.enable_hd()
 	_crtc.resize(48)
 	_gpal.resize(16)
 	_gpal.fill(Color.BLACK)
@@ -198,9 +201,9 @@ func _finish() -> void:
 func _apply(op: Dictionary) -> void:
 	match op["op"]:
 		"loadPic":
-			_vram.load_pic(_index_image(op["file"]))
+			_vram.load_pic(_index_image(op["file"]), _hd_image(op["file"]))
 		"loadGrp":
-			_vram.load_grp(_index_image(op["file"]))
+			_vram.load_grp(_index_image(op["file"]), _hd_image(op["file"]))
 		"blit":
 			_vram.blit(op["page"], op["dx"], op["dy"], op["sx"], op["sy"], op["w"], op["h"])
 		"wipe":
@@ -261,6 +264,9 @@ func _update_display() -> void:
 
 	for p in 4:
 		_material.set_shader_parameter("page%d" % p, _vram.textures[p])
+		if _vram.hd:
+			_material.set_shader_parameter("hd%d" % p, _vram.hd_textures[p])
+	_material.set_shader_parameter("hd", _vram.hd)
 	_material.set_shader_parameter("palette", _gpal)
 	# Page p scroll is R12+2p (X) / R13+2p (Y); 10 bits for the 1024x1024 plane of mode 4.
 	var sx := Vector4(_crtc[12], _crtc[14], _crtc[16], _crtc[18])
@@ -299,6 +305,14 @@ func _index_image(file: String) -> Image:
 		push_error("Cutscene: missing picture %s" % rel)
 		return Image.create_empty(Vram.BUF_W, Vram.BUF_H, false, Image.FORMAT_R8)
 	return img
+
+
+## The HD version of a PIC (scripts/hd/hd_art.gd), or null.
+func _hd_image(file: String) -> Image:
+	if not _vram.hd:
+		return null
+	var path := HdArt.file_of("pic/" + file.replace("\\", "/").get_basename())
+	return Image.load_from_file(path) if FileAccess.file_exists(path) else null
 
 
 ## X68000 palette word (GGGGG RRRRR BBBBB I) -> Color, rounded to 8 bits as src/video.js does.
